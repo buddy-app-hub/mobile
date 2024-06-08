@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "720236276661",
+    "project_id": "buddy-e29dc",
+    "storage_bucket": "buddy-e29dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:720236276661:android:98d3e541835033857cc7fc",
+        "android_client_info": {
+          "package_name": "com.example.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAp0Mredh5KEyCvtz91eUbeM3SB2o3Avg8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
