@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'pages/auth/login.dart';
+import 'pages/auth/signup.dart';
 import 'pages/home.dart';
 
 void main() {
@@ -12,9 +14,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Comfortaa'),
-      home: const HomePage()
-    );
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(fontFamily: 'Comfortaa'),
+        home: const SignupPage());
   }
 }

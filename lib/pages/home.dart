@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
@@ -16,7 +14,8 @@ class _HomePageState extends State<HomePage> {
   String weatherIcon = "https://cdn.weatherapi.com/weather/64x64/day/113.png";
   String weatherCity = '?º';
   Future<void> getPost() async {
-    var uri = Uri.parse("http://api.weatherapi.com/v1/current.json?key=d35441289f874f678a135931240506&q=Bariloche&aqi=yes");
+    var uri = Uri.parse(
+        "http://api.weatherapi.com/v1/current.json?key=d35441289f874f678a135931240506&q=Bariloche&aqi=yes");
     var response = await http.get(uri);
 
     if (response.statusCode == 200) {
@@ -26,7 +25,10 @@ class _HomePageState extends State<HomePage> {
         weatherIcon = "https:" + data["current"]["condition"]["icon"];
       });
       setState(() {
-        weatherCity = data["location"]["name"] + " " + data["current"]["temp_c"].toString() + "º";
+        weatherCity = data["location"]["name"] +
+            " " +
+            data["current"]["temp_c"].toString() +
+            "º";
       });
     } else {
       throw Exception("No funciono la conexion");
@@ -40,26 +42,29 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child: Column(
           children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(onPressed: getPost, child: Text('Get current weather')),
-                  ],
-                ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                      onPressed: getPost, child: Text('Get current weather')),
+                ],
               ),
-              Card(child: Column(
+            ),
+            Card(
+              child: Column(
                 children: [
                   Image.network(weatherIcon),
                   Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(weatherCity),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(weatherCity),
                   ),
                 ],
-              ),),
+              ),
+            ),
           ],
-          ),
+        ),
       ),
     );
   }
@@ -73,12 +78,10 @@ class _HomePageState extends State<HomePage> {
           fontSize: 19,
           fontWeight: FontWeight.bold,
         ),
-        ),
-      backgroundColor: Colors.white,
+      ),
+      backgroundColor: Color.fromARGB(255, 172, 138, 230),
       elevation: 0.0,
-
       centerTitle: true,
     );
   }
 }
-
