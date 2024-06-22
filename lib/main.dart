@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/firebase_options.dart';
 
+import 'pages/auth/login.dart';
+import 'pages/auth/signup.dart';
 import 'pages/home.dart';
 
 Future<void> main() async {
@@ -19,9 +21,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Comfortaa'),
-      home: const HomePage()
-    );
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(fontFamily: 'Comfortaa'),
+        home: const SignupPage());
   }
 }
