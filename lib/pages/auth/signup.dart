@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/login.dart';
+import 'package:mobile/pages/home.dart';
 import 'package:mobile/utils/validators.dart';
 
 class SignupPage extends StatefulWidget {
@@ -59,13 +61,27 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  _signUp() {
+  _signUp() async {
     if (formKey.currentState!.validate()) {
-      print("Formulario válido");
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      try {
+        final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+        print("Usuario registrado con éxito en Firebase");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          print('La contraseña proporcionada es muy débil.');
+        } else if (e.code == 'email-already-in-use') {
+          print('Ya existe una cuenta con ese correo electrónico.');
+        }
+      } catch (e) {
+        print(e);
+      }
     } else {
       print("Formulario inválido");
     }

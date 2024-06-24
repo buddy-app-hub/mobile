@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -47,6 +48,7 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Text(FirebaseAuth.instance.currentUser?.email??  "No logueado"),
                   ElevatedButton(
                       onPressed: getPost, child: Text('Get current weather')),
                 ],
