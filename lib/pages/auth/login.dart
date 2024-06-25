@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/signup.dart';
 import 'package:mobile/pages/home.dart';
@@ -45,10 +46,24 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _signIn() {
+  _signIn() async {
     if (formKey.currentState!.validate()) {
       print("Formulario válido");
       print("Email: ${emailController.text}, pwd: ${passwordController.text}");
+
+      try {
+        final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text
+        );
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          print('No user found for that email.');
+        } else if (e.code == 'wrong-password') {
+          print('Wrong password provided for that user.');
+        }
+      }
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const HomePage()),
