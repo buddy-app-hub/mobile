@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/routes.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,6 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   String weatherIcon = "https://cdn.weatherapi.com/weather/64x64/day/113.png";
   String weatherCity = '?º';
   Future<void> getPost() async {
@@ -23,7 +26,7 @@ class _HomePageState extends State<HomePage> {
       String body = utf8.decode(response.bodyBytes);
       final data = jsonDecode(body);
       setState(() {
-        weatherIcon = "https:" + data["current"]["condition"]["icon"];
+        weatherIcon = "https:${data["current"]["condition"]["icon"]}";
       });
       setState(() {
         weatherCity = data["location"]["name"] +
@@ -38,6 +41,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthSessionProvider>(context);
+
     return Scaffold(
       appBar: appBar(),
       body: Center(
@@ -48,7 +53,7 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(FirebaseAuth.instance.currentUser?.email??  "No logueado"),
+                  Text(authProvider.user?.email ?? "No logueado"),
                   ElevatedButton(
                       onPressed: getPost, child: Text('Get current weather')),
                 ],
@@ -64,6 +69,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
+            ),
+            IconButton(
+              icon: Icon(Icons.logout),
+              onPressed: () async {
+                await authProvider.signOut();
+                Navigator.pushReplacementNamed(context, Routes.login);
+              },
             ),
           ],
         ),

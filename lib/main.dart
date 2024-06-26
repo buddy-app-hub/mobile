@@ -1,8 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/firebase_options.dart';
-
-import 'pages/auth/signup.dart';
+import 'package:mobile/pages/auth/login.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/auth/signup.dart';
+import 'package:mobile/pages/auth/splash_screen.dart';
+import 'package:mobile/pages/home.dart';
+import 'package:mobile/routes.dart';
+import 'package:mobile/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,7 +16,17 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<AuthService>(create: (_) => AuthService()),
+        ChangeNotifierProvider<AuthSessionProvider>(
+          create: (context) => AuthSessionProvider(context.read<AuthService>()),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,7 +36,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
+        title: 'Buddy',
         theme: ThemeData(fontFamily: 'Comfortaa'),
-        home: const SignupPage());
+        home: SplashScreen(),
+        routes: {
+          Routes.home: (context) => HomePage(),
+          Routes.login: (context) => LoginPage(),
+          Routes.signup: (context) => SignupPage()
+        },
+    );
   }
 }
