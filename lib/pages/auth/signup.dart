@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/login.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/routes.dart';
 import 'package:mobile/utils/validators.dart';
+import 'package:provider/provider.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -10,10 +14,17 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  late AuthSessionProvider authProvider;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,13 +70,26 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  _signUp() {
+  _signUp() async {
     if (formKey.currentState!.validate()) {
-      print("Formulario válido");
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      try {
+        final credential = await authProvider.registerWithEmail(
+            emailController.text,
+            passwordController.text
+        );
+        if (credential != null) {
+          print("Usuario registrado con éxito en Firebase");
+          Navigator.pushNamed(context, Routes.home);
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          print('La contraseña proporcionada es muy débil.');
+        } else if (e.code == 'email-already-in-use') {
+          print('Ya existe una cuenta con ese correo electrónico.');
+        }
+      } catch (e) {
+        print(e);
+      }
     } else {
       print("Formulario inválido");
     }
