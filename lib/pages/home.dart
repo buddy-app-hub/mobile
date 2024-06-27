@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
+import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,11 +18,34 @@ class _HomePageState extends State<HomePage> {
   String weatherIcon = "https://cdn.weatherapi.com/weather/64x64/day/113.png";
   String weatherCity = '?º';
   Future<void> getPost() async {
-    var uri = Uri.parse(
-        "http://api.weatherapi.com/v1/current.json?key=d35441289f874f678a135931240506&q=Bariloche&aqi=yes");
-    var response = await http.get(uri);
 
-    if (response.statusCode == 200) {
+    var jsonb = await ApiService.get<dynamic>(
+        endpoint: "http://api.weatherapi.com/v1/current.json",
+        params: {
+          "key": "d35441289f874f678a135931240506",
+          "q": "Bariloche",
+          "aqi": "yes"
+    });
+
+    var icon = jsonb["current"]["condition"]["icon"];
+    var locName = jsonb["location"]["name"];
+    var temp = jsonb["current"]["temp_c"].toString();
+
+    /*try {
+      var api = await ApiService.get<String>(endpoint: "http://localhost:8080/ping", params: {});
+      print(api);
+    } catch (e) {
+      print("Error");
+    }*/
+
+    setState(() {
+      weatherIcon = "https:${icon}";
+    });
+    setState(() {
+      weatherCity = "${locName} ${temp}º";
+    });
+
+    /*if (response.statusCode == 200) {
       String body = utf8.decode(response.bodyBytes);
       final data = jsonDecode(body);
       setState(() {
@@ -36,7 +59,7 @@ class _HomePageState extends State<HomePage> {
       });
     } else {
       throw Exception("No funciono la conexion");
-    }
+    }*/
   }
 
   @override

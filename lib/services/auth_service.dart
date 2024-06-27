@@ -1,7 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+// Singleton: para manejar una sola instancia de FirebaseAuth.instance
 class AuthService {
+  static final AuthService _instance = AuthService._internal();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  factory AuthService() {
+    return _instance;
+  }
+  AuthService._internal();
 
   User? get currentUser => _auth.currentUser;
 
@@ -17,7 +24,9 @@ class AuthService {
     return userCredential.user;
   }
 
-  Future<void> signOut() async {
-    await _auth.signOut();
+  Future<void> signOut() async { await _auth.signOut(); }
+
+  Future<String?> getIdToken() async {
+    return await _auth.currentUser?.getIdToken();
   }
 }
