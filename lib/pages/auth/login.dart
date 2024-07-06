@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/auth/signup.dart';
-import 'package:mobile/pages/home.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/routes.dart';
 import 'package:mobile/utils/validators.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,12 +13,15 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  late AuthSessionProvider authProvider;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+
     return Scaffold(
       body: Container(
         margin: const EdgeInsets.all(24),
@@ -45,14 +50,25 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _signIn() {
+  _signIn() async {
     if (formKey.currentState!.validate()) {
       print("Formulario válido");
       print("Email: ${emailController.text}, pwd: ${passwordController.text}");
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
+
+      try {
+        final credential = await authProvider.signInWithEmail(
+            emailController.text,
+            passwordController.text
+        );
+
+        if (credential != null) Navigator.pushNamed(context, Routes.home);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          print('No user found for that email.');
+        } else if (e.code == 'wrong-password') {
+          print('Wrong password provided for that user.');
+        }
+      }
     } else {
       print("Formulario inválido");
     }
@@ -126,10 +142,7 @@ class _LoginPageState extends State<LoginPage> {
         const Text("No tienes una cuenta? "),
         TextButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SignupPage()),
-              );
+              Navigator.pushNamed(context, Routes.signup);
             },
             child: const Text(
               "Regístrate",
