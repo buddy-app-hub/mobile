@@ -10,7 +10,6 @@ class ChooseUserPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // title: const Text('Elige tu rol'),
         backgroundColor: theme.colorScheme.primary,
       ),
       body: Padding(
@@ -21,29 +20,49 @@ class ChooseUserPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                // Navegar a la página correspondiente para "Quiero un buddy"
-                Navigator.pushNamed(context, Routes.wantBuddy);
+                Navigator.pushNamed(context, Routes.wantBuddyForMyself);
               },
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 24),
+                padding: const EdgeInsets.symmetric(vertical: 36),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),
                 backgroundColor: theme.colorScheme.primary,
               ),
               child: Text(
-                'Quiero un buddy',
-                style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
+                'Quiero un buddy para mi',
+                style:
+                    TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
               ),
             ),
             const SizedBox(height: 60),
             ElevatedButton(
               onPressed: () {
-                // Navegar a la página correspondiente para "Quiero ser buddy"
+                Navigator.pushNamed(context, Routes.wantBuddyForRelative);
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 30),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                backgroundColor: theme.colorScheme.primary,
+              ),
+              child: Text(
+                'Quiero un buddy\npara un ser querido',
+                style: TextStyle(
+                  color: theme.colorScheme.onPrimary,
+                  fontSize: 20,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 60),
+            ElevatedButton(
+              onPressed: () {
                 Navigator.pushNamed(context, Routes.beBuddy);
               },
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 24),
+                padding: const EdgeInsets.symmetric(vertical: 42),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),
@@ -51,7 +70,8 @@ class ChooseUserPage extends StatelessWidget {
               ),
               child: Text(
                 'Quiero ser buddy',
-                style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
+                style:
+                    TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
               ),
             ),
           ],
