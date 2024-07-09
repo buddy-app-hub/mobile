@@ -28,6 +28,8 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -38,9 +40,9 @@ class _SignupPageState extends State<SignupPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              _header(context),
-              _form(context),
-              _login(context)
+              _header(context, theme),
+              _form(context, theme),
+              _login(context, theme)
             ],
           ),
         ),
@@ -48,23 +50,20 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  _header(context) {
+  _header(BuildContext context, ThemeData theme) {
     return Column(
       children: <Widget>[
         const SizedBox(height: 60.0),
-        const Text(
+        Text(
           "Regístrate",
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-          ),
+          style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(
           height: 20,
         ),
         Text(
           "Crea tu cuenta",
-          style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+          style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface),
         )
       ],
     );
@@ -95,7 +94,7 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-  _form(context) {
+  _form(BuildContext context, ThemeData theme) {
     return Form(
         key: formKey,
         child: Column(
@@ -108,9 +107,9 @@ class _SignupPageState extends State<SignupPage> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide.none),
-                  fillColor: Colors.purple.withOpacity(0.1),
+                  fillColor: theme.colorScheme.primary.withOpacity(0.1),
                   filled: true,
-                  prefixIcon: const Icon(Icons.email)),
+                  prefixIcon: Icon(Icons.email, color: theme.colorScheme.primary)),
               validator: validateEmail,
             ),
             const SizedBox(height: 20),
@@ -121,9 +120,9 @@ class _SignupPageState extends State<SignupPage> {
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none),
-                fillColor: Colors.purple.withOpacity(0.1),
+                fillColor: theme.colorScheme.primary.withOpacity(0.1),
                 filled: true,
-                prefixIcon: const Icon(Icons.password),
+                prefixIcon: Icon(Icons.password, color: theme.colorScheme.primary),
               ),
               obscureText: true,
               validator: (value) {
@@ -144,9 +143,9 @@ class _SignupPageState extends State<SignupPage> {
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none),
-                fillColor: Colors.purple.withOpacity(0.1),
+                fillColor: theme.colorScheme.primary.withOpacity(0.1),
                 filled: true,
-                prefixIcon: const Icon(Icons.password),
+                prefixIcon: Icon(Icons.password, color: theme.colorScheme.primary),
               ),
               obscureText: true,
               validator: (value) {
@@ -165,18 +164,18 @@ class _SignupPageState extends State<SignupPage> {
               style: ElevatedButton.styleFrom(
                 shape: const StadiumBorder(),
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.purple,
+                backgroundColor: theme.colorScheme.primary,
               ),
-              child: const Text(
+              child: Text(
                 "Sign up",
-                style: TextStyle(color: Colors.white, fontSize: 20),
+                style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
               ),
             )
           ],
         ));
   }
 
-  _login(context) {
+  _login(BuildContext context, ThemeData theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -188,9 +187,9 @@ class _SignupPageState extends State<SignupPage> {
                 MaterialPageRoute(builder: (context) => const LoginPage()),
               );
             },
-            child: const Text(
+            child: Text(
               "Ingresá",
-              style: TextStyle(color: Colors.purple),
+              style: TextStyle(color: theme.colorScheme.primary),
             ))
       ],
     );

@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final theme = Theme.of(context);
 
     return Scaffold(
       body: Container(
@@ -28,22 +29,22 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _header(context),
-            _form(context),
-            _forgotPassword(context),
-            _signup(context),
+            _header(context, theme),
+            _form(context, theme),
+            _forgotPassword(context, theme),
+            _signup(context, theme),
           ],
         ),
       ),
     );
   }
 
-  _header(context) {
-    return const Column(
+  _header(BuildContext context, ThemeData theme) {
+    return Column(
       children: [
         Text(
           "Bienvenido",
-          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+          style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text("Ingresa tus credenciales para continuar"),
       ],
@@ -74,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  _form(context) {
+  _form(BuildContext context, ThemeData theme) {
     return Form(
       key: formKey,
       child: Column(
@@ -87,9 +88,9 @@ class _LoginPageState extends State<LoginPage> {
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none),
-                fillColor: Colors.purple.withOpacity(0.1),
+                fillColor: theme.colorScheme.primary.withOpacity(0.1),
                 filled: true,
-                prefixIcon: const Icon(Icons.person)),
+                prefixIcon: Icon(Icons.person, color: theme.colorScheme.primary)),
             validator: validateEmail,
           ),
           const SizedBox(height: 10),
@@ -100,9 +101,9 @@ class _LoginPageState extends State<LoginPage> {
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
                   borderSide: BorderSide.none),
-              fillColor: Colors.purple.withOpacity(0.1),
+              fillColor: theme.colorScheme.primary.withOpacity(0.1),
               filled: true,
-              prefixIcon: const Icon(Icons.password),
+              prefixIcon: Icon(Icons.password, color: theme.colorScheme.primary),
             ),
             obscureText: true,
             validator: validatePassword,
@@ -113,11 +114,11 @@ class _LoginPageState extends State<LoginPage> {
             style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
               padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: Colors.purple,
+              backgroundColor: theme.colorScheme.primary,
             ),
-            child: const Text(
+            child: Text(
               "Login",
-              style: TextStyle(color: Colors.white, fontSize: 20),
+              style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
             ),
           )
         ],
@@ -125,17 +126,17 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _forgotPassword(context) {
+  _forgotPassword(BuildContext context, ThemeData theme) {
     return TextButton(
       onPressed: () {},
-      child: const Text(
+      child: Text(
         "Olvidaste tu contraseña?",
-        style: TextStyle(color: Colors.purple),
+        style: TextStyle(color: theme.colorScheme.primary),
       ),
     );
   }
 
-  _signup(context) {
+  _signup(BuildContext context, ThemeData theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -144,9 +145,9 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () {
               Navigator.pushNamed(context, Routes.signup);
             },
-            child: const Text(
+            child: Text(
               "Regístrate",
-              style: TextStyle(color: Colors.purple),
+              style: TextStyle(color: theme.colorScheme.primary),
             ))
       ],
     );

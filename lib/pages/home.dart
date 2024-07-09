@@ -14,9 +14,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthSessionProvider>(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: appBar(),
+      appBar: appBar(theme),
       body: Center(
         child: Column(
           children: [
@@ -51,17 +52,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  AppBar appBar() {
+  AppBar appBar(ThemeData theme) {
     return AppBar(
       title: Text(
         'Buddy',
         style: TextStyle(
-          color: Colors.black,
+          color: theme.colorScheme.onPrimary,
           fontSize: 19,
           fontWeight: FontWeight.bold,
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 172, 138, 230),
+      backgroundColor: theme.colorScheme.primary,
       elevation: 0.0,
       centerTitle: true,
     );
