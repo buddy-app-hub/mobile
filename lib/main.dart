@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:mobile/pages/auth/become_buddy.dart';
 import 'package:mobile/pages/auth/choose_user.dart';
 import 'package:mobile/pages/auth/login.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
           Routes.login: (context) => LoginPage(),
           Routes.signup: (context) => SignupPage(),
           Routes.chooseUser: (context) => const ChooseUserPage(),
+          Routes.beBuddy: (context) => const BecomeBuddyPage(),
         },
     );
   }
