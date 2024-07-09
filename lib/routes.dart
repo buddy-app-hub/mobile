@@ -4,6 +4,6 @@ class Routes {
   static const String home = '/home';
   static const String chooseUser = '/choose-user';
   static const String wantBuddyForMyself = '/want-buddy-myself';
-  static const String wantBuddyForRelative = '/want-buddy-relative';
+  static const String wantBuddyForLovedOne = '/want-buddy-loved-one';
   static const String beBuddy = '/be-buddy';
 }

@@ -38,7 +38,7 @@ class ChooseUserPage extends StatelessWidget {
             const SizedBox(height: 60),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, Routes.wantBuddyForRelative);
+                Navigator.pushNamed(context, Routes.wantBuddyForLovedOne);
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 30),

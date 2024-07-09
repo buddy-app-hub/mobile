@@ -7,6 +7,7 @@ import 'package:mobile/pages/auth/login.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/auth/signup.dart';
 import 'package:mobile/pages/auth/splash_screen.dart';
+import 'package:mobile/pages/auth/want_buddy_loved_one.dart';
 import 'package:mobile/pages/auth/want_buddy_myself.dart';
 import 'package:mobile/pages/home.dart';
 import 'package:mobile/routes.dart';
@@ -55,6 +56,7 @@ class MyApp extends StatelessWidget {
           Routes.chooseUser: (context) => const ChooseUserPage(),
           Routes.beBuddy: (context) => const BecomeBuddyPage(),
           Routes.wantBuddyForMyself: (context) => const WantBuddyForMyselfPage(),
+          Routes.wantBuddyForLovedOne: (context) => const WantBuddyForLovedOnePage(),
         },
     );
   }
