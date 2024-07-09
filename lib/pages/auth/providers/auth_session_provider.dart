@@ -10,7 +10,7 @@ class AuthSessionProvider with ChangeNotifier {
   AuthSessionProvider(this._authService) {
     _user = _authService.currentUser;
     if (_user != null) {
-      _fetchUserData();
+      fetchUserData();
     }
   }
 
@@ -27,7 +27,7 @@ class AuthSessionProvider with ChangeNotifier {
 Future<User?> signInWithEmail(String email, String password) async {
     _user = await _authService.signInWithEmail(email, password);
     if (_user != null) {
-      await _fetchUserData();
+      await fetchUserData();
     }
     notifyListeners();
     return _user;
@@ -40,8 +40,9 @@ Future<User?> signInWithEmail(String email, String password) async {
     notifyListeners();
   }
 
-   Future<void> _fetchUserData() async {
+   Future<void> fetchUserData() async {
     _userData = await _authService.fetchUserData();
     notifyListeners();
   }
+
 }

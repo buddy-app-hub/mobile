@@ -26,8 +26,8 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
-                    children: [
+                  Column( // TODO: mostrar la data segun el usuario. Deberiamos tener los mismos models que el back para parsearlos
+                    children: [ 
                       Text(authProvider.user?.email ?? "No logueado"),
                       Text(authProvider.userData?['firstName'] ?? "No data"),
                       Text(authProvider.userData?['lastName'] ?? "No data"),

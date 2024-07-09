@@ -4,14 +4,14 @@ import 'package:mobile/routes.dart';
 import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
 
-class BecomeBuddyPage extends StatefulWidget {
-  const BecomeBuddyPage({super.key});
+class WantBuddyForMyselfPage extends StatefulWidget {
+  const WantBuddyForMyselfPage({super.key});
 
   @override
-  State<BecomeBuddyPage> createState() => _BecomeBuddyPageState();
+  State<WantBuddyForMyselfPage> createState() => _WantBuddyForMyselfPageState();
 }
 
-class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
+class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
   late AuthSessionProvider authProvider;
 
   @override
@@ -25,8 +25,6 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
   TextEditingController lastNameController = TextEditingController();
   TextEditingController ageController = TextEditingController();
   TextEditingController genderController = TextEditingController();
-  TextEditingController occupationController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
 
   Future<void> _submitForm() async {
     if (formKey.currentState!.validate()) {
@@ -36,13 +34,11 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
         "lastName": lastNameController.text,
         "age": ageController.text,
         "gender": genderController.text,
-        "occupation": occupationController.text,
-        "phoneNumber": phoneController.text,
       };
 
       try {
         await ApiService.post(
-          endpoint: "/buddies",
+          endpoint: "/elders",
           body: formData,
         );
         print("Datos enviados con éxito");
@@ -64,7 +60,7 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiero ser buddy'),
+        title: const Text('Quiero un buddy para mi'),
         backgroundColor: theme.colorScheme.primary,
       ),
       body: Padding(
@@ -146,44 +142,6 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Ingresá tu género';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: occupationController,
-                  decoration: InputDecoration(
-                    hintText: "Ocupación",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu ocupación';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: phoneController,
-                  decoration: InputDecoration(
-                    hintText: "Nro Teléfono",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu número de teléfono';
                     }
                     return null;
                   },
