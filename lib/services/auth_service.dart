@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile/services/api_service_base.dart';
 
 // Singleton: para manejar una sola instancia de FirebaseAuth.instance
 class AuthService {
@@ -12,7 +13,17 @@ class AuthService {
 
   User? get currentUser => _auth.currentUser;
 
-  Future<User?> createUserWithEmailAndPassword(String email, String password) async {
+  Future<Map<String, dynamic>> fetchUserData() async {
+    var response = await ApiService.get<dynamic>(
+      endpoint: "/users/me",
+    );
+    print(response);
+
+    return response;
+  }
+
+  Future<User?> createUserWithEmailAndPassword(
+      String email, String password) async {
     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email, password: password);
     return userCredential.user;
@@ -24,7 +35,9 @@ class AuthService {
     return userCredential.user;
   }
 
-  Future<void> signOut() async { await _auth.signOut(); }
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
 
   Future<String?> getIdToken() async {
     return await _auth.currentUser?.getIdToken();
