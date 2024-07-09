@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/routes.dart';
+import 'package:mobile/services/api_service_base.dart';
+import 'package:provider/provider.dart';
 
 class BecomeBuddyPage extends StatefulWidget {
   const BecomeBuddyPage({super.key});
@@ -8,6 +12,14 @@ class BecomeBuddyPage extends StatefulWidget {
 }
 
 class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
+  late AuthSessionProvider authProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+  }
+
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
@@ -15,6 +27,36 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
   TextEditingController genderController = TextEditingController();
   TextEditingController occupationController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
+
+  Future<void> _submitForm() async {
+    if (formKey.currentState!.validate()) {
+      final formData = {
+        "firebaseUID": authProvider.user?.uid ?? '',
+        "firstName": firstNameController.text,
+        "lastName": lastNameController.text,
+        "age": ageController.text,
+        "gender": genderController.text,
+        "occupation": occupationController.text,
+        "phoneNumber": phoneController.text,
+      };
+
+      try {
+        await ApiService.post(
+          endpoint: "/buddies",
+          body: formData,
+        );
+        print("Datos enviados con éxito");
+
+        Navigator.pushNamed(context, Routes.home);
+        // Navegar a otra página o mostrar un mensaje de éxito
+      } catch (e) {
+        print("Error al enviar los datos: $e");
+        // Mostrar un mensaje de error
+      }
+    } else {
+      print("Formulario inválido");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,14 +190,7 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
-                    // Aquí puedes manejar la acción del botón
-                    if (formKey.currentState!.validate()) {
-                      print("Formulario válido");
-                    } else {
-                      print("Formulario inválido");
-                    }
-                  },
+                  onPressed: _submitForm,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
