@@ -10,6 +10,8 @@ import 'package:mobile/routes.dart';
 import 'package:mobile/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
+const Color seedColor = Color.fromARGB(1, 56, 182, 255);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -37,7 +39,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Buddy',
-        theme: ThemeData(fontFamily: 'Comfortaa'),
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
+          fontFamily: 'Comfortaa'
+        ),
         home: SplashScreen(),
         routes: {
           Routes.home: (context) => HomePage(),

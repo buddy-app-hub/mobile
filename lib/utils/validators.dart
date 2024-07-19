@@ -22,3 +22,23 @@ String? validatePassword(String? value) {
   }
   return null;
 }
+
+String? validateConfirmPassword(String? value, String? password) {
+  if (value!.isEmpty) {
+    return 'Ingresá una contraseña';
+  }
+  if (value.length < 6) {
+    return 'Las contraseñas no coinciden';
+  }
+  if (password != value) {
+    return 'Las contraseñas no coinciden';
+  }
+  return null;
+}
+
+String? validateName(String? value) {
+  if (value!.isEmpty) {
+    return 'Ingresá un nombre';
+  }
+  return null;
+}
