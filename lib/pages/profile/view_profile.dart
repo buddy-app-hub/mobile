@@ -9,14 +9,14 @@ import 'package:carousel_slider/carousel_slider.dart';
 List<String> userInterests = ['🍃 Naturaleza', '🏝 Viajar', '✍🏻 Literatura', '🙂 Conocer gente', '💪 Gym & Fitness'];
 List<String> userDisponibility = ['📅 Lunes de 15.00 a 16.00', '📅 Miercoles de 10.00 a 11.00'];
 
-class ViewProfile extends StatefulWidget {
-  const ViewProfile({super.key});
+class ViewProfilePage extends StatefulWidget {
+  const ViewProfilePage({super.key});
 
   @override
-  State<ViewProfile> createState() => _ViewProfilePageState();
+  State<ViewProfilePage> createState() => _ViewProfilePagePageState();
 }
 
-class _ViewProfilePageState extends State<ViewProfile> {
+class _ViewProfilePagePageState extends State<ViewProfilePage> {
 
   @override
   Widget build(BuildContext context) {

@@ -6,6 +6,8 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/auth/signup.dart';
 import 'package:mobile/pages/auth/splash_screen.dart';
 import 'package:mobile/pages/home.dart';
+import 'package:mobile/pages/profile/edit_profile.dart';
+import 'package:mobile/pages/profile/view_profile.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/auth_service.dart';
 import 'package:provider/provider.dart';
@@ -48,7 +50,9 @@ class MyApp extends StatelessWidget {
         routes: {
           Routes.home: (context) => HomePage(),
           Routes.login: (context) => LoginPage(),
-          Routes.signup: (context) => SignupPage()
+          Routes.signup: (context) => SignupPage(),
+          Routes.editProfile: (context) => ProfilePage(),
+          Routes.viewProfile: (context) => ViewProfilePage()
         },
     );
   }

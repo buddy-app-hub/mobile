@@ -4,14 +4,14 @@ import 'package:mobile/theme/theme_text_style.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 
-class Profile extends StatefulWidget {
-  const Profile({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<Profile> createState() => _ProfilePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<Profile> {
+class _ProfilePageState extends State<ProfilePage> {
   
   @override
   Widget build(BuildContext context) {

@@ -98,6 +98,7 @@ class BaseDecoration {
               height: 12.9,
               child: SvgPicture.asset(
                 'assets/icons/rightArrow.svg',
+                color: Theme.of(context).colorScheme.onBackground,
               ),
             ),
           ),
