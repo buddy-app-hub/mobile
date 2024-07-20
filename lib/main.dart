@@ -6,9 +6,13 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/auth/signup.dart';
 import 'package:mobile/pages/auth/splash_screen.dart';
 import 'package:mobile/pages/home.dart';
+import 'package:mobile/pages/profile/edit_profile.dart';
+import 'package:mobile/pages/profile/view_profile.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/auth_service.dart';
 import 'package:provider/provider.dart';
+
+const Color seedColor = Color.fromARGB(1, 56, 182, 255);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,12 +41,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Buddy',
-        theme: ThemeData(fontFamily: 'Comfortaa'),
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
+          fontFamily: 'Comfortaa'
+        ),
         home: SplashScreen(),
         routes: {
           Routes.home: (context) => HomePage(),
           Routes.login: (context) => LoginPage(),
-          Routes.signup: (context) => SignupPage()
+          Routes.signup: (context) => SignupPage(),
+          Routes.editProfile: (context) => ProfilePage(),
+          Routes.viewProfile: (context) => ViewProfilePage()
         },
     );
   }
