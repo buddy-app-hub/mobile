@@ -1,10 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:mobile/pages/auth/become_buddy.dart';
+import 'package:mobile/pages/auth/choose_user.dart';
 import 'package:mobile/pages/auth/login.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/auth/signup.dart';
 import 'package:mobile/pages/auth/splash_screen.dart';
+import 'package:mobile/pages/auth/want_buddy_loved_one.dart';
+import 'package:mobile/pages/auth/want_buddy_myself.dart';
 import 'package:mobile/pages/home.dart';
 import 'package:mobile/pages/profile/edit_profile.dart';
 import 'package:mobile/pages/profile/view_profile.dart';
@@ -45,14 +49,18 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
           fontFamily: 'Comfortaa'
-        ),
+          ),
         home: SplashScreen(),
         routes: {
           Routes.home: (context) => HomePage(),
           Routes.login: (context) => LoginPage(),
           Routes.signup: (context) => SignupPage(),
           Routes.editProfile: (context) => ProfilePage(),
-          Routes.viewProfile: (context) => ViewProfilePage()
+          Routes.viewProfile: (context) => ViewProfilePage(),
+          Routes.chooseUser: (context) => const ChooseUserPage(),
+          Routes.beBuddy: (context) => const BecomeBuddyPage(),
+          Routes.wantBuddyForMyself: (context) => const WantBuddyForMyselfPage(),
+          Routes.wantBuddyForLovedOne: (context) => const WantBuddyForLovedOnePage(),
         },
     );
   }

@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/services/auth_service.dart';
 
 class ApiService {
-  static const String baseUrl = ""; // http://localhost:8080
+  static const String baseUrl = "http://localhost:8086";
 
   // Map<String, T>
   static Future<dynamic> get<T>(
@@ -22,6 +22,30 @@ class ApiService {
     final uri = Uri.parse('$baseUrl$endpoint');
     final response = await http.get(uri.replace(queryParameters: params), headers: headers);
 
-    return jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Error al obtener datos del endpoint');
+    }
+  }
+
+  static Future<dynamic> post<T>({
+    required String endpoint,
+    required Map<String, dynamic> body,
+  }) async {
+    final userToken = await AuthService().currentUser?.getIdToken();
+    final headers = {
+      'Authorization': 'Bearer $userToken',
+      'Content-Type': 'application/json',
+    };
+
+    final uri = Uri.parse('$baseUrl$endpoint');
+    final response = await http.post(uri, headers: headers, body: jsonEncode(body));
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Error al enviar datos al endpoint');
+    }
   }
 }
