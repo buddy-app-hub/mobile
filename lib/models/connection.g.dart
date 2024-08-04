@@ -22,5 +22,5 @@ Map<String, dynamic> _$ConnectionToJson(Connection instance) =>
       'elderID': instance.elderID,
       'buddyID': instance.buddyID,
       'creationDate': instance.creationDate.toIso8601String(),
-      'meetings': instance.meetings,
+      'meetings': instance.meetings.map((e) => e.toJson()).toList(),
     };

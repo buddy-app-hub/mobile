@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile/services/api_service_base.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../models/user_data.dart';
 
 // Singleton: para manejar una sola instancia de FirebaseAuth.instance
 class AuthService {
@@ -13,13 +16,13 @@ class AuthService {
 
   User? get currentUser => _auth.currentUser;
 
-  Future<Map<String, dynamic>> fetchUserData() async {
+  Future<UserData> fetchUserData() async {
     var response = await ApiService.get<dynamic>(
       endpoint: "/users/me",
     );
     print(response);
 
-    return response;
+    return UserData.fromJson(response);
   }
 
   Future<User?> createUserWithEmailAndPassword(

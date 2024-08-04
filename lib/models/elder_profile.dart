@@ -4,7 +4,7 @@ import 'time_of_day.dart';
 
 part 'elder_profile.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ElderProfile {
   final String description;
   final List<Interest> interests;

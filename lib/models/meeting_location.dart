@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'meeting_location.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class MeetingLocation {
   final bool isEldersHome;
   final String placeName;

@@ -4,7 +4,7 @@ import 'meeting_location.dart';
 
 part 'meeting.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Meeting {
   final TimeOfDay date;
   final bool isCancelled;

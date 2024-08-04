@@ -3,7 +3,7 @@ import 'meeting.dart';
 
 part 'connection.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Connection {
   final String id;
   final String elderID;

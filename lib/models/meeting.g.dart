@@ -20,12 +20,12 @@ Meeting _$MeetingFromJson(Map<String, dynamic> json) => Meeting(
     );
 
 Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
-      'date': instance.date,
+      'date': instance.date.toJson(),
       'isCancelled': instance.isCancelled,
       'isConfirmedByBuddy': instance.isConfirmedByBuddy,
       'isConfirmedByElder': instance.isConfirmedByElder,
       'isRescheduled': instance.isRescheduled,
       'activity': instance.activity,
       'dateLastModification': instance.dateLastModification.toIso8601String(),
-      'location': instance.location,
+      'location': instance.location.toJson(),
     };

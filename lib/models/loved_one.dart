@@ -3,7 +3,7 @@ import 'phone_number.dart';
 
 part 'loved_one.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class LovedOne {
   final String firstName;
   final String lastName;

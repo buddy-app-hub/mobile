@@ -19,6 +19,6 @@ ElderProfile _$ElderProfileFromJson(Map<String, dynamic> json) => ElderProfile(
 Map<String, dynamic> _$ElderProfileToJson(ElderProfile instance) =>
     <String, dynamic>{
       'description': instance.description,
-      'interests': instance.interests,
-      'availability': instance.availability,
+      'interests': instance.interests.map((e) => e.toJson()).toList(),
+      'availability': instance.availability.map((e) => e.toJson()).toList(),
     };

@@ -7,13 +7,13 @@ import 'loved_one.dart';
 
 part 'elder.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Elder {
   final String firebaseUID;
   final bool isBlocked;
   final String registrationMethod;
   final DateTime registrationDate;
-  final bool lovedOneMode;
+  final bool onLovedOneMode;
   final LovedOne? lovedOne;
   final String firstName;
   final String lastName;
@@ -33,7 +33,7 @@ class Elder {
     required this.isBlocked,
     required this.registrationMethod,
     required this.registrationDate,
-    required this.lovedOneMode,
+    required this.onLovedOneMode,
     this.lovedOne,
     required this.firstName,
     required this.lastName,

@@ -11,7 +11,7 @@ Elder _$ElderFromJson(Map<String, dynamic> json) => Elder(
       isBlocked: json['isBlocked'] as bool,
       registrationMethod: json['registrationMethod'] as String,
       registrationDate: DateTime.parse(json['registrationDate'] as String),
-      lovedOneMode: json['lovedOneMode'] as bool,
+      onLovedOneMode: json['onLovedOneMode'] as bool,
       lovedOne: json['lovedOne'] == null
           ? null
           : LovedOne.fromJson(json['lovedOne'] as Map<String, dynamic>),
@@ -37,8 +37,8 @@ Map<String, dynamic> _$ElderToJson(Elder instance) => <String, dynamic>{
       'isBlocked': instance.isBlocked,
       'registrationMethod': instance.registrationMethod,
       'registrationDate': instance.registrationDate.toIso8601String(),
-      'lovedOneMode': instance.lovedOneMode,
-      'lovedOne': instance.lovedOne,
+      'onLovedOneMode': instance.onLovedOneMode,
+      'lovedOne': instance.lovedOne?.toJson(),
       'firstName': instance.firstName,
       'lastName': instance.lastName,
       'age': instance.age,
@@ -47,8 +47,8 @@ Map<String, dynamic> _$ElderToJson(Elder instance) => <String, dynamic>{
       'nationality': instance.nationality,
       'maritalStatus': instance.maritalStatus,
       'email': instance.email,
-      'phoneNumber': instance.phoneNumber,
-      'identityCard': instance.identityCard,
-      'address': instance.address,
-      'elderProfile': instance.elderProfile,
+      'phoneNumber': instance.phoneNumber.toJson(),
+      'identityCard': instance.identityCard.toJson(),
+      'address': instance.address.toJson(),
+      'elderProfile': instance.elderProfile.toJson(),
     };

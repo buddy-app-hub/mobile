@@ -20,7 +20,7 @@ Map<String, dynamic> _$LovedOneToJson(LovedOne instance) => <String, dynamic>{
       'firstName': instance.firstName,
       'lastName': instance.lastName,
       'age': instance.age,
-      'phoneNumber': instance.phoneNumber,
+      'phoneNumber': instance.phoneNumber.toJson(),
       'email': instance.email,
       'relationshipToElder': instance.relationshipToElder,
     };
