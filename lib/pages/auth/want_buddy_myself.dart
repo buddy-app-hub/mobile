@@ -3,6 +3,8 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/models/elder.dart';
+import 'package:mobile/models/phone_number.dart';
 
 class WantBuddyForMyselfPage extends StatefulWidget {
   const WantBuddyForMyselfPage({super.key});
@@ -23,27 +25,36 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-  TextEditingController ageController = TextEditingController();
   TextEditingController genderController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController phoneCountryCodeController = TextEditingController();
 
   Future<void> _submitForm() async {
     if (formKey.currentState!.validate()) {
-      final formData = {
-        "firebaseUID": authProvider.user?.uid ?? '',
-        "firstName": firstNameController.text,
-        "lastName": lastNameController.text,
-        "age": ageController.text,
-        "gender": genderController.text,
-      };
+      Elder elder = Elder(
+        firebaseUID: authProvider.user!.uid,
+        firstName: firstNameController.text,
+        lastName: lastNameController.text,
+        gender: genderController.text,
+        phoneNumber: PhoneNumber(
+            countryCode: phoneCountryCodeController.text,
+            number: phoneNumberController.text
+        ),
+        registrationDate: DateTime.now(),
+        registrationMethod: 'email', // TODO: ajustar cuando se agregue registro por Google
+        email: authProvider.user!.email!,
+        onLovedOneMode: false,
+      );
 
       try {
         await ApiService.post(
           endpoint: "/elders",
-          body: formData,
+          body: elder.toJson(),
         );
         print("Datos enviados con éxito");
 
-        await authProvider.fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
+        await authProvider
+            .fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
 
         Navigator.pushNamed(context, Routes.home);
       } catch (e) {
@@ -110,25 +121,6 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: ageController,
-                  decoration: InputDecoration(
-                    hintText: "Edad",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu edad';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
                   controller: genderController,
                   decoration: InputDecoration(
                     hintText: "Género",
@@ -146,6 +138,44 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: phoneCountryCodeController,
+                  decoration: InputDecoration(
+                    hintText: "Prefijo Teléfono",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                    filled: true,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ingresá el prefijo del país de tu teléfono';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: phoneNumberController,
+                  decoration: InputDecoration(
+                    hintText: "Nro Teléfono",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                    filled: true,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ingresá tu número de teléfono';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _submitForm,
@@ -158,7 +188,8 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
                   ),
                   child: Text(
                     "Listo",
-                    style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
+                    style: TextStyle(
+                        color: theme.colorScheme.onPrimary, fontSize: 20),
                   ),
                 ),
               ],

@@ -228,7 +228,7 @@ class _SignupPageState extends State<SignupPage> {
               emailController.text, passwordController.text);
           if (credential != null) {
             print("Usuario registrado con éxito en Firebase");
-            Navigator.pushNamed(context, Routes.home);
+            Navigator.pushNamed(context, Routes.chooseUser);
           }
         } on FirebaseAuthException catch (e) {
           if (e.code == 'weak-password') {

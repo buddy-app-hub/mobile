@@ -17,36 +17,36 @@ class Elder {
   final LovedOne? lovedOne;
   final String firstName;
   final String lastName;
-  final int age;
+  final int? age;
   final String gender;
-  final DateTime birthDate;
-  final String nationality;
-  final String maritalStatus;
+  final DateTime? birthDate;
+  final String? nationality;
+  final String? maritalStatus;
   final String email;
   final PhoneNumber phoneNumber;
-  final IdentityCard identityCard;
-  final Address address;
-  final ElderProfile elderProfile;
+  final IdentityCard? identityCard;
+  final Address? address;
+  final ElderProfile? elderProfile;
 
   Elder({
     required this.firebaseUID,
-    required this.isBlocked,
+    this.isBlocked = false,
     required this.registrationMethod,
     required this.registrationDate,
     required this.onLovedOneMode,
     this.lovedOne,
     required this.firstName,
     required this.lastName,
-    required this.age,
+    this.age,
     required this.gender,
-    required this.birthDate,
-    required this.nationality,
-    required this.maritalStatus,
+    this.birthDate,
+    this.nationality,
+    this.maritalStatus,
     required this.email,
     required this.phoneNumber,
-    required this.identityCard,
-    required this.address,
-    required this.elderProfile,
+    this.identityCard,
+    this.address,
+    this.elderProfile,
   });
 
   factory Elder.fromJson(Map<String, dynamic> json) => _$ElderFromJson(json);

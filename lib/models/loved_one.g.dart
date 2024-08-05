@@ -9,7 +9,7 @@ part of 'loved_one.dart';
 LovedOne _$LovedOneFromJson(Map<String, dynamic> json) => LovedOne(
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
-      age: (json['age'] as num).toInt(),
+      age: (json['age'] as num?)?.toInt(),
       phoneNumber:
           PhoneNumber.fromJson(json['phoneNumber'] as Map<String, dynamic>),
       email: json['email'] as String,
