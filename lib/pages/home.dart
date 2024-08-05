@@ -1,9 +1,8 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:http/http.dart' as http;
+import 'package:mobile/models/user_data.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/routes.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,72 +12,81 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String weatherIcon = "https://cdn.weatherapi.com/weather/64x64/day/113.png";
-  String weatherCity = '?º';
-  Future<void> getPost() async {
-    var uri = Uri.parse("http://api.weatherapi.com/v1/current.json?key=d35441289f874f678a135931240506&q=Bariloche&aqi=yes");
-    var response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      String body = utf8.decode(response.bodyBytes);
-      final data = jsonDecode(body);
-      setState(() {
-        weatherIcon = "https:" + data["current"]["condition"]["icon"];
-      });
-      setState(() {
-        weatherCity = data["location"]["name"] + " " + data["current"]["temp_c"].toString() + "º";
-      });
-    } else {
-      throw Exception("No funciono la conexion");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthSessionProvider>(context);
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: appBar(),
+      appBar: appBar(theme),
       body: Center(
-        child: Column(
-          children: [
+        child: SingleChildScrollView( // Hacer que el contenido sea desplazable verticalmente
+          child: Column(
+            children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(onPressed: getPost, child: Text('Get current weather')),
-                  ],
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal, // Hacer que el contenido sea desplazable horizontalmente
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column( // TODO: mostrar la data segun el usuario. Deberiamos tener los mismos models que el back para parsearlos
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [ 
+                          Text(authProvider.user?.email ?? "No logueado"),
+                          if (authProvider.userData != null)
+                            ...buildUserDetails(authProvider.userData!),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Card(child: Column(
-                children: [
-                  Image.network(weatherIcon),
-                  Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(weatherCity),
-                  ),
-                ],
-              ),),
-          ],
+              ElevatedButton(
+                onPressed: () async {
+                  await authProvider.signOut();
+                  Navigator.pushReplacementNamed(context, Routes.login);
+                },
+                child: Text('Logout'),
+              ),
+            ],
           ),
+        ),
       ),
     );
   }
 
-  AppBar appBar() {
+  AppBar appBar(ThemeData theme) {
     return AppBar(
       title: Text(
         'Buddy',
         style: TextStyle(
-          color: Colors.black,
+          color: theme.colorScheme.onPrimary,
           fontSize: 19,
           fontWeight: FontWeight.bold,
         ),
-        ),
-      backgroundColor: Colors.white,
+      ),
+      backgroundColor: theme.colorScheme.primary,
       elevation: 0.0,
-
       centerTitle: true,
     );
   }
 }
 
+List<Widget> buildUserDetails(UserData userData) {
+  List<Widget> details = [];
+
+  if (userData.buddy != null) {
+    details.add(Text("User Type: Buddy"));
+  } else if (userData.elder != null) {
+    details.add(Text("User Type: Elder"));
+  }
+
+  userData.toJson().forEach((key, value) {
+    if (value != null) {
+      details.add(Text("$key: $value"));
+    }
+  });
+
+  return details;
+}
