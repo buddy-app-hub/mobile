@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/elder.dart';
+import 'package:mobile/models/loved_one.dart';
+import 'package:mobile/models/phone_number.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/api_service_base.dart';
@@ -8,7 +11,8 @@ class WantBuddyForLovedOnePage extends StatefulWidget {
   const WantBuddyForLovedOnePage({super.key});
 
   @override
-  State<WantBuddyForLovedOnePage> createState() => _WantBuddyForLovedOnePageState();
+  State<WantBuddyForLovedOnePage> createState() =>
+      _WantBuddyForLovedOnePageState();
 }
 
 class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
@@ -21,57 +25,53 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
   }
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  // Loved one data
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-  TextEditingController ageController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController phoneCountryCodeController = TextEditingController();
   TextEditingController relationshipToElderController = TextEditingController();
 
+  // Elder data
   TextEditingController elderFirstNameController = TextEditingController();
   TextEditingController elderLastNameController = TextEditingController();
-  TextEditingController elderAgeController = TextEditingController();
   TextEditingController elderGenderController = TextEditingController();
-  TextEditingController elderPhoneNumberController = TextEditingController();
 
   Future<void> _submitForm() async {
     if (formKey.currentState!.validate()) {
-      final relativeFormData = {
-        "firebaseUID": authProvider.user?.uid ?? '',
-        "firstName": firstNameController.text,
-        "lastName": lastNameController.text,
-        "age": ageController.text,
-        "gender": genderController.text,
-        "phoneNumber": phoneNumberController.text,
-        "relationshipToElder": relationshipToElderController.text,
-      };
-
-      final elderFormData = {
-        "firstName": elderFirstNameController.text,
-        "lastName": elderLastNameController.text,
-        "age": elderAgeController.text,
-        "gender": elderGenderController.text,
-        "phoneNumber": elderPhoneNumberController.text,
-      };
+      Elder elder = Elder(
+          firebaseUID: authProvider.user!.uid,
+          firstName: elderFirstNameController.text,
+          lastName: elderLastNameController.text,
+          gender: elderGenderController.text,
+          phoneNumber: PhoneNumber(
+              countryCode: phoneCountryCodeController.text,
+              number: phoneNumberController.text),
+          registrationDate: DateTime.now(),
+          registrationMethod:
+              'email', // TODO: ajustar cuando se agregue registro por Google
+          email: authProvider.user!.email!,
+          onLovedOneMode: true,
+          lovedOne: LovedOne(
+              firstName: firstNameController.text,
+              lastName: lastNameController.text,
+              phoneNumber: PhoneNumber(
+                  countryCode: phoneCountryCodeController.text,
+                  number: phoneNumberController.text),
+              email: authProvider.user!.email!,
+              relationshipToElder: relationshipToElderController.text));
 
       try {
-        // Creamos el adulto mayor
-        var elderResponse = await ApiService.post(
-          endpoint: "/elders",
-          body: elderFormData,
-        );
-
-        relativeFormData['relativeOfElderID'] = elderResponse['id']; // Le asignamos el id del elder de la db al relative (es la manera de vincularlos) 
-        
-        // Creamos el familiar
         await ApiService.post(
-          endpoint: "/relatives",
-          body: relativeFormData,
+          endpoint: "/elders",
+          body: elder.toJson(),
         );
 
         print("Datos enviados con éxito");
 
-        await authProvider.fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
+        await authProvider
+            .fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
 
         Navigator.pushNamed(context, Routes.home);
       } catch (e) {
@@ -99,6 +99,7 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Text('Datos tuyos'),
                 TextFormField(
                   controller: firstNameController,
                   decoration: InputDecoration(
@@ -138,25 +139,6 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: ageController,
-                  decoration: InputDecoration(
-                    hintText: "Mi edad",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu edad';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
                   controller: genderController,
                   decoration: InputDecoration(
                     hintText: "Mi género",
@@ -176,9 +158,9 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: phoneNumberController,
+                  controller: phoneCountryCodeController,
                   decoration: InputDecoration(
-                    hintText: "Mi número de teléfono",
+                    hintText: "Prefijo Teléfono",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide.none,
@@ -188,7 +170,26 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Ingresá tu nro de teléfono';
+                      return 'Ingresá el prefijo del país de tu teléfono';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: phoneNumberController,
+                  decoration: InputDecoration(
+                    hintText: "Nro Teléfono",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                    filled: true,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ingresá tu número de teléfono';
                     }
                     return null;
                   },
@@ -212,7 +213,8 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
+                Text('Datos de tu ser querido'),
                 TextFormField(
                   controller: elderFirstNameController,
                   decoration: InputDecoration(
@@ -252,25 +254,6 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: elderAgeController,
-                  decoration: InputDecoration(
-                    hintText: "Edad de tu ser querido",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá la edad de tu ser querido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
                   controller: elderGenderController,
                   decoration: InputDecoration(
                     hintText: "Género de tu ser querido",
@@ -288,25 +271,6 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: elderPhoneNumberController,
-                  decoration: InputDecoration(
-                    hintText: "Número de teléfono de tu ser querido",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá el nro de teléfono de tu ser querido';
-                    }
-                    return null;
-                  },
-                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _submitForm,
@@ -319,7 +283,8 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                   ),
                   child: Text(
                     "Listo",
-                    style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
+                    style: TextStyle(
+                        color: theme.colorScheme.onPrimary, fontSize: 20),
                   ),
                 ),
               ],

@@ -52,9 +52,10 @@ class MyApp extends StatelessWidget {
           ),
         home: SplashScreen(),
         routes: {
-          Routes.home: (context) => HomePage(),
           Routes.login: (context) => LoginPage(),
           Routes.signup: (context) => SignupPage(),
+          Routes.splashScreen: (context) => SplashScreen(),
+          Routes.home: (context) => HomePage(),
           Routes.editProfile: (context) => ProfilePage(),
           Routes.viewProfile: (context) => ViewProfilePage(),
           Routes.chooseUser: (context) => const ChooseUserPage(),

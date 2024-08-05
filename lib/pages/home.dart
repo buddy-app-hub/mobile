@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
 import 'package:provider/provider.dart';
@@ -19,34 +20,37 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: appBar(theme),
       body: Center(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column( // TODO: mostrar la data segun el usuario. Deberiamos tener los mismos models que el back para parsearlos
-                    children: [ 
-                      Text(authProvider.user?.email ?? "No logueado"),
-                      Text(authProvider.userData?['firstName'] ?? "No data"),
-                      Text(authProvider.userData?['lastName'] ?? "No data"),
-                      Text(authProvider.userData?['age'].toString() ?? "No data"),
-                      Text(authProvider.userData?['gender'].toString() ?? "No data"),
-                      Text(authProvider.userData?['occupation'].toString() ?? "No data"),
+        child: SingleChildScrollView( // Hacer que el contenido sea desplazable verticalmente
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal, // Hacer que el contenido sea desplazable horizontalmente
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column( // TODO: mostrar la data segun el usuario. Deberiamos tener los mismos models que el back para parsearlos
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [ 
+                          Text(authProvider.user?.email ?? "No logueado"),
+                          if (authProvider.userData != null)
+                            ...buildUserDetails(authProvider.userData!),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await authProvider.signOut();
-                Navigator.pushReplacementNamed(context, Routes.login);
-              },
-              child: Text('Logout'),
-            ),
-          ],
+              ElevatedButton(
+                onPressed: () async {
+                  await authProvider.signOut();
+                  Navigator.pushReplacementNamed(context, Routes.login);
+                },
+                child: Text('Logout'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -69,3 +73,20 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+List<Widget> buildUserDetails(UserData userData) {
+  List<Widget> details = [];
+
+  if (userData.buddy != null) {
+    details.add(Text("User Type: Buddy"));
+  } else if (userData.elder != null) {
+    details.add(Text("User Type: Elder"));
+  }
+
+  userData.toJson().forEach((key, value) {
+    if (value != null) {
+      details.add(Text("$key: $value"));
+    }
+  });
+
+  return details;
+}

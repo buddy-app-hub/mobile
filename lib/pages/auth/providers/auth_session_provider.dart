@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile/services/auth_service.dart';
+import '../../../models/user_data.dart';
 
 class AuthSessionProvider with ChangeNotifier {
   final AuthService _authService;
   User? _user;
-  Map<String, dynamic>? _userData;
+  UserData? _userData;
 
   AuthSessionProvider(this._authService) {
     _user = _authService.currentUser;
@@ -15,8 +16,8 @@ class AuthSessionProvider with ChangeNotifier {
   }
 
   User? get user => _user;
-  Map<String, dynamic>? get userData => _userData;
-  bool get isAuthenticated => _user != null && _userData != null;
+  UserData? get userData => _userData;
+  bool get isAuthenticated => _user != null && (_userData?.buddy != null || _userData?.elder != null);
 
   Future<User?> registerWithEmail(String email, String password) async {
     _user = await _authService.createUserWithEmailAndPassword(email, password);

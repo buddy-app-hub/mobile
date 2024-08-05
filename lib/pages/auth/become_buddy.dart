@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/buddy.dart';
+import 'package:mobile/models/phone_number.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/api_service_base.dart';
@@ -23,31 +25,35 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-  TextEditingController ageController = TextEditingController();
   TextEditingController genderController = TextEditingController();
-  TextEditingController occupationController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController phoneCountryCodeController = TextEditingController();
 
   Future<void> _submitForm() async {
     if (formKey.currentState!.validate()) {
-      final formData = {
-        "firebaseUID": authProvider.user?.uid ?? '',
-        "firstName": firstNameController.text,
-        "lastName": lastNameController.text,
-        "age": ageController.text,
-        "gender": genderController.text,
-        "occupation": occupationController.text,
-        "phoneNumber": phoneController.text,
-      };
+      Buddy buddy = Buddy(
+        firebaseUID: authProvider.user!.uid,
+        firstName: firstNameController.text,
+        lastName: lastNameController.text,
+        gender: genderController.text,
+        phoneNumber: PhoneNumber(
+            countryCode: phoneCountryCodeController.text,
+            number: phoneNumberController.text
+        ),
+        registrationDate: DateTime.now(),
+        registrationMethod: 'email', // TODO: ajustar cuando se agregue registro por Google
+        email: authProvider.user!.email!,
+      );
 
       try {
         await ApiService.post(
           endpoint: "/buddies",
-          body: formData,
+          body: buddy.toJson(),
         );
         print("Datos enviados con éxito");
 
-        await authProvider.fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
+        await authProvider
+            .fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
 
         Navigator.pushNamed(context, Routes.home);
       } catch (e) {
@@ -114,25 +120,6 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: ageController,
-                  decoration: InputDecoration(
-                    hintText: "Edad",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu edad';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
                   controller: genderController,
                   decoration: InputDecoration(
                     hintText: "Género",
@@ -152,9 +139,9 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: occupationController,
+                  controller: phoneCountryCodeController,
                   decoration: InputDecoration(
-                    hintText: "Ocupación",
+                    hintText: "Prefijo Teléfono",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide.none,
@@ -164,14 +151,14 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Ingresá tu ocupación';
+                      return 'Ingresá el prefijo del país de tu teléfono';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: phoneController,
+                  controller: phoneNumberController,
                   decoration: InputDecoration(
                     hintText: "Nro Teléfono",
                     border: OutlineInputBorder(
@@ -200,7 +187,8 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                   ),
                   child: Text(
                     "Listo",
-                    style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
+                    style: TextStyle(
+                        color: theme.colorScheme.onPrimary, fontSize: 20),
                   ),
                 ),
               ],
