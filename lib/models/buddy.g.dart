@@ -17,21 +17,28 @@ Buddy _$BuddyFromJson(Map<String, dynamic> json) => Buddy(
       isIdentityValidated: json['isIdentityValidated'] as bool? ?? false,
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
-      age: (json['age'] as num).toInt(),
+      age: (json['age'] as num?)?.toInt(),
       gender: json['gender'] as String,
-      birthDate: DateTime.parse(json['birthDate'] as String),
-      nationality: json['nationality'] as String,
-      maritalStatus: json['maritalStatus'] as String,
+      birthDate: json['birthDate'] == null
+          ? null
+          : DateTime.parse(json['birthDate'] as String),
+      nationality: json['nationality'] as String?,
+      maritalStatus: json['maritalStatus'] as String?,
       email: json['email'] as String,
       phoneNumber:
           PhoneNumber.fromJson(json['phoneNumber'] as Map<String, dynamic>),
-      identityCard:
-          IdentityCard.fromJson(json['identityCard'] as Map<String, dynamic>),
-      bankAccount:
-          BankAccount.fromJson(json['bankAccount'] as Map<String, dynamic>),
-      address: Address.fromJson(json['address'] as Map<String, dynamic>),
-      buddyProfile:
-          BuddyProfile.fromJson(json['buddyProfile'] as Map<String, dynamic>),
+      identityCard: json['identityCard'] == null
+          ? null
+          : IdentityCard.fromJson(json['identityCard'] as Map<String, dynamic>),
+      bankAccount: json['bankAccount'] == null
+          ? null
+          : BankAccount.fromJson(json['bankAccount'] as Map<String, dynamic>),
+      address: json['address'] == null
+          ? null
+          : Address.fromJson(json['address'] as Map<String, dynamic>),
+      buddyProfile: json['buddyProfile'] == null
+          ? null
+          : BuddyProfile.fromJson(json['buddyProfile'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$BuddyToJson(Buddy instance) => <String, dynamic>{
@@ -47,13 +54,13 @@ Map<String, dynamic> _$BuddyToJson(Buddy instance) => <String, dynamic>{
       'lastName': instance.lastName,
       'age': instance.age,
       'gender': instance.gender,
-      'birthDate': instance.birthDate.toIso8601String(),
+      'birthDate': instance.birthDate?.toIso8601String(),
       'nationality': instance.nationality,
       'maritalStatus': instance.maritalStatus,
       'email': instance.email,
       'phoneNumber': instance.phoneNumber.toJson(),
-      'identityCard': instance.identityCard.toJson(),
-      'bankAccount': instance.bankAccount.toJson(),
-      'address': instance.address.toJson(),
-      'buddyProfile': instance.buddyProfile.toJson(),
+      'identityCard': instance.identityCard?.toJson(),
+      'bankAccount': instance.bankAccount?.toJson(),
+      'address': instance.address?.toJson(),
+      'buddyProfile': instance.buddyProfile?.toJson(),
     };

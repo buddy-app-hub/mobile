@@ -18,17 +18,17 @@ class Buddy {
   final bool isIdentityValidated;
   final String firstName;
   final String lastName;
-  final int age;
+  final int? age;
   final String gender;
-  final DateTime birthDate;
-  final String nationality;
-  final String maritalStatus;
+  final DateTime? birthDate;
+  final String? nationality;
+  final String? maritalStatus;
   final String email;
   final PhoneNumber phoneNumber;
-  final IdentityCard identityCard;
-  final BankAccount bankAccount;
-  final Address address;
-  final BuddyProfile buddyProfile;
+  final IdentityCard? identityCard;
+  final BankAccount? bankAccount;
+  final Address? address;
+  final BuddyProfile? buddyProfile;
 
   Buddy({
     required this.firebaseUID,
@@ -40,17 +40,17 @@ class Buddy {
     this.isIdentityValidated = false,
     required this.firstName,
     required this.lastName,
-    required this.age,
+    this.age,
     required this.gender,
-    required this.birthDate,
-    required this.nationality,
-    required this.maritalStatus,
+    this.birthDate,
+    this.nationality,
+    this.maritalStatus,
     required this.email,
     required this.phoneNumber,
-    required this.identityCard,
-    required this.bankAccount,
-    required this.address,
-    required this.buddyProfile,
+    this.identityCard,
+    this.bankAccount,
+    this.address,
+    this.buddyProfile,
   });
 
   factory Buddy.fromJson(Map<String, dynamic> json) => _$BuddyFromJson(json);
