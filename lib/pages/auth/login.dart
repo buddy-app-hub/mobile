@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ),
                                   Text(
-                                    'Inicia sesión para continuar',
+                                    'Iniciá sesión para continuar',
                                     style: ThemeTextStyle.titleSmallOnSecondary(context),
                                   ),
                                 ],
@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      SizedBox(height: 34),
+                                      SizedBox(height: 10),
                                       _buildEmailField(context, theme),
                                     ],
                                   ),
@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      SizedBox(height: 30),
+                                      SizedBox(height: 10),
                                       _buildPasswordField(context, theme),
                                     ],
                                   ),
@@ -133,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      SizedBox(height: 36),
+                                      SizedBox(height: 10),
                                       _buildLoginButton(context),
                                       SizedBox(height: 34),
                                     ],
@@ -155,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(height: 24),
+                                    SizedBox(height: 10),
                                     _buildGoogleLoginButton(context),
                                     SizedBox(height: 46)
                                   ],
@@ -244,8 +244,8 @@ class _LoginPageState extends State<LoginPage> {
       child: Column (
       crossAxisAlignment: CrossAxisAlignment.start, 
       children: [
-        BaseDecoration.buildPaddingField(context, 'email'),
-        SizedBox(height: 12),
+        BaseDecoration.buildPaddingField(context, 'Email'),
+        SizedBox(height: 5),
         BaseTextFormField(
           controller: emailController,
           validator: validateEmail,
@@ -263,8 +263,8 @@ class _LoginPageState extends State<LoginPage> {
       child: Column (
         crossAxisAlignment: CrossAxisAlignment.start, 
         children: [
-          BaseDecoration.buildPaddingField(context, 'contraseña'),
-          SizedBox(height: 12),
+          BaseDecoration.buildPaddingField(context, 'Contraseña'),
+          SizedBox(height: 5),
           BaseTextFormField(
             controller: passwordController, 
             textInputAction: TextInputAction. done,

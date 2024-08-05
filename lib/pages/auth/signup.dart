@@ -22,10 +22,10 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   late AuthSessionProvider authProvider;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  TextEditingController nameController = TextEditingController ();
-  TextEditingController emailController = TextEditingController ();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController ();
+  TextEditingController confirmPasswordController = TextEditingController();
 
   @override
   void initState() {
@@ -43,8 +43,8 @@ class _SignupPageState extends State<SignupPage> {
       child: Scaffold(
         backgroundColor: theme.colorScheme.primary.withOpacity(0.5),
         extendBody: true,
-        extendBodyBehindAppBar: true, 
-        resizeToAvoidBottomInset: false, 
+        extendBodyBehindAppBar: true,
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
             Positioned(
@@ -98,7 +98,8 @@ class _SignupPageState extends State<SignupPage> {
                                     margin: EdgeInsets.fromLTRB(7, 0, 7, 5),
                                     child: Text(
                                       'Registrarse',
-                                      style: ThemeTextStyle.titleXLargeOnBackground700(context),
+                                      style: ThemeTextStyle
+                                          .titleXLargeOnBackground700(context),
                                     ),
                                   ),
                                   Container(
@@ -110,76 +111,76 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                             Form(
                               key: formKey,
-                              child: Column(children: [
-                                Container(
-                                  margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 34),
-                                      _buildNameField(context, theme),
-                                    ],
+                              child: Column(
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 10),
+                                        _buildEmailField(context, theme),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 34),
-                                      _buildEmailField(context, theme),
-                                    ],
+                                  Container(
+                                    margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 10),
+                                        _buildPasswordField(context, theme),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 30),
-                                      _buildPasswordField(context, theme),
-                                    ],
+                                  Container(
+                                    margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 10),
+                                        _buildConfirmPasswordField(
+                                            context, theme),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 30),
-                                      _buildConfirmPasswordField(context, theme),
-                                    ],
+                                  Container(
+                                    margin: EdgeInsets.fromLTRB(0, 0, 0, 1),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 10),
+                                        _buildSignUpButton(context),
+                                        SizedBox(height: 5),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.fromLTRB(0, 0, 0, 1),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 36),
-                                      _buildSignUpButton(context),
-                                      SizedBox(height: 34),
-                                    ],
-                                  ),
-                                ),
-                              ],),
+                                ],
+                              ),
                             ),
                             Container(
-                                margin: EdgeInsets.fromLTRB(0, 0, 0, 1),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 24),
-                                    _buildGoogleButton(context),
-                                    SizedBox(height: 46)
-                                  ],
-                                ),
+                              margin: EdgeInsets.fromLTRB(0, 0, 0, 1),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 24),
+                                  _buildGoogleButton(context),
+                                  SizedBox(height: 46)
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -218,16 +219,13 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-
   _signUp() async {
     print('_formKey.currentState: ${formKey.currentState}');
     try {
       if (formKey.currentState!.validate()) {
         try {
           final credential = await authProvider.registerWithEmail(
-              emailController.text,
-              passwordController.text
-          );
+              emailController.text, passwordController.text);
           if (credential != null) {
             print("Usuario registrado con éxito en Firebase");
             Navigator.pushNamed(context, Routes.home);
@@ -249,112 +247,80 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-Widget _buildNameField(BuildContext context, ThemeData theme) {
-  return Container (
-    width: double.maxFinite, 
-    margin: EdgeInsets.symmetric(horizontal: 30), 
-    child: Column (
-    crossAxisAlignment: CrossAxisAlignment.start, 
-    children: [
-      BaseDecoration.buildPaddingField(context, 'nombre'),
-      SizedBox(height: 12),
-      BaseTextFormField(
-        controller: nameController,
-        validator: validateName,
-        fillColor: theme.colorScheme.background.withOpacity(0.7),
-      )
-    ]
-    )
-  );
-}
+  Widget _buildEmailField(BuildContext context, ThemeData theme) {
+    return Container(
+        width: double.maxFinite,
+        margin: EdgeInsets.symmetric(horizontal: 30),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          BaseDecoration.buildPaddingField(context, 'Email'),
+          SizedBox(height: 5),
+          BaseTextFormField(
+            controller: emailController,
+            validator: validateEmail,
+            fillColor: theme.colorScheme.background.withOpacity(0.7),
+          )
+        ]));
+  }
 
-Widget _buildEmailField(BuildContext context, ThemeData theme) {
-  return Container (
-    width: double.maxFinite, 
-    margin: EdgeInsets.symmetric(horizontal: 30), 
-    child: Column (
-    crossAxisAlignment: CrossAxisAlignment.start, 
-    children: [
-      BaseDecoration.buildPaddingField(context, 'email'),
-      SizedBox(height: 12),
-      BaseTextFormField(
-        controller: emailController,
-        validator: validateEmail,
-        fillColor: theme.colorScheme.background.withOpacity(0.7),
-      )
-    ]
-    )
-  );
-}
+  Widget _buildPasswordField(BuildContext context, ThemeData theme) {
+    return Container(
+        width: double.maxFinite,
+        margin: EdgeInsets.symmetric(horizontal: 30),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          BaseDecoration.buildPaddingField(context, 'Contraseña'),
+          SizedBox(height: 5),
+          BaseTextFormField(
+            controller: passwordController,
+            textInputAction: TextInputAction.done,
+            obscureText: true,
+            validator: validatePassword,
+            fillColor: theme.colorScheme.background.withOpacity(0.7),
+          )
+        ]));
+  }
 
-Widget _buildPasswordField(BuildContext context, ThemeData theme) {
-  return Container (
-    width: double.maxFinite, 
-    margin: EdgeInsets.symmetric(horizontal: 30), 
-    child: Column (
-      crossAxisAlignment: CrossAxisAlignment.start, 
-      children: [
-        BaseDecoration.buildPaddingField(context, 'contraseña'),
-        SizedBox(height: 12),
-        BaseTextFormField(
-          controller: passwordController, 
-          textInputAction: TextInputAction. done,
-          obscureText: true,
-          validator: validatePassword,
-          fillColor: theme.colorScheme.background.withOpacity(0.7),
-        )
-      ]
-    )
-  );
-}
-
-Widget _buildConfirmPasswordField(BuildContext context, ThemeData theme) {
-  return Container (
-    width: double.maxFinite, 
-    margin: EdgeInsets.symmetric(horizontal: 30), 
-    child: Column (
-      crossAxisAlignment: CrossAxisAlignment.start, 
-      children: [
-        BaseDecoration.buildPaddingField(context, 'confirmar contraseña'),
-        SizedBox(height: 12),
-        BaseTextFormField(
-          controller: confirmPasswordController, 
-          textInputAction: TextInputAction. done,
-          obscureText: true,
-          validator: (value) => validateConfirmPassword(value, passwordController.text),
-          fillColor: theme.colorScheme.background.withOpacity(0.7),
-        )
-      ]
-    )
-  );
-}
+  Widget _buildConfirmPasswordField(BuildContext context, ThemeData theme) {
+    return Container(
+        width: double.maxFinite,
+        margin: EdgeInsets.symmetric(horizontal: 30),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          BaseDecoration.buildPaddingField(context, 'Confirmar contraseña'),
+          SizedBox(height: 5),
+          BaseTextFormField(
+            controller: confirmPasswordController,
+            textInputAction: TextInputAction.done,
+            obscureText: true,
+            validator: (value) =>
+                validateConfirmPassword(value, passwordController.text),
+            fillColor: theme.colorScheme.background.withOpacity(0.7),
+          )
+        ]));
+  }
 
   Widget _buildSignUpButton(BuildContext context) {
-    return BaseElevatedButton (
+    return BaseElevatedButton(
       text: "Regístrate",
       buttonTextStyle: ThemeTextStyle.titleLargeOnPrimary(context),
-      margin: EdgeInsets. symmetric(horizontal: 36),
+      margin: EdgeInsets.symmetric(horizontal: 36),
       buttonStyle: ThemeButtonStyle.primaryButtonStyle(context),
       onPressed: _signUp,
     );
   }
-    
-  Widget _buildGoogleButton (BuildContext context) {
+
+  Widget _buildGoogleButton(BuildContext context) {
     return BaseElevatedButton(
       text: "Continuar con Google",
-      margin: EdgeInsets. symmetric(horizontal: 36),
+      margin: EdgeInsets.symmetric(horizontal: 36),
       leftIcon: Container(
         margin: EdgeInsets.only(right: 14),
         child: SvgPicture.asset(
-          width: 32,
-          height: 32,
-          'assets/icons/google.svg',
-          semanticsLabel: 'shape'
-        ),
+            width: 32,
+            height: 32,
+            'assets/icons/google.svg',
+            semanticsLabel: 'shape'),
       ),
-      buttonStyle: ThemeButtonStyle.googleButtonStyle(context), 
+      buttonStyle: ThemeButtonStyle.googleButtonStyle(context),
       buttonTextStyle: ThemeTextStyle.titleLargeGoogle(context),
     );
-    
   }
 }
