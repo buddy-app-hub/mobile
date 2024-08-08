@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/routes.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,19 +19,22 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: appBar(theme),
       body: Center(
-        child: SingleChildScrollView( // Hacer que el contenido sea desplazable verticalmente
+        child: SingleChildScrollView(
+          // Hacer que el contenido sea desplazable verticalmente
           child: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal, // Hacer que el contenido sea desplazable horizontalmente
+                  scrollDirection: Axis
+                      .horizontal, // Hacer que el contenido sea desplazable horizontalmente
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Column( // TODO: mostrar la data segun el usuario. Deberiamos tener los mismos models que el back para parsearlos
+                      Column(
+                        // TODO: mostrar la data segun el usuario. Deberiamos tener los mismos models que el back para parsearlos
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [ 
+                        children: [
                           Text(authProvider.user?.email ?? "No logueado"),
                           if (authProvider.userData != null)
                             ...buildUserDetails(authProvider.userData!),
@@ -41,14 +43,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await authProvider.signOut();
-                  Navigator.pushReplacementNamed(context, Routes.login);
-                },
-                child: Text('Logout'),
-              ),
+              )
             ],
           ),
         ),
