@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/theme/theme_text_style.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -12,67 +11,41 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return 
-    SafeArea(
+    return SafeArea(
       top: false,
       bottom: false,
       child: Scaffold(
-        backgroundColor: theme.colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.background,
         extendBody: true,
-        extendBodyBehindAppBar: true, 
-        resizeToAvoidBottomInset: false, 
+        extendBodyBehindAppBar: true,
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
         body: Stack(
           children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              top: -15,
-              height: 530,
-              child: CarouselSlider(
-                items: [
-                  Image.asset('assets/images/adultProfile.jpeg', fit: BoxFit.cover),
-                  Image.asset('assets/images/adultProfile2.jpeg', fit: BoxFit.cover),
-                  Image.asset('assets/images/adultProfile3.jpeg', fit: BoxFit.cover),
-                  ],
-                options: CarouselOptions(
-                  aspectRatio: 9/45,
-                  viewportFraction: 1,
-                  initialPage: 0,
-                  enableInfiniteScroll: true,
-                  autoPlay: true,
-                  autoPlayInterval: Duration(seconds: 4),
-                  autoPlayCurve: Curves.fastOutSlowIn,
-                ),
-                ),
-            ),
             SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.fromLTRB(0, 375, 0, 0),
+                padding: EdgeInsets.fromLTRB(0, 100, 0, 0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    // Container(
-                    //   margin: EdgeInsets.fromLTRB(28, 0, 28, 20),
-                    //   decoration: BoxDecoration(
-                    //     borderRadius: BorderRadius.circular(32),
-                    //     color: Color(0xFFCED78D),
-                    //     boxShadow: [
-                    //       BoxShadow(
-                    //         color: Color(0x33270158),
-                    //         offset: Offset(0, 4),
-                    //         blurRadius: 12.5,
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
                     Container(
-                      decoration: BaseDecoration.boxCurveLR(context),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.background,
+                      ),
                       child: Container(
                         padding: EdgeInsets.fromLTRB(0, 20, 0, 40),
                         child: Column(
@@ -164,18 +137,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 RichText(
                   text: TextSpan(
-                    style: TextStyle(
-                      color: Color(0xFFFFCD1A),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    children: [
-                      TextSpan(text: '4.4 '),
-                      TextSpan(
-                        text: '(41 opiniones)',
-                        style: ThemeTextStyle.titleSmallBright(context),
+                      style: TextStyle(
+                        color: Color(0xFFFFCD1A),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
                       ),
-                  ]),
+                      children: [
+                        TextSpan(text: '4.4 '),
+                        TextSpan(
+                          text: '(41 opiniones)',
+                          style: ThemeTextStyle.titleSmallBright(context),
+                        ),
+                      ]),
                 ),
               ],
             ),
@@ -215,7 +188,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () {
                     print('mis datos personales se quiere cambiar');
                   },
-                  child: BaseDecoration.buildOption(context, 'Mis datos personales'),
+                  child: BaseDecoration.buildOption(
+                      context, 'Mis datos personales'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
@@ -231,7 +205,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () {
                     print('se quiere cambiar contraseña');
                   },
-                  child: BaseDecoration.buildOption(context, 'Cambiar contraseña'),
+                  child:
+                      BaseDecoration.buildOption(context, 'Cambiar contraseña'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
@@ -247,7 +222,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () {
                     print('descripcrion e intereses se quiere cambiar');
                   },
-                  child: BaseDecoration.buildOption(context, 'Descripción e intereses'),
+                  child: BaseDecoration.buildOption(
+                      context, 'Descripción e intereses'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
@@ -263,7 +239,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () {
                     print('dispo horaria se quiere cambiar');
                   },
-                  child: BaseDecoration.buildOption(context, 'Disponibilidad horaria'),
+                  child: BaseDecoration.buildOption(
+                      context, 'Disponibilidad horaria'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
@@ -275,9 +252,10 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               GestureDetector(
                 onTap: () {
-                    print('supervision familiar se quiere cambiar');
-                  },
-                child: BaseDecoration.buildOption(context, 'Supervisión familiar'),
+                  print('supervision familiar se quiere cambiar');
+                },
+                child:
+                    BaseDecoration.buildOption(context, 'Supervisión familiar'),
               ),
               BaseDecoration.buildOpacity(context),
             ],
@@ -346,18 +324,30 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    print('se quiere cerrar sesion');
+                    print('terminos y condiciones se quiere cambiar');
                   },
-                  child: BaseDecoration.buildOption(context, 'Cerrar sesión'),
+                  child: BaseDecoration.buildOption(
+                      context, 'Terminos y Condiciones'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
             ),
           ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  print('cerrar sesion se quiere cambiar');
+                },
+                child: BaseDecoration.buildOption(context, 'Cerrar sesión'),
+              ),
+              BaseDecoration.buildOpacity(context),
+            ],
+          ),
         ],
       ),
     );
   }
-
-  
 }
