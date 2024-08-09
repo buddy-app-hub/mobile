@@ -66,6 +66,17 @@ class ThemeButtonStyle {
     );
   }
 
+  static ButtonStyle tertiaryRoundedButtonStyle(BuildContext context) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.tertiary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(100),
+      ),
+      shadowColor: Theme.of(context).colorScheme.shadow,
+      elevation: 1,
+    );
+  }
+
   static ButtonStyle get none => ButtonStyle(
     backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
     elevation: MaterialStateProperty.all<double>(0),

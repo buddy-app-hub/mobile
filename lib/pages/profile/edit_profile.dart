@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({Key? key, this.animationController}) : super(key: key);
+
+  final AnimationController? animationController;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -135,50 +136,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: ThemeTextStyle.titleLargeOnBackground(context),
               ),
             ),
-            Row(
-              children: [
-                Container(
-                  margin: EdgeInsets.fromLTRB(10, 3.3, 8.6, 3.3),
-                  child: SizedBox(
-                    width: 10.6,
-                    height: 13.3,
-                    child: SvgPicture.asset(
-                      'assets/icons/iconLocation.svg',
-                      color: theme.colorScheme.tertiary,
-                    ),
-                  ),
-                ),
-                Text(
-                  'Buenos Aires',
-                  style: ThemeTextStyle.titleSmallBright(context),
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(7, 3.3, 1.6, 3.3),
-                  child: SizedBox(
-                    width: 10.6,
-                    height: 13.3,
-                    child: SvgPicture.asset(
-                      'assets/icons/star.svg',
-                    ),
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      color: Color(0xFFFFCD1A),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    children: [
-                      TextSpan(text: '4.4 '),
-                      TextSpan(
-                        text: '(41 opiniones)',
-                        style: ThemeTextStyle.titleSmallBright(context),
-                      ),
-                  ]),
-                ),
-              ],
-            ),
+            BaseDecoration.buildRowLocationReview(context, 'Buenos Aires', '4.4', '20'),
           ],
         ),
       ],
@@ -188,11 +146,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildProfileSettings(BuildContext context) {
     return Column(
       children: [
-        BaseDecoration.builTitleProfile(context, 'Información personal'),
+        BaseDecoration.buildTitleProfile(context, 'Información personal'),
         _buildPersonalInformation(context),
-        BaseDecoration.builTitleProfile(context, 'Actividad'),
+        BaseDecoration.buildTitleProfile(context, 'Actividad'),
         _buildActivity(context),
-        BaseDecoration.builTitleProfile(context, 'Configuración'),
+        BaseDecoration.buildTitleProfile(context, 'Configuración'),
         _buildSettings(context),
       ],
     );
