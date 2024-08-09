@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user_data.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/theme/theme_text_style.dart';
-import 'package:mobile/widgets/base_card_connection.dart';
+import 'package:mobile/widgets/base_card_meeting.dart';
+import 'package:provider/provider.dart';
 
-class ForYouPage extends StatelessWidget {
+class ForYouPage extends StatefulWidget {
+  const ForYouPage({super.key});
+
+  @override
+  State<ForYouPage> createState() => _ForYouPageState();
+}
+
+class _ForYouPageState extends State<ForYouPage> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthSessionProvider>(context);
+    UserData userData = authProvider.userData!;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -35,13 +51,21 @@ class ForYouPage extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        BaseCardConnection(
-                          activity: 'Paseo por el parque',
-                          person: 'Ana Rodriguez',
-                          location: 'Pilar', 
-                          date: 'Miercoles 14 de Agosto', 
-                          time: 'Jueves de 17.00 a 18.30',
-                          avatars: List<String>.from(<String>['assets/images/avatar.png', 'assets/images/avatarBuddy.jpeg']),
+                        FutureBuilder<List<Widget>>(
+                          future: fetchMeetingsAsFuture(userData),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              if (snapshot.hasError) {
+                                return Text('Error fetching meetings');
+                              } else {
+                                return Column(
+                                  children: snapshot.data!,
+                                );
+                              }
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          },
                         ),
                       ],
                     ),

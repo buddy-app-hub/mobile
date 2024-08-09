@@ -1,10 +1,96 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/connection.dart';
+import 'package:mobile/models/meeting.dart';
+import 'package:mobile/models/meeting_location.dart';
+import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/models/user_data.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
 import 'package:mobile/widgets/base_elevated_button.dart';
+import 'package:mobile/services/api_service_base.dart';
 
-class BaseCardConnection extends StatelessWidget {
+Future<List<Connection>> _getUserConnections(UserData userData) async {
+  String endpoint;
+  if (userData.buddy != null) {
+    endpoint = "/connections/buddies/${userData.buddy?.firebaseUID}";
+  } else {
+    endpoint = "/connections/elders/${userData.elder?.firebaseUID}";
+  }
+  var response = await ApiService.get<dynamic>(
+    endpoint: endpoint,
+  );
+
+  List<Connection> connections = (response as List<dynamic>)
+          .map((e) => Connection.fromJson(e as Map<String, dynamic>))
+          .toList();
+          
+  return connections;
+}
+
+Future<List<Widget>> fetchMeetingsAsFuture(UserData userData) async {
+  final stream = fetchMeetings(userData);
+  return stream.toList(); 
+}
+
+Stream<Widget> fetchMeetings(UserData userData) async* {
+  List<Connection> connections = await _getUserConnections(userData);
+
+  for (var connection in connections) {
+    yield await buildCards(connection, userData);
+  }
+}
+
+Future<Column> buildCards(Connection connection, UserData userData) async {
+  String personID;
+  bool isBuddy = userData.buddy != null;
+  if (isBuddy) {
+    personID = connection.elderID;
+  } else {
+    personID = connection.buddyID;
+  }
+  String personName = await fetchPersonName(personID, isBuddy);
+  return Column(
+    children: connection.meetings.map((meeting) => buildCard(personName, meeting)).toList(),
+  );
+}
+
+Future<String> fetchPersonName(String personID, bool isBuddy) async {
+  String endpoint = isBuddy ? "/elders/$personID" : "/buddies/$personID";
+  var response = await ApiService.get<dynamic>(
+    endpoint: endpoint,
+  );
+  return '${response['firstName']} ${response['lastName']}';
+}
+
+Future<List<String>> fetchAvatars(String personID, bool isBuddy) async {
+  return ['assets/images/avatar.png', 'assets/images/avatarBuddy.jpeg'];
+}
+
+String formatDate(custom_time.TimeOfDay date) {
+  return "${date.dayOfWeek} 13 de Agosto";
+}
+
+String formatTime(custom_time.TimeOfDay date) {
+  return 'De ${date.from} a ${date.to}';
+}
+
+String formatLocation(MeetingLocation location) {
+  return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
+}
+
+BaseCardMeeting buildCard(String personName, Meeting meeting) {
+  return BaseCardMeeting(
+    activity: meeting.activity,
+    person: personName,
+    date: formatDate(meeting.date),
+    time: formatTime(meeting.date),
+    location: formatLocation(meeting.location),
+    avatars: ['assets/images/avatar.png', 'assets/images/avatarBuddy.jpeg'],
+  );
+}
+
+class BaseCardMeeting extends StatelessWidget {
   final String activity;
   final String person;
   final String date;
@@ -12,7 +98,7 @@ class BaseCardConnection extends StatelessWidget {
   final String location;
   final List<String> avatars;
 
-  const BaseCardConnection({
+  const BaseCardMeeting({
     super.key,
     required this.activity,
     required this.person,
