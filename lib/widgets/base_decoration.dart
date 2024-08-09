@@ -117,10 +117,10 @@ class BaseDecoration {
             children: [
               Icon(
                 icon,
-                color: Theme.of(context).iconTheme.color, // Color del ícono
-                size: 16, // Tamaño del ícono
+                color: Theme.of(context).iconTheme.color,
+                size: 16,
               ),
-              SizedBox(width: 8), // Espacio entre el ícono y el texto
+              SizedBox(width: 8),
               Text(
                 text,
                 style: ThemeTextStyle.itemLargeOnBackground(context),

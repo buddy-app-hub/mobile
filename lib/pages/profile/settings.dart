@@ -92,16 +92,16 @@ class _SettingsPageState extends State<SettingsPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSettingsRow(context, 'Mis datos personales', true,
-              Icons.arrow_back, () => {}),
           _buildSettingsRow(
-              context, 'Cambiar contraseña', true, Icons.arrow_back, () => {}),
+              context, 'Mis datos personales', true, Icons.person, () => {}),
+          _buildSettingsRow(
+              context, 'Cambiar contraseña', true, Icons.lock, () => {}),
           _buildSettingsRow(context, 'Supervisión familiar',
-              authProvider.isElder, Icons.arrow_back, () => {}),
+              authProvider.isElder, Icons.supervisor_account, () => {}),
           _buildSettingsRow(
-              context, 'Motificaciones', true, Icons.arrow_back, () => {}),
-          _buildSettingsRow(context, 'Términos y condiciones', true,
-              Icons.arrow_back, () => {}),
+              context, 'Notificaciones', true, Icons.notifications, () => {}),
+          _buildSettingsRow(
+              context, 'Términos y condiciones', true, Icons.article, () => {}),
         ],
       ),
     );
@@ -117,13 +117,13 @@ class _SettingsPageState extends State<SettingsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSettingsRow(context, 'Método de pago', authProvider.isElder,
-              Icons.arrow_back, () => {}),
+              Icons.payment, () => {}),
           _buildSettingsRow(context, 'Método de cobro', authProvider.isBuddy,
-              Icons.arrow_back, () => {}),
+              Icons.attach_money, () => {}),
           _buildSettingsRow(context, 'Tips para ser un buen Buddy',
-              authProvider.isBuddy, Icons.arrow_back, () => {}),
+              authProvider.isBuddy, Icons.lightbulb, () => {}),
           _buildSettingsRow(context, 'Tips para ser un buen Mayor',
-              authProvider.isElder, Icons.arrow_back, () => {}),
+              authProvider.isElder, Icons.emoji_people, () => {}),
         ],
       ),
     );
@@ -137,11 +137,11 @@ class _SettingsPageState extends State<SettingsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSettingsRow(
-              context, 'Instagram', true, Icons.arrow_back, () => {}),
+              context, 'Instagram', true, Icons.camera_alt, () => {}),
           _buildSettingsRow(
-              context, 'Facebook', true, Icons.arrow_back, () => {}),
+              context, 'Facebook', true, Icons.facebook, () => {}),
           _buildSettingsRow(
-              context, 'Youtube', true, Icons.arrow_back, () => {}),
+              context, 'Youtube', true, Icons.video_library, () => {}),
         ],
       ),
     );
@@ -156,13 +156,13 @@ class _SettingsPageState extends State<SettingsPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSettingsRow(context, 'Cerrar sesión', true, Icons.arrow_back,
+          _buildSettingsRow(context, 'Cerrar sesión', true, Icons.logout,
               () async {
             await authProvider.signOut();
             Navigator.pushReplacementNamed(context, Routes.login);
           }),
           _buildSettingsRow(
-              context, 'Eliminar cuenta', true, Icons.arrow_back, () => {}),
+              context, 'Eliminar cuenta', true, Icons.delete, () => {}),
         ],
       ),
     );
