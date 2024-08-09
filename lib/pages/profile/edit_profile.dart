@@ -37,7 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.fromLTRB(0, 100, 0, 0),
+                padding: EdgeInsets.fromLTRB(0, 80, 0, 0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -52,19 +52,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Container(
-                              margin: EdgeInsets.fromLTRB(0, 0, 0, 8),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.fromLTRB(2, 0, 0, 1),
-                                    child: _buildProfileInfo(context, theme),
-                                  ),
-                                ],
-                              ),
-                            ),
                             _buildProfileSettings(context),
                           ],
                         ),
@@ -77,84 +64,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildProfileInfo(BuildContext context, ThemeData theme) {
-    return Row(
-      children: [
-        Container(
-          margin: EdgeInsets.fromLTRB(50, 0, 6, 0),
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage(
-                'assets/images/avatar.png',
-              ),
-            ),
-            borderRadius: BorderRadius.circular(100.0),
-          ),
-          child: Container(
-            width: 70,
-            height: 71.3,
-          ),
-        ),
-        Column(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 40, 5),
-              child: Text(
-                'Pepe Argento',
-                style: ThemeTextStyle.titleLargeOnBackground(context),
-              ),
-            ),
-            Row(
-              children: [
-                Container(
-                  margin: EdgeInsets.fromLTRB(10, 3.3, 8.6, 3.3),
-                  child: SizedBox(
-                    width: 10.6,
-                    height: 13.3,
-                    child: SvgPicture.asset(
-                      'assets/icons/iconLocation.svg',
-                      color: theme.colorScheme.tertiary,
-                    ),
-                  ),
-                ),
-                Text(
-                  'Buenos Aires',
-                  style: ThemeTextStyle.titleSmallBright(context),
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(7, 3.3, 1.6, 3.3),
-                  child: SizedBox(
-                    width: 10.6,
-                    height: 13.3,
-                    child: SvgPicture.asset(
-                      'assets/icons/star.svg',
-                    ),
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                      style: TextStyle(
-                        color: Color(0xFFFFCD1A),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      children: [
-                        TextSpan(text: '4.4 '),
-                        TextSpan(
-                          text: '(41 opiniones)',
-                          style: ThemeTextStyle.titleSmallBright(context),
-                        ),
-                      ]),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
     );
   }
 
