@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/routes.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -203,6 +206,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildSettings(BuildContext context) {
+    final authProvider = Provider.of<AuthSessionProvider>(context);
+
     return Container(
       margin: EdgeInsets.fromLTRB(43, 0, 30, 0),
       child: Column(
@@ -247,8 +252,9 @@ class _ProfilePageState extends State<ProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onTap: () {
-                  print('cerrar sesion se quiere cambiar');
+                onTap: () async {
+                  await authProvider.signOut();
+                  Navigator.pushReplacementNamed(context, Routes.login);
                 },
                 child: BaseDecoration.buildOption(context, 'Cerrar sesión'),
               ),
