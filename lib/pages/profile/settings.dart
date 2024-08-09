@@ -181,7 +181,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   onTap: () {
                     callback();
                   },
-                  child: BaseDecoration.buildOption(context, title),
+                  child:
+                      BaseDecoration.buildOptionWithIcon(context, icon, title),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
