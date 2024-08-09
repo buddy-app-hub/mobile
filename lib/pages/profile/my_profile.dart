@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/profile/edit_profile.dart';
+import 'package:mobile/pages/profile/settings.dart';
 import 'package:mobile/routes.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +22,7 @@ class MyProfilePage extends StatelessWidget {
                 context,
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                      ProfilePage(),
+                      SettingsPage(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     const begin = Offset(1.0, 0.0);

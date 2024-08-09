@@ -31,7 +31,6 @@ class _NavigationState extends State<Navigation> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthSessionProvider>(context);
-    bool userIsBuddy = authProvider.userData!.buddy != null;
 
     return Scaffold(
       body: Center(
@@ -45,7 +44,7 @@ class _NavigationState extends State<Navigation> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.group),
-            label: userIsBuddy ? 'Mayores' : 'Buddies',
+            label: authProvider.isBuddy ? 'Mayores' : 'Buddies',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_2),
