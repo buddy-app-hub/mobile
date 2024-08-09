@@ -73,12 +73,14 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildProfileSettings(BuildContext context) {
     return Column(
       children: [
-        BaseDecoration.builTitleProfile(context, 'Información personal'),
+        BaseDecoration.builTitleProfile(context, 'Configuración de tu cuenta'),
         _buildPersonalInformation(context),
         BaseDecoration.builTitleProfile(context, 'Actividad'),
         _buildActivity(context),
-        BaseDecoration.builTitleProfile(context, 'Configuración'),
-        _buildSettings(context),
+        BaseDecoration.builTitleProfile(context, 'Nuestras redes sociales'),
+        _buildSocialNetworks(context),
+        BaseDecoration.builTitleProfile(context, ''),
+        _buildLogOut(context),
       ],
     );
   }
@@ -132,10 +134,10 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    print('descripcrion e intereses se quiere cambiar');
+                    print('terminos y condiciones se quiere cambiar');
                   },
                   child: BaseDecoration.buildOption(
-                      context, 'Descripción e intereses'),
+                      context, 'Supervisión familiar'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
@@ -149,28 +151,30 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    print('dispo horaria se quiere cambiar');
+                    print('notificaciones se quiere cambiar');
                   },
-                  child: BaseDecoration.buildOption(
-                      context, 'Disponibilidad horaria'),
+                  child: BaseDecoration.buildOption(context, 'Notificaciones'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  print('supervision familiar se quiere cambiar');
-                },
-                child:
-                    BaseDecoration.buildOption(context, 'Supervisión familiar'),
-              ),
-              BaseDecoration.buildOpacity(context),
-            ],
+          Container(
+            margin: EdgeInsets.fromLTRB(0, 0, 1, 19),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    print('terminos y condiciones se quiere cambiar');
+                  },
+                  child: BaseDecoration.buildOption(
+                      context, 'Terminos y condiciones'),
+                ),
+                BaseDecoration.buildOpacity(context),
+              ],
+            ),
           ),
         ],
       ),
@@ -205,7 +209,67 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildSettings(BuildContext context) {
+  Widget _buildSocialNetworks(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(43, 0, 30, 0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: EdgeInsets.fromLTRB(0, 0, 1, 19),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    print('metodo de pago se quiere cambiar');
+                  },
+                  child: BaseDecoration.buildOption(context, 'Instagram'),
+                ),
+                BaseDecoration.buildOpacity(context),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(0, 0, 1, 19),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    print('metodo de pago se quiere cambiar');
+                  },
+                  child: BaseDecoration.buildOption(context, 'Facebook'),
+                ),
+                BaseDecoration.buildOpacity(context),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(0, 0, 1, 19),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    print('metodo de pago se quiere cambiar');
+                  },
+                  child: BaseDecoration.buildOption(context, 'Youtube'),
+                ),
+                BaseDecoration.buildOpacity(context),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogOut(BuildContext context) {
     final authProvider = Provider.of<AuthSessionProvider>(context);
 
     return Container(
@@ -221,10 +285,11 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    print('notificaciones se quiere cambiar');
+                  onTap: () async {
+                    await authProvider.signOut();
+                    Navigator.pushReplacementNamed(context, Routes.login);
                   },
-                  child: BaseDecoration.buildOption(context, 'Notificaciones'),
+                  child: BaseDecoration.buildOption(context, 'Cerrar sesión'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
@@ -238,28 +303,13 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    print('terminos y condiciones se quiere cambiar');
+                    print('metodo de pago se quiere cambiar');
                   },
-                  child: BaseDecoration.buildOption(
-                      context, 'Terminos y Condiciones'),
+                  child: BaseDecoration.buildOption(context, 'Eliminar cuenta'),
                 ),
                 BaseDecoration.buildOpacity(context),
               ],
             ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () async {
-                  await authProvider.signOut();
-                  Navigator.pushReplacementNamed(context, Routes.login);
-                },
-                child: BaseDecoration.buildOption(context, 'Cerrar sesión'),
-              ),
-              BaseDecoration.buildOpacity(context),
-            ],
           ),
         ],
       ),
