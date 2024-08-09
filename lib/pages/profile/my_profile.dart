@@ -64,17 +64,44 @@ class MyProfilePage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Chip(
-                label: Text(
-                  'Buddy',
-                  style: TextStyle(
-                    color: theme.colorScheme.onTertiary,
-                    fontWeight: FontWeight.bold,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Chip(
+                    label: Text(
+                      'Buddy',
+                      style: TextStyle(
+                        color: theme.colorScheme.onTertiary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    backgroundColor: theme.colorScheme.tertiary,
+                    padding:
+                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                   ),
-                ),
-                backgroundColor: theme.colorScheme.tertiary,
-                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-              ),
+                  SizedBox(width: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_month,
+                        color: theme.iconTheme.color,
+                        size: 16,
+                      ),
+                      SizedBox(width: 4), // Espacio entre el icono y el texto
+                      Text(
+                        "Jul 2023",
+                        style: TextStyle(
+                          color: theme
+                              .textTheme.bodyText1?.color, // Color del texto
+                          fontWeight: FontWeight
+                              .bold, // Puedes ajustar el grosor del texto
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
             ],
           ),
           const SizedBox(height: 25),
