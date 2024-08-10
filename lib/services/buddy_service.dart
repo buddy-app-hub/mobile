@@ -6,6 +6,14 @@ import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
 
 class BuddyService {
+  Future<Buddy> getBuddy(String id) async {
+    var response = await ApiService.get(
+      endpoint: "/buddies/$id",
+    );
+
+    return Buddy.fromJson(response);
+  }
+
   Future<void> createBuddy(BuildContext context, Buddy buddy) async {
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
