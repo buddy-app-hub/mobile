@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/theme/theme_text_style.dart';
+import 'package:mobile/widgets/base_card_calendar.dart';
 import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:provider/provider.dart';
 
@@ -33,13 +34,13 @@ class _ForYouPageState extends State<ForYouPage> {
         children: [
           SingleChildScrollView( // Hacer que el contenido sea desplazable verticalmente
             child: Padding (
-              padding: const EdgeInsets.fromLTRB(18, 20, 18, 10),
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
               child: Column(
                 children: [
                   Row(
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                        margin: EdgeInsets.fromLTRB(0, 15, 0, 5),
                         child: Text(
                           'Próximos encuentros',
                           style: ThemeTextStyle.titleMediumInverseSurface(context),
@@ -48,7 +49,7 @@ class _ForYouPageState extends State<ForYouPage> {
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.fromLTRB(0, 18, 0, 0),
                     child: Column(
                       children: [
                         FutureBuilder<List<Widget>>(
@@ -70,6 +71,25 @@ class _ForYouPageState extends State<ForYouPage> {
                       ],
                     ),
                   ),
+                  Row(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(0, 25, 0, 5),
+                        child: Text(
+                          'Eventos Agendados',
+                          style: ThemeTextStyle.titleMediumInverseSurface(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 18, 0, 0),
+                    child: Column(
+                      children: [
+                        BaseCardCalendar(meetings: [],),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -77,23 +97,5 @@ class _ForYouPageState extends State<ForYouPage> {
         ],
       ),
     );
-  }
-
-  List<Widget> buildUserDetails(UserData userData) {
-    List<Widget> details = [];
-
-    if (userData.buddy != null) {
-      details.add(Text("User Type: Buddy"));
-    } else if (userData.elder != null) {
-      details.add(Text("User Type: Elder"));
-    }
-
-    userData.toJson().forEach((key, value) {
-      if (value != null) {
-        details.add(Text("$key: $value"));
-      }
-    });
-
-    return details;
   }
 }

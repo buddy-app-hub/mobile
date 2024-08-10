@@ -130,4 +130,12 @@ class ThemeTextStyle {
       fontWeight: FontWeight.w300,
     );
   }
+
+  static TextStyle titleSmallOnTertiaryContainer(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onTertiaryContainer,
+      fontSize: 15,
+      fontWeight: FontWeight.w400,
+    );
+  }
 }

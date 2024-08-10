@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
@@ -51,7 +52,9 @@ Future<Column> buildCards(Connection connection, UserData userData) async {
   }
   String personName = await fetchPersonName(personID, isBuddy);
   return Column(
-    children: connection.meetings.map((meeting) => buildCard(personName, meeting)).toList(),
+    children: connection.meetings
+    .where((m) => !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder)
+    .map((meeting) => buildCard(personName, meeting)).toList(),
   );
 }
 
@@ -68,7 +71,7 @@ Future<List<String>> fetchAvatars(String personID, bool isBuddy) async {
 }
 
 String formatDate(custom_time.TimeOfDay date) {
-  return "${date.dayOfWeek} 13 de Agosto";
+  return "${date.dayOfWeek} 13 de Agosto"; //fix a que sea la fecha completa
 }
 
 String formatTime(custom_time.TimeOfDay date) {
@@ -120,10 +123,14 @@ class BaseCardMeeting extends StatelessWidget {
           onTap: () {
             debugPrint('Item tapped.');
           },
-          child: SizedBox(
-            width: 375,
-            height: 230,
-            child: _buildConnectionInfo(context, theme),
+          child: Column(
+            children: [
+              SizedBox(
+                width: 375,
+                height: 230,
+                child: _buildConnectionInfo(context, theme),
+              ),
+            ],
           ),
         ),
       ),
@@ -139,9 +146,32 @@ class BaseCardMeeting extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '$activity con $person',
-                  style: ThemeTextStyle.titleMediumOnBackground(context),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        '$activity con $person',
+                        style: ThemeTextStyle.titleMediumOnBackground(context),
+                      ),
+                    ),
+                    PopupMenuButton(
+                      icon: Icon(Icons.more_vert),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'Reprogramar',
+                          child: Text('Reprogramar'),
+                        ),
+                        PopupMenuItem(
+                          value: 'Cancelar',
+                          child: Text('Cancelar'),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        print('Selected: $value');
+                      },
+                    ),
+                  ],
                 ),
                 Text(
                   '📍 $location',
