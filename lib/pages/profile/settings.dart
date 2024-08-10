@@ -14,7 +14,6 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
 
     return SafeArea(
       top: false,
@@ -71,13 +70,13 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildSettings(BuildContext context) {
     return Column(
       children: [
-        BaseDecoration.builTitleProfile(context, 'Configuración de tu cuenta'),
+        BaseDecoration.buildTitleProfile(context, 'Configuración de tu cuenta'),
         _buildPersonalInformation(context),
-        BaseDecoration.builTitleProfile(context, 'Actividad'),
+        BaseDecoration.buildTitleProfile(context, 'Actividad'),
         _buildActivity(context),
-        BaseDecoration.builTitleProfile(context, 'Nuestras redes sociales'),
+        BaseDecoration.buildTitleProfile(context, 'Nuestras redes sociales'),
         _buildSocialNetworks(context),
-        BaseDecoration.builTitleProfile(context, ''),
+        BaseDecoration.buildTitleProfile(context, ''),
         _buildLogOut(context),
       ],
     );

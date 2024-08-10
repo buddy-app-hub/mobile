@@ -122,4 +122,20 @@ class ThemeTextStyle {
       fontFamily: 'Comfortaa', //TODO: fix font family para reviews
     );
   }
+
+  static TextStyle titleMediumInverseSurface(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.inverseSurface,
+      fontSize: 18,
+      fontWeight: FontWeight.w300,
+    );
+  }
+
+  static TextStyle titleSmallOnTertiaryContainer(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onTertiaryContainer,
+      fontSize: 15,
+      fontWeight: FontWeight.w400,
+    );
+  }
 }

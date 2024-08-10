@@ -193,17 +193,17 @@ class _ViewProfilePagePageState extends State<ViewProfilePage> {
   Widget _buildProfileSettings(BuildContext context, ThemeData theme) {
     return Column(
       children: [
-        BaseDecoration.builTitleProfile(context, 'Sobre este buddy'),
+        BaseDecoration.buildTitleProfile(context, 'Sobre este buddy'),
         _buildPersonalInformation(context),
-        BaseDecoration.builTitleProfile(context, 'Intereses'),
+        BaseDecoration.buildTitleProfile(context, 'Intereses'),
         _buildInterests(context, theme),
-        BaseDecoration.builTitleProfile(context, 'Disponibilidad horaria'),
+        BaseDecoration.buildTitleProfile(context, 'Disponibilidad horaria'),
         _buildDisponibility(context, theme),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BaseDecoration.builTitleProfile(context, 'Opiniones'),
+            BaseDecoration.buildTitleProfile(context, 'Opiniones'),
             Container(
               margin: EdgeInsets.fromLTRB(0, 25, 28, 0),
               child: Align(
