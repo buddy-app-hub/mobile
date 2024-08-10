@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/settings.dart';
 import 'package:mobile/routes.dart';
+import 'package:mobile/widgets/base_decoration.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -155,7 +156,7 @@ class MyProfilePage extends StatelessWidget {
                   child: Card(
                     shadowColor: Colors.black12,
                     child: Padding(
-                      padding: const EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(10),
                       child: Column(
                         children: [
                           Icon(
@@ -250,13 +251,18 @@ class ProfileCompletionCard {
 
 List<ProfileCompletionCard> profileCompletionCards = [
   ProfileCompletionCard(
+    title: "Cargá tu foto de perfil",
+    icon: Icons.photo_camera,
+    buttonText: "Cargar",
+  ),
+  ProfileCompletionCard(
     title: "Completá tu biografía",
     icon: Icons.edit_document,
     buttonText: "Completar",
   ),
   ProfileCompletionCard(
     title: "Completá tus album de fotos",
-    icon: Icons.photo_camera,
+    icon: Icons.photo_album,
     buttonText: "Cargar",
   ),
   ProfileCompletionCard(
