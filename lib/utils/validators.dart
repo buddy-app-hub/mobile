@@ -1,4 +1,8 @@
 String? validateEmail(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Ingresá un correo electrónico válido';
+  }
+
   const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
       r'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-'
       r'\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*'
@@ -8,13 +12,13 @@ String? validateEmail(String? value) {
       r'x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])';
   final regex = RegExp(pattern);
 
-  return value!.isNotEmpty && !regex.hasMatch(value)
+  return !regex.hasMatch(value)
       ? 'Ingresá un correo electrónico válido'
       : null;
 }
 
 String? validatePassword(String? value) {
-  if (value!.isEmpty) {
+  if (value == null || value.isEmpty) {
     return 'Ingresá una contraseña';
   }
   if (value.length < 6) {
@@ -24,11 +28,11 @@ String? validatePassword(String? value) {
 }
 
 String? validateConfirmPassword(String? value, String? password) {
-  if (value!.isEmpty) {
+  if (value == null || value.isEmpty) {
     return 'Ingresá una contraseña';
   }
   if (value.length < 6) {
-    return 'Las contraseñas no coinciden';
+    return 'La contraseña debe tener al menos 6 caracteres';
   }
   if (password != value) {
     return 'Las contraseñas no coinciden';
@@ -37,7 +41,7 @@ String? validateConfirmPassword(String? value, String? password) {
 }
 
 String? validateName(String? value) {
-  if (value!.isEmpty) {
+  if (value == null || value.isEmpty) {
     return 'Ingresá un nombre';
   }
   return null;
