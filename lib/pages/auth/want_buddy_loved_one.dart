@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/loved_one.dart';
+import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/models/phone_number.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
@@ -42,9 +43,11 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
     if (formKey.currentState!.validate()) {
       Elder elder = Elder(
           firebaseUID: authProvider.user!.uid,
+          personalData: PersonalData(
           firstName: elderFirstNameController.text,
           lastName: elderLastNameController.text,
           gender: elderGenderController.text,
+          ),
           phoneNumber: PhoneNumber(
               countryCode: phoneCountryCodeController.text,
               number: phoneNumberController.text),

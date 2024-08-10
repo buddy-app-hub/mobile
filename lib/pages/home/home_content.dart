@@ -32,15 +32,16 @@ class _HomeContentPageState extends State<HomeContentPage>
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthSessionProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0 ,0),
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Row(
             children: [
               Text(
                 authProvider.userData != null
-                    ? buildGreeting(authProvider.userData!)
+                    ? 'Hola, ${authProvider.personalData.firstName}!'
                     : 'No logueado',
                 style: ThemeTextStyle.titleLargePrimary700(context),
               ),
@@ -67,17 +68,5 @@ class _HomeContentPageState extends State<HomeContentPage>
         ],
       ),
     );
-  }
-
-  String buildGreeting(UserData userData) {
-    String greeting = 'Hola!';
-    
-    userData.toJson().forEach((key, value) {
-      if (key.contains('firstName') && value != null) {
-        greeting = 'Hola, $value!';
-      }
-    });
-
-    return greeting;
   }
 }

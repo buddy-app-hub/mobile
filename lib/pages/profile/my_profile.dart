@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/settings.dart';
 import 'package:provider/provider.dart';
@@ -9,9 +10,6 @@ class MyProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthSessionProvider>(context);
-    final name = authProvider.isBuddy
-        ? '${authProvider.userData!.buddy!.firstName} ${authProvider.userData!.buddy!.lastName}'
-        : '${authProvider.userData!.elder!.firstName} ${authProvider.userData!.elder!.lastName}';
     final registrationDate = authProvider.isBuddy
         ? DateFormat('MMM yyyy')
             .format(authProvider.userData!.buddy!.registrationDate)
@@ -57,7 +55,6 @@ class MyProfilePage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          // COLUMN THAT WILL CONTAIN THE PROFILE
           Column(
             children: [
               CircleAvatar(
@@ -67,7 +64,7 @@ class MyProfilePage extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Text(
-                name,
+                '${authProvider.personalData.firstName} ${authProvider.personalData.lastName}',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -88,14 +85,14 @@ class MyProfilePage extends StatelessWidget {
                         color: theme.iconTheme.color,
                         size: 16,
                       ),
-                      SizedBox(width: 4), // Espacio entre el icono y el texto
+                      SizedBox(width: 4),
                       Text(
                         registrationDate,
                         style: TextStyle(
                           color: theme
-                              .textTheme.bodyLarge?.color, // Color del texto
+                              .textTheme.bodyLarge?.color,
                           fontWeight: FontWeight
-                              .bold, // Puedes ajustar el grosor del texto
+                              .bold,
                         ),
                       ),
                     ],
