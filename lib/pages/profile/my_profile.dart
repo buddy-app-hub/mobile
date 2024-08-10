@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -89,10 +89,8 @@ class MyProfilePage extends StatelessWidget {
                       Text(
                         registrationDate,
                         style: TextStyle(
-                          color: theme
-                              .textTheme.bodyLarge?.color,
-                          fontWeight: FontWeight
-                              .bold,
+                          color: theme.textTheme.bodyLarge?.color,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -197,6 +195,7 @@ class MyProfilePage extends StatelessWidget {
                   child: ListTile(
                     leading: Icon(tile.icon),
                     title: Text(tile.title),
+                    onTap: () => _handleTileTap(context, tile.title),
                     trailing: const Icon(Icons.chevron_right),
                   ),
                 ),
@@ -231,6 +230,32 @@ class MyProfilePage extends StatelessWidget {
         backgroundColor: theme.colorScheme.primary,
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       );
+
+  void _handleTileTap(BuildContext context, String title) {
+    Widget? targetPage;
+
+    switch (title) {
+      case 'Disponibilidad horaria':
+        targetPage = MyProfilePage(); // EditAvailabilityPage();
+      case 'Biografia':
+        targetPage = EditBiographyPage();
+      case 'Fotos':
+        targetPage = MyProfilePage(); // EditPhotosPage();
+      case 'Video introductorio':
+        targetPage = MyProfilePage(); // EditIntroVideoPage();
+      case 'Intereses':
+        targetPage = MyProfilePage(); // EditInterestsPage();
+      case 'Datos de trabajo y/o estudio':
+        targetPage = MyProfilePage(); // EditWorkOrStudyPage();
+    }
+
+    if (targetPage != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => targetPage!),
+      );
+    }
+  }
 }
 
 class ProfileCompletionCard {
@@ -256,7 +281,7 @@ List<ProfileCompletionCard> profileCompletionCards = [
     buttonText: "Completar",
   ),
   ProfileCompletionCard(
-    title: "Completá tus album de fotos",
+    title: "Completá tu album de fotos",
     icon: Icons.photo_album,
     buttonText: "Cargar",
   ),
@@ -295,16 +320,16 @@ List<CustomListTile> customListTiles = [
     title: "Fotos",
   ),
   CustomListTile(
-    icon: Icons.video_collection,
+    icon: Icons.video_camera_back,
     title: "Video introductorio",
   ),
   CustomListTile(
-    icon: Icons.airplane_ticket_outlined,
+    icon: Icons.favorite,
     title: "Intereses",
   ),
   CustomListTile(
-    title: "Datos de trabajo y/o estudio",
     icon: Icons.work,
+    title: "Datos de trabajo y/o estudio",
   ),
 ];
 

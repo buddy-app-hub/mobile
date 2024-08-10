@@ -35,6 +35,7 @@ class _EditBiographyPageState extends State<EditBiographyPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.check),
+            padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             onPressed: () {
               final updatedDescription = _biographyController.text;
               if (authProvider.isBuddy) {
