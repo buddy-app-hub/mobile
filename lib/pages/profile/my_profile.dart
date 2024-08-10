@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/settings.dart';
-import 'package:mobile/routes.dart';
-import 'package:mobile/widgets/base_decoration.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
