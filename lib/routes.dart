@@ -9,6 +9,6 @@ class Routes {
   static const String wantBuddyForMyself = '/want-buddy-myself';
   static const String wantBuddyForLovedOne = '/want-buddy-loved-one';
   static const String beBuddy = '/be-buddy';
-  static const String editProfile = '/profile';
+  static const String settings = '/settings';
   static const String viewProfile = '/view-profile';
 }

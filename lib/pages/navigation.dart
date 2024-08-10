@@ -33,42 +33,46 @@ class _NavigationState extends State<Navigation> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthSessionProvider>(context);
-    bool userIsBuddy = authProvider.userData!.buddy != null;
 
     return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: FlashyTabBar(
-      backgroundColor: theme.colorScheme.surface,
-      selectedIndex: _selectedIndex,
-      showElevation: true,
-      onItemSelected: _onItemTapped,
-      items: [
-          BaseDecoration.buildNavbarIconItem(context, 'Inicio', Icon(Icons.home_rounded)),
-          BaseDecoration.buildNavbarIconItem(context, userIsBuddy ? 'Mayores' : 'Buddies', Icon(Icons.diversity_3)),
-          BaseDecoration.buildNavbarIconItem(context, 'Perfil', Icon(Icons.person)),
-        ],
-    )
-      // BottomNavigationBar(
-      //   items: <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: 'Home',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.group),
-      //       label: userIsBuddy ? 'Mayores' : 'Buddies',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.person_2),
-      //       label: 'Perfil',
-      //     ),
-      //   ],
-      //   currentIndex: _selectedIndex,
-      //   selectedItemColor: theme.colorScheme.primary,
-      //   onTap: _onItemTapped,
-      // ),
-    );
+        body: Center(
+          child: _widgetOptions.elementAt(_selectedIndex),
+        ),
+        bottomNavigationBar: FlashyTabBar(
+          backgroundColor: theme.colorScheme.surface,
+          selectedIndex: _selectedIndex,
+          showElevation: true,
+          onItemSelected: _onItemTapped,
+          items: [
+            BaseDecoration.buildNavbarIconItem(
+                context, 'Inicio', Icon(Icons.home_rounded)),
+            BaseDecoration.buildNavbarIconItem(
+                context,
+                authProvider.isBuddy ? 'Mayores' : 'Buddies',
+                Icon(Icons.diversity_3)),
+            BaseDecoration.buildNavbarIconItem(
+                context, 'Perfil', Icon(Icons.person)),
+          ],
+        )
+        // BottomNavigationBar(
+        //   items: <BottomNavigationBarItem>[
+        //     BottomNavigationBarItem(
+        //       icon: Icon(Icons.home),
+        //       label: 'Home',
+        //     ),
+        //     BottomNavigationBarItem(
+        //       icon: Icon(Icons.group),
+        //       label: userIsBuddy ? 'Mayores' : 'Buddies',
+        //     ),
+        //     BottomNavigationBarItem(
+        //       icon: Icon(Icons.person_2),
+        //       label: 'Perfil',
+        //     ),
+        //   ],
+        //   currentIndex: _selectedIndex,
+        //   selectedItemColor: theme.colorScheme.primary,
+        //   onTap: _onItemTapped,
+        // ),
+        );
   }
 }

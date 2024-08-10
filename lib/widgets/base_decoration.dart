@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 
 class BaseDecoration {
-  
   static BoxDecoration boxCurveLR(BuildContext context) {
     return BoxDecoration(
       color: Theme.of(context).colorScheme.background,
@@ -14,7 +13,6 @@ class BaseDecoration {
       ),
     );
   }
-   
 
   static BoxDecoration boxCurveRight(BuildContext context) {
     return BoxDecoration(
@@ -35,8 +33,8 @@ class BaseDecoration {
   }
 
   static Widget buildPaddingField(BuildContext context, String text) {
-    return Padding (
-      padding: EdgeInsets.only(left: 10), 
+    return Padding(
+      padding: EdgeInsets.only(left: 10),
       child: Text(
         text,
         style: ThemeTextStyle.titleMediumOnBackground(context),
@@ -52,15 +50,15 @@ class BaseDecoration {
 
   static Container buildTitleProfile(BuildContext context, String title) {
     return Container(
-        margin: EdgeInsets.fromLTRB(28, 30, 5, 20),
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: Text(
-            title,
-            style: ThemeTextStyle.titleLargePrimary700(context),
-          ),
+      margin: EdgeInsets.fromLTRB(28, 30, 5, 20),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Text(
+          title,
+          style: ThemeTextStyle.titleLargePrimary700(context),
         ),
-      );
+      ),
+    );
   }
 
   static Widget buildTag(BuildContext context, String tag, ThemeData theme) {
@@ -89,6 +87,46 @@ class BaseDecoration {
           Text(
             text,
             style: ThemeTextStyle.itemLargeOnBackground(context),
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(0, 4.1, 0, 5),
+            width: 7.9,
+            height: 12.9,
+            child: SizedBox(
+              width: 7.9,
+              height: 12.9,
+              child: SvgPicture.asset(
+                'assets/icons/rightArrow.svg',
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget buildOptionWithIcon(
+      BuildContext context, IconData icon, String text) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(0, 0, 0.5, 21),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                color: Theme.of(context).iconTheme.color,
+                size: 16,
+              ),
+              SizedBox(width: 8),
+              Text(
+                text,
+                style: ThemeTextStyle.itemLargeOnBackground(context),
+              ),
+            ],
           ),
           Container(
             margin: EdgeInsets.fromLTRB(0, 4.1, 0, 5),
