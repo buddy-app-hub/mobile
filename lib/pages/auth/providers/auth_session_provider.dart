@@ -18,6 +18,8 @@ class AuthSessionProvider with ChangeNotifier {
   User? get user => _user;
   UserData? get userData => _userData;
   bool get isAuthenticated => _user != null && (_userData?.buddy != null || _userData?.elder != null);
+  bool get isBuddy => _user != null && (_userData?.buddy != null);
+  bool get isElder => _user != null && (_userData?.elder != null);
 
   Future<User?> registerWithEmail(String email, String password) async {
     _user = await _authService.createUserWithEmailAndPassword(email, password);

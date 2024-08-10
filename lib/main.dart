@@ -11,8 +11,7 @@ import 'package:mobile/pages/auth/want_buddy_loved_one.dart';
 import 'package:mobile/pages/auth/want_buddy_myself.dart';
 import 'package:mobile/pages/connections/my_connections.dart';
 import 'package:mobile/pages/home.dart';
-import 'package:mobile/pages/navigation.dart';
-import 'package:mobile/pages/profile/edit_profile.dart';
+import 'package:mobile/pages/profile/settings.dart';
 import 'package:mobile/pages/profile/my_profile.dart';
 import 'package:mobile/pages/profile/view_profile.dart';
 import 'package:mobile/routes.dart';
@@ -61,7 +60,7 @@ class MyApp extends StatelessWidget {
           Routes.home: (context) => HomePage(),
           Routes.myConnections: (context) => MyConnectionsPage(),
           Routes.myProfile: (context) => MyProfilePage(),
-          Routes.editProfile: (context) => ProfilePage(),
+          Routes.settings: (context) => SettingsPage(),
           Routes.viewProfile: (context) => ViewProfilePage(),
           Routes.chooseUser: (context) => const ChooseUserPage(),
           Routes.beBuddy: (context) => const BecomeBuddyPage(),
