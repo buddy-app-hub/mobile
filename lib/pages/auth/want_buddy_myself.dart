@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/elder_profile.dart';
+import 'package:mobile/models/identity_card.dart';
 import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/api_service_base.dart';
+import 'package:mobile/services/elder_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/phone_number.dart';
@@ -31,6 +34,8 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
   TextEditingController phoneCountryCodeController = TextEditingController();
 
   Future<void> _submitForm() async {
+    final ElderService elderService = ElderService();
+
     if (formKey.currentState!.validate()) {
       Elder elder = Elder(
         firebaseUID: authProvider.user!.uid,
@@ -47,22 +52,13 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
             'email', // TODO: ajustar cuando se agregue registro por Google
         email: authProvider.user!.email!,
         onLovedOneMode: false,
+        elderProfile: ElderProfile(),
+        identityCard: IdentityCard(),
       );
 
-      try {
-        await ApiService.post(
-          endpoint: "/elders",
-          body: elder.toJson(),
-        );
-        print("Datos enviados con éxito");
-
-        await authProvider
-            .fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
-
+        elderService.createElder(context, elder);
         Navigator.pushNamed(context, Routes.splashScreen);
-      } catch (e) {
-        print("Error al enviar los datos: $e");
-      }
+      
     } else {
       print("Formulario inválido");
     }

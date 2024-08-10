@@ -8,8 +8,8 @@ part of 'student_details.dart';
 
 StudentDetails _$StudentDetailsFromJson(Map<String, dynamic> json) =>
     StudentDetails(
-      institution: json['institution'] as String,
-      fieldOfStudy: json['fieldOfStudy'] as String,
+      institution: json['institution'] as String?,
+      fieldOfStudy: json['fieldOfStudy'] as String?,
     );
 
 Map<String, dynamic> _$StudentDetailsToJson(StudentDetails instance) =>

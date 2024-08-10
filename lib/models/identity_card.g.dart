@@ -7,8 +7,8 @@ part of 'identity_card.dart';
 // **************************************************************************
 
 IdentityCard _$IdentityCardFromJson(Map<String, dynamic> json) => IdentityCard(
-      number: json['number'] as String,
-      country: json['country'] as String,
+      number: json['number'] as String?,
+      country: json['country'] as String?,
     );
 
 Map<String, dynamic> _$IdentityCardToJson(IdentityCard instance) =>

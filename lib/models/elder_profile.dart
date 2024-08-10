@@ -6,14 +6,14 @@ part 'elder_profile.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ElderProfile {
-  final String description;
-  final List<Interest> interests;
-  final List<TimeOfDay> availability;
+  String? description;
+  final List<Interest>? interests;
+  final List<TimeOfDay>? availability;
 
   ElderProfile({
-    required this.description,
-    required this.interests,
-    required this.availability,
+    this.description,
+    this.interests,
+    this.availability,
   });
 
   factory ElderProfile.fromJson(Map<String, dynamic> json) => _$ElderProfileFromJson(json);
