@@ -5,11 +5,16 @@ import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
+import 'package:mobile/services/buddy_service.dart';
+import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
 import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:mobile/services/api_service_base.dart';
+
+BuddyService buddyService = BuddyService();
+ElderService elderService = ElderService();
 
 Future<List<Connection>> _getUserConnections(UserData userData) async {
   String endpoint;
@@ -23,15 +28,15 @@ Future<List<Connection>> _getUserConnections(UserData userData) async {
   );
 
   List<Connection> connections = (response as List<dynamic>)
-          .map((e) => Connection.fromJson(e as Map<String, dynamic>))
-          .toList();
-          
+      .map((e) => Connection.fromJson(e as Map<String, dynamic>))
+      .toList();
+
   return connections;
 }
 
 Future<List<Widget>> fetchMeetingsAsFuture(UserData userData) async {
   final stream = fetchMeetings(userData);
-  return stream.toList(); 
+  return stream.toList();
 }
 
 Stream<Widget> fetchMeetings(UserData userData) async* {
@@ -53,17 +58,18 @@ Future<Column> buildCards(Connection connection, UserData userData) async {
   String personName = await fetchPersonName(personID, isBuddy);
   return Column(
     children: connection.meetings
-    .where((m) => !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder)
-    .map((meeting) => buildCard(personName, meeting)).toList(),
+        .where((m) =>
+            !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder)
+        .map((meeting) => buildCard(personName, meeting))
+        .toList(),
   );
 }
 
 Future<String> fetchPersonName(String personID, bool isBuddy) async {
-  String endpoint = isBuddy ? "/elders/$personID" : "/buddies/$personID";
-  var response = await ApiService.get<dynamic>(
-    endpoint: endpoint,
-  );
-  return '${response['firstName']} ${response['lastName']}';
+  var personalData = isBuddy
+      ? (await elderService.getElder(personID)).personalData
+      : (await buddyService.getBuddy(personID)).personalData;
+  return '${personalData.firstName} ${personalData.lastName}';
 }
 
 Future<List<String>> fetchAvatars(String personID, bool isBuddy) async {
@@ -127,7 +133,7 @@ class BaseCardMeeting extends StatelessWidget {
             children: [
               SizedBox(
                 width: 375,
-                height: 230,
+                height: 240,
                 child: _buildConnectionInfo(context, theme),
               ),
             ],
@@ -197,15 +203,17 @@ class BaseCardMeeting extends StatelessWidget {
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
-                        buttonStyle: ThemeButtonStyle.tertiaryRoundedButtonStyle(context),
+                        buttonStyle:
+                            ThemeButtonStyle.tertiaryRoundedButtonStyle(
+                                context),
                         onPressed: () async {
                           print('voy al chat ?');
-                          // Navigator.pushReplacementNamed(context, Routes.homeContent); //fix desaparece el navbar 
+                          // Navigator.pushReplacementNamed(context, Routes.homeContent); //fix desaparece el navbar
                         },
                         height: 40,
                         width: 100,
                       ),
-                      Spacer(), 
+                      Spacer(),
                       Container(
                         width: 100,
                         height: 60,

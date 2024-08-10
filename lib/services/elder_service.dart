@@ -6,6 +6,14 @@ import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
 
 class ElderService {
+  Future<Elder> getElder(String id) async {
+    var response = await ApiService.get(
+      endpoint: "/elders/$id",
+    );
+
+    return Elder.fromJson(response);
+  }
+
   Future<void> createElder(BuildContext context, Elder elder) async {
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
