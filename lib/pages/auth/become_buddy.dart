@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/buddy.dart';
+import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/models/phone_number.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
@@ -33,15 +34,17 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
     if (formKey.currentState!.validate()) {
       Buddy buddy = Buddy(
         firebaseUID: authProvider.user!.uid,
-        firstName: firstNameController.text,
-        lastName: lastNameController.text,
-        gender: genderController.text,
+        personalData: PersonalData(
+          firstName: firstNameController.text,
+          lastName: lastNameController.text,
+          gender: genderController.text,
+        ),
         phoneNumber: PhoneNumber(
             countryCode: phoneCountryCodeController.text,
-            number: phoneNumberController.text
-        ),
+            number: phoneNumberController.text),
         registrationDate: DateTime.now(),
-        registrationMethod: 'email', // TODO: ajustar cuando se agregue registro por Google
+        registrationMethod:
+            'email', // TODO: ajustar cuando se agregue registro por Google
         email: authProvider.user!.email!,
       );
 
@@ -55,7 +58,7 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
         await authProvider
             .fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
 
-        Navigator.pushNamed(context, Routes.home);
+        Navigator.pushNamed(context, Routes.splashScreen);
       } catch (e) {
         print("Error al enviar los datos: $e");
       }
