@@ -4,12 +4,12 @@ part 'worker_details.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class WorkerDetails {
-  final String company;
-  final String position;
+  final String? company;
+  final String? position;
   
   WorkerDetails({
-    required this.company,
-    required this.position,
+    this.company,
+    this.position,
   });
 
   factory WorkerDetails.fromJson(Map<String, dynamic> json) => _$WorkerDetailsFromJson(json);

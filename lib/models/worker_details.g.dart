@@ -8,8 +8,8 @@ part of 'worker_details.dart';
 
 WorkerDetails _$WorkerDetailsFromJson(Map<String, dynamic> json) =>
     WorkerDetails(
-      company: json['company'] as String,
-      position: json['position'] as String,
+      company: json['company'] as String?,
+      position: json['position'] as String?,
     );
 
 Map<String, dynamic> _$WorkerDetailsToJson(WorkerDetails instance) =>
