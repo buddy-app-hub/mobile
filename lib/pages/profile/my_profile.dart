@@ -3,11 +3,21 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/settings.dart';
 import 'package:mobile/routes.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class MyProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authProvider = Provider.of<AuthSessionProvider>(context);
+    final name = authProvider.isBuddy
+        ? '${authProvider.userData!.buddy!.firstName} ${authProvider.userData!.buddy!.lastName}'
+        : '${authProvider.userData!.elder!.firstName} ${authProvider.userData!.elder!.lastName}';
+    final registrationDate = authProvider.isBuddy
+        ? DateFormat('MMM yyyy')
+            .format(authProvider.userData!.buddy!.registrationDate)
+        : DateFormat('MMM yyyy')
+            .format(authProvider.userData!.elder!.registrationDate);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +68,7 @@ class MyProfilePage extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Text(
-                "Julián Álvarez",
+                name,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -67,18 +77,9 @@ class MyProfilePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Chip(
-                    label: Text(
-                      'Buddy',
-                      style: TextStyle(
-                        color: theme.colorScheme.onTertiary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    backgroundColor: theme.colorScheme.tertiary,
-                    padding:
-                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                  ),
+                  authProvider.isBuddy
+                      ? buildBuddyChip(context, theme)
+                      : buildElderChip(context, theme),
                   SizedBox(width: 10),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -90,10 +91,10 @@ class MyProfilePage extends StatelessWidget {
                       ),
                       SizedBox(width: 4), // Espacio entre el icono y el texto
                       Text(
-                        "Jul 2023",
+                        registrationDate,
                         style: TextStyle(
                           color: theme
-                              .textTheme.bodyText1?.color, // Color del texto
+                              .textTheme.bodyLarge?.color, // Color del texto
                           fontWeight: FontWeight
                               .bold, // Puedes ajustar el grosor del texto
                         ),
@@ -210,6 +211,30 @@ class MyProfilePage extends StatelessWidget {
       ),
     );
   }
+
+  Widget buildBuddyChip(BuildContext context, ThemeData theme) => Chip(
+        label: Text(
+          'Buddy',
+          style: TextStyle(
+            color: theme.colorScheme.onTertiary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.tertiary,
+        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+      );
+
+  Widget buildElderChip(BuildContext context, ThemeData theme) => Chip(
+        label: Text(
+          'Mayor',
+          style: TextStyle(
+            color: theme.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.primary,
+        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+      );
 }
 
 class ProfileCompletionCard {
@@ -289,7 +314,7 @@ class QuickProfileSummary extends StatelessWidget {
         children: <Widget>[
           buildButton(context, '4h 30m', 'de compañía'),
           buildDivider(),
-          buildButton(context, '22', 'experiencias'),
+          buildButton(context, '3', 'experiencias'),
           buildDivider(),
           buildButton(context, '31', 'seguidores'),
         ],
