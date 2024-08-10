@@ -55,7 +55,7 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
         await authProvider
             .fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
 
-        Navigator.pushNamed(context, Routes.home);
+        Navigator.pushNamed(context, Routes.splashScreen);
       } catch (e) {
         print("Error al enviar los datos: $e");
       }
