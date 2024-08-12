@@ -2,6 +2,7 @@ import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/models/interest.dart';
+import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/emoji_interest.dart';
 
@@ -79,7 +80,7 @@ class BaseDecoration {
     );
   }
 
-  static Widget buildEditableTag(BuildContext context, Interest interest, ThemeData theme, void Function(Interest) onDelete) {
+  static Widget buildEditableInterestTag(BuildContext context, Interest interest, ThemeData theme, void Function(Interest) onDelete) {
     final emoji = getEmojiInterest(interest.name);
     return Container(
       margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
@@ -100,6 +101,32 @@ class BaseDecoration {
             icon: const Icon(Icons.close),
             iconSize: 18.0,
             onPressed: () => onDelete(interest),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget buildEditableAvailabilityTag(BuildContext context, custom_time.TimeOfDay availability, ThemeData theme, void Function(custom_time.TimeOfDay) onDelete) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.colorScheme.primary),
+        borderRadius: BorderRadius.circular(32),
+        color: theme.colorScheme.primary.withOpacity(0.05),
+      ),
+      padding: EdgeInsets.fromLTRB(18, 0, 0, 0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '📅 ${availability.dayOfWeek} de ${availability.from}.00 a ${availability.to}.00',
+            style: ThemeTextStyle.itemLargeOnBackground(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            iconSize: 18.0,
+            onPressed: () => onDelete(availability),
           ),
         ],
       ),

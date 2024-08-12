@@ -42,3 +42,8 @@ String? validateName(String? value) {
   }
   return null;
 }
+
+bool validateHours(int from, int to) {
+  if (from < 0 || to < 0 || from > 24 || to > 24) return false;
+  return from < to && from != to;
+}

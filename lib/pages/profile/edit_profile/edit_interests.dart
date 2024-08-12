@@ -29,71 +29,71 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
 
   @override
   Widget build(BuildContext context) {
-  final theme = Theme.of(context);
-  final authProvider = Provider.of<AuthSessionProvider>(context);
-  final BuddyService buddyService = BuddyService();
-  final ElderService elderService = ElderService();
+    final theme = Theme.of(context);
+    final authProvider = Provider.of<AuthSessionProvider>(context);
+    final BuddyService buddyService = BuddyService();
+    final ElderService elderService = ElderService();
 
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Editar Intereses'),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.check),
-          padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-          onPressed: () {
-            final updatedInterest = _interests;
-            if (authProvider.isBuddy) {
-              buddyService.updateBuddyProfileInterests(context, updatedInterest);
-            } else {
-              elderService.updateElderProfileInterests(context, updatedInterest);
-            }
-            Navigator.pop(context);
-          },
-        ),
-      ],
-    ),
-    body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-        child: Column(
-        children: [
-          Row(
-            children: [
-            Expanded(
-            child: TextField(
-              controller: _interestController,
-              decoration: const InputDecoration(
-              hintText: 'Agregar interés...',
-              ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                final interest = _interestController.text.trim();
-                if (interest.isNotEmpty) {
-                setState(() {
-                  _interests.add(Interest(name: interest));
-                  _interestController.clear();
-                });
-                }
-              },
-            ),
-            ],
-          ),
-          const SizedBox(height: 30.0),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 4.0,
-            runSpacing: 8.0,
-            children: _interests.map((interest) => 
-              BaseDecoration.buildEditableTag(context, interest, theme, (tag) {
-                setState(() {
-                  _interests.remove(tag);
-                });
-              })).toList(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Editar Intereses'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.check),
+            padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+            onPressed: () {
+              final updatedInterest = _interests;
+              if (authProvider.isBuddy) {
+                buddyService.updateProfileInterests(context, updatedInterest);
+              } else {
+                elderService.updateProfileInterests(context, updatedInterest);
+              }
+              Navigator.pop(context);
+            },
           ),
         ],
+      ),
+      body: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Column(
+          children: [
+            Row(
+              children: [
+              Expanded(
+              child: TextField(
+                controller: _interestController,
+                decoration: const InputDecoration(
+                hintText: 'Agregar interés...',
+                ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  final interest = _interestController.text.trim();
+                  if (interest.isNotEmpty) {
+                    setState(() {
+                      _interests.add(Interest(name: interest));
+                      _interestController.clear();
+                    });
+                  }
+                },
+              ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 4.0,
+              runSpacing: 8.0,
+              children: _interests.map((interest) => 
+                BaseDecoration.buildEditableInterestTag(context, interest, theme, (tag) {
+                  setState(() {
+                    _interests.remove(tag);
+                  });
+                })).toList(),
+            ),
+          ],
         ),
       ),
     );
