@@ -63,7 +63,7 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
             child: TextField(
               controller: _interestController,
               decoration: const InputDecoration(
-              hintText: 'Agregar intereses...',
+              hintText: 'Agregar interés...',
               ),
               ),
             ),
@@ -83,8 +83,9 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
           ),
           const SizedBox(height: 30.0),
           Wrap(
+            alignment: WrapAlignment.center,
             spacing: 4.0,
-            runSpacing: 6.0,
+            runSpacing: 8.0,
             children: _interests.map((interest) => 
               BaseDecoration.buildEditableTag(context, interest, theme, (tag) {
                 setState(() {
