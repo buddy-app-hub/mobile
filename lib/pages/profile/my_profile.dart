@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
+import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
 import 'package:mobile/pages/profile/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -244,7 +245,7 @@ class MyProfilePage extends StatelessWidget {
       case 'Video introductorio':
         targetPage = MyProfilePage(); // EditIntroVideoPage();
       case 'Intereses':
-        targetPage = MyProfilePage(); // EditInterestsPage();
+        targetPage = EditInterestsPage(); // EditInterestsPage();
       case 'Datos de trabajo y/o estudio':
         targetPage = MyProfilePage(); // EditWorkOrStudyPage();
     }

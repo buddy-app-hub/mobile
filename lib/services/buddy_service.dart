@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/buddy.dart';
 import 'package:mobile/models/buddy_profile.dart';
+import 'package:mobile/models/interest.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
@@ -49,6 +50,27 @@ class BuddyService {
       await authProvider.fetchUserData();
     } catch (e) {
       print("Error al actualizar la descripción: $e");
+    }
+  }
+
+  Future<void> updateBuddyProfileInterests(
+      BuildContext context, List<Interest> newInterests) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    BuddyProfile newProfile = authProvider.userData!.buddy!.buddyProfile!;
+    newProfile.interests = newInterests;
+
+    try {
+      await ApiService.patch(
+        endpoint: "/buddies/${authProvider.user!.uid}/profile",
+        body: newProfile.toJson(),
+      );
+      print("Intereses actualizados con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar los intereses: $e");
     }
   }
 }

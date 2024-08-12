@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/elder_profile.dart';
+import 'package:mobile/models/interest.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
@@ -49,6 +50,27 @@ class ElderService {
       await authProvider.fetchUserData();
     } catch (e) {
       print("Error al actualizar la descripción: $e");
+    }
+  }
+
+  Future<void> updateElderProfileInterests(
+      BuildContext context, List<Interest> newInterests) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    ElderProfile newProfile = authProvider.userData!.elder!.elderProfile!;
+    newProfile.interests = newInterests;
+
+    try {
+      await ApiService.patch(
+        endpoint: "/elders/${authProvider.user!.uid}/profile",
+        body: newProfile.toJson(),
+      );
+      print("Intereses actualizados con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar los intereses: $e");
     }
   }
 }

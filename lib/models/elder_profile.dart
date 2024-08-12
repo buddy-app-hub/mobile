@@ -7,7 +7,7 @@ part 'elder_profile.g.dart';
 @JsonSerializable(explicitToJson: true)
 class ElderProfile {
   String? description;
-  final List<Interest>? interests;
+  List<Interest>? interests;
   final List<TimeOfDay>? availability;
 
   ElderProfile({

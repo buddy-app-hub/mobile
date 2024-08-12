@@ -12,7 +12,7 @@ class BuddyProfile {
   String? description;
   final StudentDetails? studentDetails;
   final WorkerDetails? workerDetails;
-  final List<Interest>? interests;
+  List<Interest>? interests;
   final List<TimeOfDay>? availability;
 
   BuddyProfile({
