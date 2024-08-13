@@ -238,7 +238,7 @@ class MyProfilePage extends StatelessWidget {
 
     switch (title) {
       case 'Disponibilidad horaria':
-        targetPage = EditAvailabilityPage(); // EditAvailabilityPage();
+        targetPage = EditAvailabilityPage();
       case 'Biografia':
         targetPage = EditBiographyPage();
       case 'Fotos':
@@ -246,7 +246,7 @@ class MyProfilePage extends StatelessWidget {
       case 'Video introductorio':
         targetPage = MyProfilePage(); // EditIntroVideoPage();
       case 'Intereses':
-        targetPage = EditInterestsPage(); // EditInterestsPage();
+        targetPage = EditInterestsPage();
       case 'Datos de trabajo y/o estudio':
         targetPage = MyProfilePage(); // EditWorkOrStudyPage();
     }

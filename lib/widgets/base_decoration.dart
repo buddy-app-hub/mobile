@@ -5,6 +5,7 @@ import 'package:mobile/models/interest.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/emoji_interest.dart';
+import 'package:mobile/utils/format_date.dart';
 
 class BaseDecoration {
   static BoxDecoration boxCurveLR(BuildContext context) {
@@ -108,6 +109,8 @@ class BaseDecoration {
   }
 
   static Widget buildEditableAvailabilityTag(BuildContext context, custom_time.TimeOfDay availability, ThemeData theme, void Function(custom_time.TimeOfDay) onDelete) {
+    String startHour = intToTime(availability.from);
+    String endHour = intToTime(availability.to);
     return Container(
       margin: EdgeInsets.fromLTRB(0, 0, 2, 0),
       decoration: BoxDecoration(
@@ -120,7 +123,7 @@ class BaseDecoration {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '📅 ${availability.dayOfWeek} de ${availability.from}.00 a ${availability.to}.00',
+            '📅 ${availability.dayOfWeek} de $startHour a $endHour',
             style: ThemeTextStyle.itemLargeOnBackground(context),
           ),
           IconButton(
