@@ -64,6 +64,14 @@ class ThemeTextStyle {
     );
   }
 
+  static TextStyle titleSmallOnError(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onError,
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
   static TextStyle titleSmallOnPrimary(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onPrimary,

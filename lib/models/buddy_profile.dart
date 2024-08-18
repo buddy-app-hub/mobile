@@ -12,8 +12,8 @@ class BuddyProfile {
   String? description;
   final StudentDetails? studentDetails;
   final WorkerDetails? workerDetails;
-  final List<Interest>? interests;
-  final List<TimeOfDay>? availability;
+  List<Interest>? interests;
+  List<TimeOfDay>? availability;
 
   BuddyProfile({
     this.isOnPause = false,
