@@ -8,7 +8,7 @@ part 'elder_profile.g.dart';
 class ElderProfile {
   String? description;
   List<Interest>? interests;
-  final List<TimeOfDay>? availability;
+  List<TimeOfDay>? availability;
 
   ElderProfile({
     this.description,

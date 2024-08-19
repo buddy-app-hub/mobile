@@ -13,7 +13,7 @@ class BuddyProfile {
   final StudentDetails? studentDetails;
   final WorkerDetails? workerDetails;
   List<Interest>? interests;
-  final List<TimeOfDay>? availability;
+  List<TimeOfDay>? availability;
 
   BuddyProfile({
     this.isOnPause = false,

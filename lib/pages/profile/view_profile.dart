@@ -7,7 +7,7 @@ import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 List<String> userInterests = ['🍃 Naturaleza', '🏝 Viajar', '✍🏻 Literatura', '🙂 Conocer gente', '💪 Gym & Fitness'];
-List<String> userDisponibility = ['📅 Lunes de 15.00 a 16.00', '📅 Miercoles de 10.00 a 11.00'];
+List<String> userAvailability = ['📅 Lunes de 15.00 a 16.00', '📅 Miercoles de 10.00 a 11.00'];
 
 class ViewProfilePage extends StatefulWidget {
   const ViewProfilePage({super.key});
@@ -198,7 +198,7 @@ class _ViewProfilePagePageState extends State<ViewProfilePage> {
         BaseDecoration.buildTitleProfile(context, 'Intereses'),
         _buildInterests(context, theme),
         BaseDecoration.buildTitleProfile(context, 'Disponibilidad horaria'),
-        _buildDisponibility(context, theme),
+        _buildAvailability(context, theme),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,7 +296,7 @@ class _ViewProfilePagePageState extends State<ViewProfilePage> {
     );
   }
 
-  Widget _buildDisponibility(BuildContext context, theme) {
+  Widget _buildAvailability(BuildContext context, theme) {
     return Container(
       margin: EdgeInsets.fromLTRB(28, 0, 28, 0),
       child: Column(
@@ -314,7 +314,7 @@ class _ViewProfilePagePageState extends State<ViewProfilePage> {
                   child: Wrap(
                     spacing: 2.0,
                     runSpacing: 10.0,
-                    children: userDisponibility.map((day) => BaseDecoration.buildTag(context, day, theme)).toList(),
+                    children: userAvailability.map((day) => BaseDecoration.buildTag(context, day, theme)).toList(),
                   ),
                 ),
               ],

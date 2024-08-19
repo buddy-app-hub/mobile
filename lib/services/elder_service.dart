@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/elder_profile.dart';
 import 'package:mobile/models/interest.dart';
+import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
@@ -53,7 +54,7 @@ class ElderService {
     }
   }
 
-  Future<void> updateElderProfileInterests(
+  Future<void> updateProfileInterests(
       BuildContext context, List<Interest> newInterests) async {
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
@@ -71,6 +72,27 @@ class ElderService {
       await authProvider.fetchUserData();
     } catch (e) {
       print("Error al actualizar los intereses: $e");
+    }
+  }
+
+  Future<void> updateProfileAvailability(
+      BuildContext context, List<custom_time.TimeOfDay> newAvailability) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    ElderProfile newProfile = authProvider.userData!.elder!.elderProfile!;
+    newProfile.availability = newAvailability;
+
+    try {
+      await ApiService.patch(
+        endpoint: "/elders/${authProvider.user!.uid}/profile",
+        body: newProfile.toJson(),
+      );
+      print("Dispobibilidad actualizada con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar la disponibilidad: $e");
     }
   }
 }

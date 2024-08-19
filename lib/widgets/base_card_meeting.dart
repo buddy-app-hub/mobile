@@ -133,7 +133,7 @@ class BaseCardMeeting extends StatelessWidget {
             children: [
               SizedBox(
                 width: 375,
-                height: 240,
+                // height: 240,
                 child: _buildConnectionInfo(context, theme),
               ),
             ],

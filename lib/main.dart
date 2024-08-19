@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
           fontFamily: 'Comfortaa'
-          ),
+        ),
         home: SplashScreen(),
         routes: {
           Routes.login: (context) => LoginPage(),
