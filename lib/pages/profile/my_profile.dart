@@ -3,11 +3,15 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_availability.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
+import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
 import 'package:mobile/pages/profile/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class MyProfilePage extends StatelessWidget {
+  final EditProfileImageBottomSheet _bottomSheet =
+      EditProfileImageBottomSheet();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -59,10 +63,29 @@ class MyProfilePage extends StatelessWidget {
         children: [
           Column(
             children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: NetworkImage(
-                    "https://media.diariouno.com.ar/p/46001b6b2986d60fca9c73571135ca64/adjuntos/298/imagenes/009/381/0009381866/1200x0/smart/julian-1jpg.jpg"),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundImage: NetworkImage(
+                      "https://media.diariouno.com.ar/p/46001b6b2986d60fca9c73571135ca64/adjuntos/298/imagenes/009/381/0009381866/1200x0/smart/julian-1jpg.jpg",
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: InkWell(
+                      onTap: () {
+                        _bottomSheet.show(context);
+                      },
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.edit, color: theme.iconTheme.color),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 10),
               Text(
