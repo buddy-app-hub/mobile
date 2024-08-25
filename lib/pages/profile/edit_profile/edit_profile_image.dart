@@ -10,8 +10,8 @@ class EditProfileImageBottomSheet {
   final ImagePicker _picker = ImagePicker();
   final FilesService _filesService = FilesService();
 
-  Future<void> _pickImageFromGallery(
-      BuildContext context, AuthSessionProvider authProvider, Function _loadProfileImage) async {
+  Future<void> _pickImageFromGallery(BuildContext context,
+      AuthSessionProvider authProvider, Function _loadProfileImage) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
@@ -19,8 +19,8 @@ class EditProfileImageBottomSheet {
     }
   }
 
-  Future<void> _takePhoto(
-      BuildContext context, AuthSessionProvider authProvider, Function _loadProfileImage) async {
+  Future<void> _takePhoto(BuildContext context,
+      AuthSessionProvider authProvider, Function _loadProfileImage) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
@@ -30,30 +30,43 @@ class EditProfileImageBottomSheet {
 
   Future<void> _uploadImage(BuildContext scaffoldContext, File imageFile,
       AuthSessionProvider authProvider, Function _loadProfileImage) async {
+    // Show progress indicator dialog
+    final progressDialog = showDialog(
+      context: scaffoldContext,
+      builder: (context) => AlertDialog(
+        title: Text('Subiendo imagen'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text('Por favor, espere...'),
+          ],
+        ),
+      ),
+    );
+
     try {
-      // Subir la imagen y mostrar diálogo de progreso
       await _filesService.uploadProfileImage(
         userId: authProvider.user!.uid,
         imageFile: imageFile,
-        onProgress: (progress) {
-        },
+        onProgress: (progress) {},
         onComplete: (downloadUrl) {
-          // Actualiza la URL de la imagen de perfil en el estado
+          Navigator.pop(scaffoldContext); // Close the progress dialog
           ScaffoldMessenger.of(scaffoldContext).showSnackBar(
             SnackBar(content: Text('Imagen subida correctamente')),
           );
-          // Llama a una función para recargar la imagen de perfil
           _loadProfileImage();
         },
         onError: (error) {
-          // Mostrar mensaje de error
+          Navigator.pop(scaffoldContext); // Close the progress dialog
           ScaffoldMessenger.of(scaffoldContext).showSnackBar(
             SnackBar(content: Text('Error al subir la imagen: $error')),
           );
         },
       );
     } catch (error) {
-      // Mostrar mensaje de error
+      Navigator.pop(scaffoldContext); // Close the progress dialog
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(content: Text('Error al subir la imagen: $error')),
       );
@@ -87,7 +100,8 @@ class EditProfileImageBottomSheet {
                   final authProvider =
                       Provider.of<AuthSessionProvider>(context, listen: false);
                   Navigator.pop(context);
-                  _pickImageFromGallery(scaffoldContext, authProvider, _loadProfileImage);
+                  _pickImageFromGallery(
+                      scaffoldContext, authProvider, _loadProfileImage);
                 },
               ),
               ListTile(
