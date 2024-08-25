@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'dart:io';
+
+import 'package:mobile/services/files_service.dart';
+import 'package:provider/provider.dart';
 
 class EditPhotosPage extends StatefulWidget {
   @override
@@ -10,12 +14,42 @@ class EditPhotosPage extends StatefulWidget {
 class _EditPhotosPageState extends State<EditPhotosPage> {
   final ImagePicker _picker = ImagePicker();
   List<File?> _selectedPhotos = List.filled(6, null);
+  List<String?> _photoUrls = List.filled(6, null);
+  final FilesService _filesService = FilesService();
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserPhotos();
+  }
+
+  Future<void> _loadUserPhotos() async {
+    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final List<String?> urls = await _filesService.getUserPhotos(authProvider.user!.uid);
+      setState(() {
+        _photoUrls = urls;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error loading photos: $e');
+    }
+  }
 
   Future<void> _pickImage(int index) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _selectedPhotos[index] = File(pickedFile.path);
+        _photoUrls[index] = null; // Clear the URL since we're picking a new image
       });
     }
   }
@@ -34,6 +68,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                 onTap: () {
                   setState(() {
                     _selectedPhotos[index] = null;
+                    _photoUrls[index] = null; // Clear the URL as well
                   });
                   Navigator.pop(context);
                 },
@@ -52,6 +87,44 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
     );
   }
 
+  Future<void> _uploadPhotos() async {
+    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await _filesService.uploadUserPhotos(
+        userId: authProvider.user!.uid,
+        images: _selectedPhotos,
+        onProgress: (index, progress) {
+          // Optional: Handle progress updates here
+        },
+        onComplete: () {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Fotos subidas correctamente')),
+          );
+        },
+        onError: (error) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al subir fotos: $error')),
+          );
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error uploading photos: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,48 +135,55 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
             icon: Icon(Icons.check),
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             onPressed: () {
-              Navigator.pop(context);
+              _uploadPhotos(); // Upload photos when the check button is pressed
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 fotos por fila
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemCount: 6,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-                if (_selectedPhotos[index] == null) {
-                  _pickImage(index);
-                } else {
-                  _showPhotoOptions(index);
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(8),
-                  image: _selectedPhotos[index] != null
-                      ? DecorationImage(
-                          image: FileImage(_selectedPhotos[index]!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator()) // Show loading indicator if loading
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 2 photos per row
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
                 ),
-                child: _selectedPhotos[index] == null
-                    ? Icon(Icons.add_a_photo, color: Colors.grey[700])
-                    : null,
+                itemCount: 6,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      if (_selectedPhotos[index] == null && _photoUrls[index] == null) {
+                        _pickImage(index);
+                      } else {
+                        _showPhotoOptions(index);
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                        image: _selectedPhotos[index] != null
+                            ? DecorationImage(
+                                image: FileImage(_selectedPhotos[index]!),
+                                fit: BoxFit.cover,
+                              )
+                            : (_photoUrls[index] != null
+                                ? DecorationImage(
+                                    image: NetworkImage(_photoUrls[index]!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null),
+                      ),
+                      child: _selectedPhotos[index] == null && _photoUrls[index] == null
+                          ? Icon(Icons.add_a_photo, color: Colors.grey[700])
+                          : null,
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
-      ),
+            ),
     );
   }
 }
