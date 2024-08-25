@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/profile/my_profile.dart';
 import 'package:mobile/services/files_service.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';

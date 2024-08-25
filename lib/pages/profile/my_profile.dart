@@ -3,6 +3,7 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_availability.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
+import 'package:mobile/pages/profile/edit_profile/edit_photos.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
 import 'package:mobile/pages/profile/settings.dart';
 import 'package:mobile/services/files_service.dart';
@@ -296,7 +297,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
       case 'Biografia':
         targetPage = EditBiographyPage();
       case 'Fotos':
-        targetPage = MyProfilePage(); // EditPhotosPage();
+        targetPage = EditPhotosPage();
       case 'Video introductorio':
         targetPage = MyProfilePage(); // EditIntroVideoPage();
       case 'Intereses':
