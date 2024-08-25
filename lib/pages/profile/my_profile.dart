@@ -27,10 +27,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   Future<void> _loadProfileImage() async {
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
 
     try {
-      String? imageUrl = await _filesService.getProfileImageUrl(authProvider.user!.uid);
+      String? imageUrl =
+          await _filesService.getProfileImageUrl(authProvider.user!.uid);
       setState(() {
         _profileImageUrl = imageUrl;
       });
@@ -105,7 +107,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     bottom: 0,
                     child: InkWell(
                       onTap: () {
-                        _bottomSheet.show(context);
+                        _bottomSheet.show(context, _loadProfileImage);
                       },
                       child: CircleAvatar(
                         radius: 16,
