@@ -13,8 +13,6 @@ class EditProfileImageBottomSheet {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
-      
-      // Usar un contexto separado aquí
       _uploadImage(context, imageFile, authProvider);
     }
   }
@@ -23,13 +21,11 @@ class EditProfileImageBottomSheet {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
-      
-      // Usar un contexto separado aquí
       _uploadImage(context, imageFile, authProvider);
     }
   }
 
-  Future<void> _uploadImage(BuildContext context, File imageFile, AuthSessionProvider authProvider) async {
+  Future<void> _uploadImage(BuildContext scaffoldContext, File imageFile, AuthSessionProvider authProvider) async {
     try {
       // Subir la imagen sin diálogo de progreso
       await _filesService.uploadProfileImage(
@@ -41,18 +37,21 @@ class EditProfileImageBottomSheet {
       );
 
       // Mostrar mensaje de éxito
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(content: Text('Imagen subida correctamente')),
       );
     } catch (error) {
       // Mostrar mensaje de error
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(content: Text('Error al subir la imagen: $error')),
       );
     }
   }
 
   void show(BuildContext context) {
+    // Captura el contexto de Scaffold antes de cerrar el BottomSheet
+    final scaffoldContext = context;
+    
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -75,7 +74,7 @@ class EditProfileImageBottomSheet {
                 onTap: () {
                   final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
                   Navigator.pop(context);
-                  _pickImageFromGallery(context, authProvider);
+                  _pickImageFromGallery(scaffoldContext, authProvider);
                 },
               ),
               ListTile(
@@ -84,7 +83,7 @@ class EditProfileImageBottomSheet {
                 onTap: () {
                   final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
                   Navigator.pop(context);
-                  _takePhoto(context, authProvider);
+                  _takePhoto(scaffoldContext, authProvider);
                 },
               ),
             ],
