@@ -1,21 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/services/files_service.dart';
+import 'dart:io';
+
+import 'package:provider/provider.dart';
 
 class EditProfileImageBottomSheet {
   final ImagePicker _picker = ImagePicker();
+  final FilesService _filesService = FilesService();
+  double _uploadProgress = 0.0;
+
 
   Future<void> _pickImageFromGallery(BuildContext context) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      print('Imagen seleccionada: ${pickedFile.path}');
+      File imageFile = File(pickedFile.path);
+      _uploadImage(context, imageFile);
     }
   }
 
   Future<void> _takePhoto(BuildContext context) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      print('Imagen tomada: ${pickedFile.path}');
+      File imageFile = File(pickedFile.path);
+      _uploadImage(context, imageFile);
     }
+  }
+
+  Future<void> _uploadImage(BuildContext context, File imageFile) async {
+    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(value: _uploadProgress),
+              SizedBox(height: 20),
+              Text('Subiendo imagen...'),
+            ],
+          ),
+        );
+      },
+    );
+
+    await _filesService.uploadProfileImage(
+      userId: authProvider.user!.uid,
+      imageFile: imageFile,
+      onProgress: (progress) {
+        _uploadProgress = progress;
+        (context as Element).markNeedsBuild();
+      },
+      onComplete: (downloadUrl) {
+        Navigator.pop(context); // Cerrar el diálogo de progreso
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Imagen subida correctamente')),
+        );
+      },
+      onError: (errorMessage) {
+        Navigator.pop(context); // Cerrar el diálogo de progreso
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al subir la imagen: $errorMessage')),
+        );
+      },
+    );
   }
 
   void show(BuildContext context) {
