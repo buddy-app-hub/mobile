@@ -21,7 +21,8 @@ class FilesService {
 
       final uploadTask = storageRef.putFile(
         imageFile,
-        SettableMetadata(contentType: 'image/${fileExtension.replaceAll('.', '')}'),
+        SettableMetadata(
+            contentType: 'image/${fileExtension.replaceAll('.', '')}'),
       );
 
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
@@ -41,7 +42,8 @@ class FilesService {
 
   Future<String?> getProfileImageUrl(String userId) async {
     try {
-      final storageRef = _firebaseStorage.ref().child('users/$userId/profile_image.jpg');
+      final storageRef =
+          _firebaseStorage.ref().child('users/$userId/profile_image.jpg');
       String downloadUrl = await storageRef.getDownloadURL();
       return downloadUrl;
     } catch (e) {
@@ -62,12 +64,14 @@ class FilesService {
         if (images[i] != null) {
           final imageFile = images[i]!;
           final String fileExtension = path.extension(imageFile.path);
-          final String filePath = 'users/$userId/photos/${i + 1}_photo$fileExtension';
+          final String filePath =
+              'users/$userId/photos/${i + 1}_photo$fileExtension';
           final storageRef = _firebaseStorage.ref().child(filePath);
 
           final uploadTask = storageRef.putFile(
             imageFile,
-            SettableMetadata(contentType: 'image/${fileExtension.replaceAll('.', '')}'),
+            SettableMetadata(
+                contentType: 'image/${fileExtension.replaceAll('.', '')}'),
           );
 
           uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
@@ -86,21 +90,22 @@ class FilesService {
   }
 
   Future<List<String?>> getUserPhotos(String userId) async {
-    List<String?> photoUrls = [];
-    try {
-      for (int i = 1; i <= 6; i++) {
-        final storageRef = _firebaseStorage.ref().child('users/$userId/photos/${i}_photo.jpg');
-        try {
-          String downloadUrl = await storageRef.getDownloadURL();
-          photoUrls.add(downloadUrl);
-        } catch (e) {
-          print('Error obteniendo URL de la foto ${i}: $e');
-          photoUrls.add(null); // Add null if photo not found
+    List<String?> photoUrls =
+        List.filled(6, null); // Iniciar con una lista vacía de 6 elementos
+
+    for (int i = 0; i < 6; i++) {
+      try {
+        final storageRef = _firebaseStorage.ref().child(
+            'users/$userId/photos/${i + 1}_photo.jpg'); // Asumir extensión .jpg
+        String downloadUrl = await storageRef.getDownloadURL();
+        photoUrls[i] = downloadUrl;
+      } catch (e) {
+        if (e is FirebaseException && e.code != 'object-not-found') {
+          print('Error obteniendo foto ${i + 1} para el usuario $userId: $e');
         }
       }
-    } catch (e) {
-      print('Error obteniendo fotos de usuario: $e');
     }
+
     return photoUrls;
   }
 }
