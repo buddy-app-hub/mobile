@@ -40,6 +40,7 @@ class FilesService {
       onComplete(downloadUrl);
     } catch (e) {
       onError(e.toString());
+      print(e.toString());
     }
   }
 

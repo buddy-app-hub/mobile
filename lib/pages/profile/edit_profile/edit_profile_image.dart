@@ -3,71 +3,53 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/services/files_service.dart';
 import 'dart:io';
-
 import 'package:provider/provider.dart';
 
 class EditProfileImageBottomSheet {
   final ImagePicker _picker = ImagePicker();
   final FilesService _filesService = FilesService();
-  double _uploadProgress = 0.0;
 
-
-  Future<void> _pickImageFromGallery(BuildContext context) async {
+  Future<void> _pickImageFromGallery(BuildContext context, AuthSessionProvider authProvider) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
-      _uploadImage(context, imageFile);
+      
+      // Usar un contexto separado aquí
+      _uploadImage(context, imageFile, authProvider);
     }
   }
 
-  Future<void> _takePhoto(BuildContext context) async {
+  Future<void> _takePhoto(BuildContext context, AuthSessionProvider authProvider) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
-      _uploadImage(context, imageFile);
+      
+      // Usar un contexto separado aquí
+      _uploadImage(context, imageFile, authProvider);
     }
   }
 
-  Future<void> _uploadImage(BuildContext context, File imageFile) async {
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+  Future<void> _uploadImage(BuildContext context, File imageFile, AuthSessionProvider authProvider) async {
+    try {
+      // Subir la imagen sin diálogo de progreso
+      await _filesService.uploadProfileImage(
+        userId: authProvider.user!.uid,
+        imageFile: imageFile,
+        onProgress: (_) {}, // No hacemos nada con el progreso
+        onComplete: (_) {}, // TODO
+        onError: (_) {}, // TODO
+      );
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(value: _uploadProgress),
-              SizedBox(height: 20),
-              Text('Subiendo imagen...'),
-            ],
-          ),
-        );
-      },
-    );
-
-    await _filesService.uploadProfileImage(
-      userId: authProvider.user!.uid,
-      imageFile: imageFile,
-      onProgress: (progress) {
-        _uploadProgress = progress;
-        (context as Element).markNeedsBuild();
-      },
-      onComplete: (downloadUrl) {
-        Navigator.pop(context); // Cerrar el diálogo de progreso
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Imagen subida correctamente')),
-        );
-      },
-      onError: (errorMessage) {
-        Navigator.pop(context); // Cerrar el diálogo de progreso
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al subir la imagen: $errorMessage')),
-        );
-      },
-    );
+      // Mostrar mensaje de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Imagen subida correctamente')),
+      );
+    } catch (error) {
+      // Mostrar mensaje de error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al subir la imagen: $error')),
+      );
+    }
   }
 
   void show(BuildContext context) {
@@ -91,16 +73,18 @@ class EditProfileImageBottomSheet {
                 leading: Icon(Icons.photo),
                 title: Text('Elegir de la Galería'),
                 onTap: () {
+                  final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
                   Navigator.pop(context);
-                  _pickImageFromGallery(context);
+                  _pickImageFromGallery(context, authProvider);
                 },
               ),
               ListTile(
                 leading: Icon(Icons.camera_alt),
                 title: Text('Tomar Foto'),
                 onTap: () {
+                  final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
                   Navigator.pop(context);
-                  _takePhoto(context);
+                  _takePhoto(context, authProvider);
                 },
               ),
             ],
