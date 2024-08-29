@@ -104,6 +104,14 @@ class ThemeTextStyle {
     );
   }
 
+  static TextStyle titleMediumOnPrimaryContainer(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onPrimaryContainer,
+      fontSize: 18,
+      fontWeight: FontWeight.w300,
+    );
+  }
+
   static TextStyle titleLargeOnBackground(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onBackground,
