@@ -227,48 +227,56 @@ class BaseDecoration {
     ); 
   }
 
-  static Row buildRowLocationReview(BuildContext context, String location, String rate, String reviews) {
+  static Widget buildRowLocationReview(BuildContext context, String location, String rate, String reviews) {
     return Row(
       children: [
-        Container(
-          margin: EdgeInsets.fromLTRB(10, 3.3, 8.6, 3.3),
-          child: SizedBox(
-            width: 10.6,
-            height: 13.3,
-            child: SvgPicture.asset(
-              'assets/icons/iconLocation.svg',
-              color: Theme.of(context).colorScheme.tertiary,
-            ),
-          ),
-        ),
-        Text(
-          location,
-          style: ThemeTextStyle.titleSmallBright(context),
-        ),
-        Container(
-          margin: EdgeInsets.fromLTRB(7, 3.3, 1.6, 3.3),
-          child: SizedBox(
-            width: 10.6,
-            height: 13.3,
-            child: SvgPicture.asset(
-              'assets/icons/star.svg',
-            ),
-          ),
-        ),
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              color: Color(0xFFFFCD1A),
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-            ),
-            children: [
-              TextSpan(text: rate),
-              TextSpan(
-                text: ' ($reviews opiniones)',
-                style: ThemeTextStyle.titleSmallBright(context),
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(4, 3.3, 6, 3.3),
+              child: SizedBox(
+                width: 10.6,
+                height: 13.3,
+                child: SvgPicture.asset(
+                  'assets/icons/iconLocation.svg',
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
               ),
-          ]),
+            ),
+            Text(
+              location,
+              style: ThemeTextStyle.titleSmallBright(context),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(7, 3.3, 1.6, 3.3),
+              child: SizedBox(
+                width: 10.6,
+                height: 13.3,
+                child: SvgPicture.asset(
+                  'assets/icons/star.svg',
+                ),
+              ),
+            ),
+            RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: Color(0xFFFFCD1A),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+                children: [
+                  TextSpan(text: rate),
+                  TextSpan(
+                    text: ' ($reviews)', //TODO saque el opiniones porque seguia con overflow, se lo puede contener en un wrap quizas o dejarlo asis
+                    style: ThemeTextStyle.titleSmallBright(context),
+                  ),
+              ]),
+            ),
+          ],
         ),
       ],
     ); 
@@ -294,5 +302,65 @@ class BaseDecoration {
         ),
       ],
     ); 
+  }
+
+  static Widget buildConnectionProfile(BuildContext context, String imagePath, String name) {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: AssetImage(imagePath),
+            ),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          width: 80,
+          height: 90,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            name,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget buildChatlist(BuildContext context) {
+    final chatData = [
+      {
+        'pictureName': 'avatarBuddy.jpeg',
+        'lastMessage': 'Hey there!',
+        'isNew': true,
+      },
+      {
+        'pictureName': 'avatarBuddy.jpeg',
+        'lastMessage': 'How are you?',
+        'isNew': false,
+      },
+      {
+        'pictureName': 'avatarBuddy.jpeg',
+        'lastMessage': 'Lets hang out',
+        'isNew': false,
+      },
+    ];
+
+    return ListView.builder(
+      itemCount: chatData.length,
+      itemBuilder: (context, index) {
+        final chat = chatData[index];
+        return ListTile(
+          // leading: CircleAvatar(
+          //   backgroundImage: AssetImage('assets/images/${chat['pictureName']}'),
+          // ),
+          title: Text(chat['lastMessage'] as String),
+          trailing: chat['isNew'] as bool ? const Icon(Icons.circle, size: 10) : null,
+        );
+      },
+    );
   }
 }
