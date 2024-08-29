@@ -44,28 +44,37 @@ class BaseConnectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage(image),
+    return GestureDetector(
+      onTap: () {
+        print('Tapped connection: $person');
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) =>  ChatScreen()),
+        // );
+      },
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: AssetImage(image),
+              ),
+              borderRadius: BorderRadius.circular(10.0),
             ),
-            borderRadius: BorderRadius.circular(10.0),
+            width: 80,
+            height: 90,
           ),
-          width: 80,
-          height: 90,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            person,
-            style: Theme.of(context).textTheme.bodySmall,
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              person,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
