@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 String formattedDate() {
   DateTime now = DateTime.now();
@@ -27,4 +29,10 @@ String intToTime(int time) {
   String minuteStr = minute.toString().padLeft(2, '0');
   
   return '$hourStr:$minuteStr';
+}
+
+String getHourFromTimestamp(Timestamp timestamp) {
+  final dateTime = timestamp.toDate();
+  final formatter = DateFormat('HH:mm');
+  return formatter.format(dateTime);
 }

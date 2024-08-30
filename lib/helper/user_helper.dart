@@ -1,15 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:mobile/models/connection.dart';
-import 'package:mobile/models/elder.dart';
-import 'package:mobile/models/elder_profile.dart';
-import 'package:mobile/models/interest.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
-import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/services/api_service_base.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
-import 'package:provider/provider.dart';
 
 class UserHelper {
 
@@ -41,7 +33,7 @@ class UserHelper {
     return '${personalData.firstName} ${personalData.lastName}';
   }
 
-  Future<String> fetchPersonName(Connection connection, bool isBuddy) async {
+  Future<(String, String)> fetchPersonIDAndName(Connection connection, bool isBuddy) async {
     String personID;
     if (isBuddy) {
       personID = connection.elderID;
@@ -51,7 +43,7 @@ class UserHelper {
     var personalData = isBuddy
       ? (await elderService.getElder(personID)).personalData
       : (await buddyService.getBuddy(personID)).personalData;
-    return personalData.firstName;
+    return (personID, personalData.firstName);
   }
 
 }
