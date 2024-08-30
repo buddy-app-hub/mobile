@@ -49,6 +49,7 @@ class _MyConnectionsPageState extends State<MyConnectionsPage>
             labelColor: theme.colorScheme.onPrimaryContainer,
             indicatorColor: theme.colorScheme.onPrimaryContainer,
             unselectedLabelColor: theme.colorScheme.outline,
+            dividerColor: Colors.transparent,
             controller: _tabController,
             tabs: <Widget>[
               Tab(
@@ -61,7 +62,7 @@ class _MyConnectionsPageState extends State<MyConnectionsPage>
             ],
           ),
         ),
-        backgroundColor: theme.colorScheme.background,
+        backgroundColor: theme.colorScheme.surface,
         extendBody: true,
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
