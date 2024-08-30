@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Message {
   final String senderId;
   final String text;
-  final DateTime timestamp;
+  final Timestamp timestamp;
 
   Message({required this.senderId, required this.text, required this.timestamp});
 
@@ -11,7 +11,7 @@ class Message {
     return Message(
       senderId: doc['senderId'],
       text: doc['text'],
-      timestamp: (doc['timestamp'] as Timestamp).toDate(),
+      timestamp: doc['timestamp'],
     );
   }
 }

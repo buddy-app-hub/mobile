@@ -1,7 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mobile/models/chatroom.dart';
 import 'package:mobile/models/user_data.dart';
 
 class ChatService {
@@ -15,6 +14,8 @@ class ChatService {
   ChatService._internal();
 
   User? get currentUser => _auth.currentUser;
+
+  //crea o devuelve el primer chat
   Future<String> createChatRoom(String name, List<String> participants, UserData userData) async {
     //TODO si el elder tendria que agregar al lovedOne
     participants.add(currentUser!.uid);
@@ -22,17 +23,23 @@ class ChatService {
     final chatRooms = await _firestore.collection('chatRooms').where('participants', arrayContainsAny: participants).get();
 
     if (chatRooms.docs.isEmpty) {
-      String lovedOne = '';
+      String groupName = '';
 
       if (userData.buddy == null) {
-        lovedOne = userData.elder!.lovedOne!.firstName;
+        if (userData.elder!.onLovedOneMode) {
+          groupName = '$name, ${userData.elder!.personalData.firstName} y ${userData.elder!.lovedOne!.firstName} ';
+        } else {
+          groupName = '${userData.elder!.personalData.firstName} y $name';
+        }
+      } else {
+        groupName = '${currentUser!.displayName} y $name';
       }
-      
+
       final chatRoomId = _firestore.collection('chatRooms').doc().id;
       print('Creo el chat entre ambos');
       await _firestore.collection('chatRooms').doc(chatRoomId).set({
         'id': chatRoomId,
-        'name': '$name, $lovedOne y yo',
+        'name': groupName,
         'participants': participants,
         'messages': [],
         'lastMessage': '',
@@ -49,6 +56,9 @@ class ChatService {
     return _firestore.collection('chatRooms').where('participants', arrayContains: currentUser?.uid).snapshots();
   }
 
+  Future<DocumentSnapshot<Map<String, dynamic>>> fetchUserChatRoom(String id) {
+    return _firestore.collection('chatRooms').doc(id).get();
+  }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> fetchChatRooms() {
     return _firestore.collection('chatRooms').where('participants', arrayContains: currentUser?.uid).snapshots();

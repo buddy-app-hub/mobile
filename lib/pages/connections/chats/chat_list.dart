@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile/models/chatroom.dart';
+import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/widgets/base_decoration.dart';
@@ -57,6 +58,7 @@ class _ChatsListState extends State<ChatsList> {
                     } else {
                       if (snapshot.hasData) {
                         final chats = snapshot.data!.docs.map((doc) => ChatRoom.fromFirestore(doc)).toList();
+                        chats.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
                         return ListView.builder(
                               padding: EdgeInsets.zero,
                               itemCount: chats.length,
@@ -73,12 +75,12 @@ class _ChatsListState extends State<ChatsList> {
                                     style: TextStyle(color: theme.colorScheme.surfaceTint),
                                   ),
                                   onTap: () {
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: (context) => ChatScreen(chatRoomId: chat.id),
-                                    //   ),
-                                    // );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatScreen(chatRoomId: chat.id),
+                                      ), 
+                                    );
                                   },
                                 );
                               },

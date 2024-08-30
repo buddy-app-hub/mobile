@@ -3,6 +3,7 @@ import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:provider/provider.dart';
 
@@ -59,10 +60,10 @@ class BaseConnectionCard extends StatelessWidget {
           personName,
           [personID], userData
         );
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) =>  ChatScreen()),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>  ChatScreen(chatRoomId: chatRoomId)),
+        );
       },
       child: Column(
         children: [

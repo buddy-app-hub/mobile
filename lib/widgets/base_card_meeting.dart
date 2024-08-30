@@ -6,10 +6,14 @@ import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/connections/chats/chat_screen.dart';
+import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
 import 'package:mobile/widgets/base_elevated_button.dart';
+import 'package:provider/provider.dart';
 
 UserHelper userHelper = UserHelper();
 
@@ -28,12 +32,13 @@ Stream<Widget> fetchMeetings(UserData userData) async* {
 
 Future<Column> buildCards(Connection connection, UserData userData) async {
   bool isBuddy = userData.buddy != null;
-  String personName = await userHelper.fetchPersonFullName(connection, isBuddy);
+  String personID, personName;
+  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   return Column(
     children: connection.meetings
         .where((m) =>
             !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder)
-        .map((meeting) => buildCard(personName, meeting))
+        .map((meeting) => buildCard(personID, personName, meeting))
         .toList(),
   );
 }
@@ -45,7 +50,7 @@ Future<List<String>> fetchAvatars(String personID, bool isBuddy) async {
 }
 
 String formatDate(custom_time.TimeOfDay date) {
-  return "${date.dayOfWeek} 13 de Agosto"; //fix a que sea la fecha completa
+  return "${date.dayOfWeek} 13 de Agosto"; //TODO fix a que sea la fecha completa
 }
 
 String formatTime(custom_time.TimeOfDay date) {
@@ -56,9 +61,10 @@ String formatLocation(MeetingLocation location) {
   return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
 }
 
-BaseCardMeeting buildCard(String personName, Meeting meeting) {
+BaseCardMeeting buildCard(String personID, String personName, Meeting meeting) {
   return BaseCardMeeting(
     activity: meeting.activity,
+    personID: personID,
     person: personName,
     date: formatDate(meeting.date),
     time: formatTime(meeting.date),
@@ -69,6 +75,7 @@ BaseCardMeeting buildCard(String personName, Meeting meeting) {
 
 class BaseCardMeeting extends StatelessWidget {
   final String activity;
+  final String personID;
   final String person;
   final String date;
   final String time;
@@ -78,6 +85,7 @@ class BaseCardMeeting extends StatelessWidget {
   const BaseCardMeeting({
     super.key,
     required this.activity,
+    required this.personID,
     required this.person,
     required this.date,
     required this.time,
@@ -112,6 +120,8 @@ class BaseCardMeeting extends StatelessWidget {
   }
 
   Widget _buildConnectionInfo(BuildContext context, ThemeData theme) {
+    final authProvider = Provider.of<AuthSessionProvider>(context);
+    UserData userData = authProvider.userData!;
     return Row(
       children: [
         Expanded(
@@ -172,11 +182,17 @@ class BaseCardMeeting extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                         buttonStyle:
-                            ThemeButtonStyle.tertiaryRoundedButtonStyle(
-                                context),
+                            ThemeButtonStyle.tertiaryRoundedButtonStyle(context),
                         onPressed: () async {
-                          print('voy al chat ?');
-                          // Navigator.pushReplacementNamed(context, Routes.homeContent); //fix desaparece el navbar
+                          final chatService = ChatService();
+                          final chatRoomId = await chatService.createChatRoom(
+                            person,
+                            [personID], userData
+                          );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>  ChatScreen(chatRoomId: chatRoomId)),
+                          );
                         },
                         height: 40,
                         width: 100,

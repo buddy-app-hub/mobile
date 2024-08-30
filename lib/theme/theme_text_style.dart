@@ -88,11 +88,29 @@ class ThemeTextStyle {
     );
   }
 
+  
+
   static TextStyle titleSmallOnSecondary(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.secondary,
       fontSize: 14,
     fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle titleSmallerOnBackground(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onSurface,
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle titleSmallerOnPrimary(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onPrimary,
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
     );
   }
 
