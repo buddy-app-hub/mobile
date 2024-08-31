@@ -83,7 +83,7 @@ class BaseConnectionCard extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               personName,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         ],

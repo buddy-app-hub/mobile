@@ -49,7 +49,7 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
                 Row(
                   children: [
                     Container(
-                      margin: EdgeInsets.fromLTRB(18, MediaQuery.of(context).padding.top + 18, 0, 18),
+                      margin: EdgeInsets.fromLTRB(22, MediaQuery.of(context).padding.top + 18, 0, 18),
                       child: Text(
                         'Conexiones',
                         style: ThemeTextStyle.titleMediumOnPrimaryContainer(context),
