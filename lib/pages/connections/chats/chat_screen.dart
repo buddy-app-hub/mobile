@@ -52,6 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final chatService = ChatService();
   Stream<QuerySnapshot<Map<String, dynamic>>>? _messagesStream;
   String chatRoomName = '';
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -62,6 +63,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _fetchMessages() async {
     _messagesStream = chatService.fetchMessages(widget.chatRoomId);
+    _messagesStream?.listen((snapshot) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
+      });
+    });
   }
 
   Future<void> _fetchChatRoomData() async {
@@ -78,11 +84,18 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthSessionProvider>(context);
     UserData userData = authProvider.userData!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.secondaryFixedDim,
@@ -112,20 +125,29 @@ class _ChatScreenState extends State<ChatScreen> {
               stream: _messagesStream,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Text('Error fetching messages: ${snapshot.error}');
+                  return Center(child: Text('Error fetching messages: ${snapshot.error}'));
                 } else if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
+                  return Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
                 } else {
                   if (snapshot.hasData) {
                     final messages = snapshot.data!.docs.map((doc) => Message.fromFirestore(doc)).toList();
-                    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+                    messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
                     final groupedMessages = groupMessagesByDay(messages);
                     return ListView.builder(
+                      controller: _scrollController,
+                      reverse: true,
                       padding: EdgeInsets.zero,
                       itemCount: groupedMessages.length,
                       itemBuilder: (context, index) {
                         final date = groupedMessages.keys.elementAt(index);
                         final dayMessages = groupedMessages[date]!;
+                        dayMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
                         String? lastSenderId;
 
                         return Column(
@@ -158,31 +180,31 @@ class _ChatScreenState extends State<ChatScreen> {
                                   } else {
                                     final senderName = snapshot.data!;
                                     final isUser = isSenderUser(message, userData);
-                                    return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        if (isNewSender && !isUser) Padding(
-                                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                                          child: Text(
-                                            senderName,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: theme.colorScheme.primary,
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          if (isNewSender && !isUser)
+                                            Padding(
+                                              padding: const EdgeInsets.fromLTRB(18, 10, 10, 10),
+                                              child: Text(
+                                                senderName,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: theme.colorScheme.primary,
+                                                ),
+                                              ),
                                             ),
+                                          ChatMessage(
+                                            text: message.text,
+                                            isUser: isSenderUser(message, userData),
+                                            senderName: senderName,
+                                            timestamp: message.timestamp,
                                           ),
-                                        ),
-                                        ChatMessage(
-                                          text: message.text,
-                                          isMe: isUser,
-                                          senderName: senderName,
-                                          timestamp: message.timestamp,
-                                        ),
-                                      ],
-                                    );
-                                  }
-                                },
-                              );
-                            }),
+                                        ],
+                                      );
+                                    }
+                                  },
+                                );})
                           ],
                         );
                       },
@@ -211,7 +233,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     sendMessage();
                     _messageController.clear();
                   },
-                  icon: Icon(Icons.send_rounded, color: theme.colorScheme.primary,),
+                  icon: Icon(Icons.send_rounded, color: theme.colorScheme.primary),
                 ),
               ],
             ),

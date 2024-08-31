@@ -5,13 +5,13 @@ import 'package:mobile/utils/format_date.dart';
 
 class ChatMessage extends StatelessWidget {
   final String text;
-  final bool isMe;
+  final bool isUser;
   final String senderName;
   final Timestamp timestamp;
 
   const ChatMessage({
     required this.text,
-    required this.isMe,
+    required this.isUser,
     required this.senderName,
     required this.timestamp,
   });
@@ -23,17 +23,17 @@ class ChatMessage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // if (!isMe)
+          // if (!isUser)
           //   Text(
           //     senderName,
           //     style: ThemeTextStyle.titleSmallOnBackground(context),
           //   ),
           Container(
             decoration: BoxDecoration(
-              color: isMe ? theme.primaryColor : theme.colorScheme.surfaceContainerHighest,
+              color: isUser ? theme.primaryColor : theme.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.all(12),
@@ -41,12 +41,12 @@ class ChatMessage extends StatelessWidget {
               children: [
                 Text(
                   text,
-                  style: isMe ? ThemeTextStyle.titleSmallOnPrimary(context) : ThemeTextStyle.titleSmallOnBackground(context),
+                  style: isUser ? ThemeTextStyle.titleSmallOnPrimary(context) : ThemeTextStyle.titleSmallOnBackground(context),
                 ),
                 SizedBox(width: 16),
                 Text(
                   getHourFromTimestamp(timestamp),
-                  style: isMe ? ThemeTextStyle.titleSmallerOnPrimary(context) : ThemeTextStyle.titleSmallerOnBackground(context),
+                  style: isUser ? ThemeTextStyle.titleSmallerOnPrimary(context) : ThemeTextStyle.titleSmallerOnBackground(context),
                 ),
               ],
             ),
