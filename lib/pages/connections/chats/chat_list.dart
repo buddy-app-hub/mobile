@@ -52,7 +52,7 @@ class _ChatsListState extends State<ChatsList> {
                   Row(
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(22, 22, 0, 6),
+                        margin: EdgeInsets.fromLTRB(22, 22, 0, 0),
                         child: Text(
                           'Chats',
                           style: ThemeTextStyle.titleMediumOnPrimaryContainer(context),
