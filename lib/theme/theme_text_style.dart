@@ -75,7 +75,7 @@ class ThemeTextStyle {
   static TextStyle titleSmallOnPrimary(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onPrimary,
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: FontWeight.w400,
     );
   }
@@ -83,7 +83,7 @@ class ThemeTextStyle {
   static TextStyle titleSmallOnBackground(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onBackground,
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: FontWeight.w400,
     );
   }
