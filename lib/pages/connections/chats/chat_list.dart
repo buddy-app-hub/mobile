@@ -54,7 +54,7 @@ class _ChatsListState extends State<ChatsList> {
                     if (snapshot.hasError) {
                       return Text('Error fetching chats: ${snapshot.error}');
                     } else if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     } else {
                       if (snapshot.hasData) {
                         final chats = snapshot.data!.docs.map((doc) => ChatRoom.fromFirestore(doc)).toList();

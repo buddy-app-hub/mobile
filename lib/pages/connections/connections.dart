@@ -83,8 +83,10 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
                                           );
                                         }
                                       } else {
-                                        return CircularProgressIndicator(
-                                          color: theme.colorScheme.onPrimaryContainer,
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            color: theme.colorScheme.onPrimaryContainer,
+                                          ),
                                         );
                                       }
                                     },
