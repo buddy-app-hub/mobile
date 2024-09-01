@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/home/for_you.dart';
 import 'package:mobile/pages/home/social_hub.dart';
@@ -35,6 +34,7 @@ class _HomeContentPageState extends State<HomeContentPage>
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Row(
