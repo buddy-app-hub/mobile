@@ -93,6 +93,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                     await _filesService.deletePhoto(
                         authProvider.user!.uid, context, index);
                     await _loadUserPhotos();
+                    _reorderNewPhotosAfterDelete();
                   } catch (e) {
                     print('Error al eliminar la foto: $e');
                   }
@@ -258,5 +259,16 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
       }
     }
     return lastIndex;
+  }
+
+  void _reorderNewPhotosAfterDelete() {
+    List<File?> _reorderedNewPhotos = List.filled(6, null);
+
+    for (int i = 0; i < _newPhotos.length; i++) {
+      if (_newPhotos[i] != null) {
+        _reorderedNewPhotos[i-1] = _newPhotos[i];
+      }
+    }
+    _newPhotos = _reorderedNewPhotos;
   }
 }
