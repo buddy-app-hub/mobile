@@ -89,20 +89,29 @@ class FilesService {
     }
   }
 
-  Future<List<String?>> getUserPhotos(String userId) async {
+ Future<List<String?>> getUserPhotos(String userId) async {
     List<String?> photoUrls =
-        List.filled(6, null); // Iniciar con una lista vacía de 6 elementos
+        List.filled(6, null);
 
-    for (int i = 0; i < 6; i++) {
-      try {
-        final storageRef = _firebaseStorage.ref().child(
-            'users/$userId/photos/${i + 1}_photo.jpg'); // Asumir extensión .jpg
-        String downloadUrl = await storageRef.getDownloadURL();
-        photoUrls[i] = downloadUrl;
-      } catch (e) {
-        if (e is FirebaseException && e.code != 'object-not-found') {
-          print('Error obteniendo foto ${i + 1} para el usuario $userId: $e');
+    int i = 0;
+    try {
+      final storageRef =
+          await _firebaseStorage.ref().child('users/$userId/photos').listAll();
+      for (var item in storageRef.items) {
+        if (!RegExp(r'^\d+_photo\.\w+$').hasMatch(item.name)) {
+          // Si el nombre del archivo no sigue la forma como por ej. '1_photo.jpg'
+          print(
+              '${item.name} no deberia existir en la carpeta users/$userId/photos');
+          await item.delete();
+        } else {
+          String downloadUrl = await item.getDownloadURL();
+          photoUrls[i] = downloadUrl;
+          i++;
         }
+      }
+    } catch (e) {
+      if (e is FirebaseException && e.code != 'object-not-found') {
+        print('Error obteniendo fotos para el usuario $userId: $e');
       }
     }
 
