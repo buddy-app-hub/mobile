@@ -65,6 +65,7 @@ class FilesService {
     required String userId,
     required List<File?> images,
     required BuildContext context,
+    List<int>? swapFromTo, 
     required Function(int, double) onProgress,
     required Function onComplete,
     required Function(String) onError,
@@ -109,6 +110,14 @@ class FilesService {
         }
       }
       onComplete();
+
+      // Si hubo un reordenamiento por un swap que sea haya hecho, lo reflejamos en el array:
+      if (swapFromTo != null) {
+        String fromPhoto = photosArray[swapFromTo[0]];
+        String toPhoto = photosArray[swapFromTo[1]];
+        photosArray[swapFromTo[1]] = fromPhoto;
+        photosArray[swapFromTo[0]] = toPhoto;
+      }
 
     // Guardo el nuevo array de fotos en el backend
     if (authProvider.isBuddy) {

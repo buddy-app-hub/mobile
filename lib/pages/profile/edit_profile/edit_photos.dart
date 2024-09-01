@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:mobile/services/files_service.dart';
 import 'package:provider/provider.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class EditPhotosPage extends StatefulWidget {
   @override
@@ -115,7 +116,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
     );
   }
 
-  Future<void> _uploadPhotos() async {
+  Future<void> _uploadPhotos(List<int>? swapFromTo) async {
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
 
@@ -127,6 +128,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
         userId: authProvider.user!.uid,
         images: _selectedPhotos,
         context: context,
+        swapFromTo: swapFromTo,
         onProgress: (index, progress) {
           // Optional: Handle progress updates here
         },
@@ -157,6 +159,10 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
 
   @override
   Widget build(BuildContext context) {
+    int firstFreeIndex = max(_getLastNonNullIndex(_selectedPhotos),
+            _getLastNonNullIndex(_photoUrls)) +
+        1;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Seleccionar Fotos'),
@@ -165,7 +171,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
             icon: Icon(Icons.check),
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             onPressed: () async {
-              await _uploadPhotos(); // Upload photos when the check button is pressed
+              await _uploadPhotos(null); // Upload photos when the check button is pressed
               Navigator.pop(context);
             },
           ),
@@ -177,55 +183,59 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                   CircularProgressIndicator()) // Show loading indicator if loading
           : Padding(
               padding: const EdgeInsets.all(16.0),
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 photos per row
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                  int firstFreeIndex = max(
-                          _getLastNonNullIndex(_selectedPhotos),
-                          _getLastNonNullIndex(_photoUrls)) +
-                      1;
-
-                  return GestureDetector(
-                    onTap: () {
-                      if (index == firstFreeIndex) { // Chequeamos si el indice corresponde al primer cuadrado libre
-                        _pickImage(index);
-                      } else if (index < firstFreeIndex) {
-                        _showPhotoOptions(index);
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8),
-                        image: _selectedPhotos[index] != null
-                            ? DecorationImage(
-                                image: FileImage(_selectedPhotos[index]!),
-                                fit: BoxFit.cover,
-                              )
-                            : (_photoUrls[index] != null
-                                ? DecorationImage(
-                                    image: NetworkImage(_photoUrls[index]!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null),
+              child: ReorderableGridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                children: List.generate(
+                  6,
+                  (index) {
+                    return GestureDetector(
+                      key: ValueKey(index),
+                      onTap: () {
+                        if (index == firstFreeIndex) {
+                          // Chequeamos si el índice corresponde al primer cuadrado libre
+                          _pickImage(index);
+                        } else if (index < firstFreeIndex) {
+                          _showPhotoOptions(index);
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8),
+                          image: _selectedPhotos[index] != null
+                              ? DecorationImage(
+                                  image: FileImage(_selectedPhotos[index]!),
+                                  fit: BoxFit.cover,
+                                )
+                              : (_photoUrls[index] != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(_photoUrls[index]!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null),
+                        ),
+                        child: index == firstFreeIndex
+                            ? Icon(Icons.add_a_photo, color: Colors.grey[700])
+                            : null,
                       ),
-                      child: index == firstFreeIndex
-                          ? Icon(Icons.add_a_photo, color: Colors.grey[700])
-                          : null,
-                    ),
-                  );
+                    );
+                  },
+                ),
+                onReorder: (oldIndex, newIndex) async {
+                  // La foto que estaba en oldIndex pasa a newIndex (la que arrastre), y la que estaba en newIndex pasa a oldIndex
+                  if (oldIndex != newIndex) {
+                    if (oldIndex < firstFreeIndex && newIndex < firstFreeIndex) { // Tienen que estar dentro de las fotos que se cargaron
+                      await _uploadPhotos([oldIndex, newIndex]);
+                    }
+                  }
                 },
               ),
             ),
     );
   }
 
-// Función auxiliar para obtener el índice del último elemento no nulo
   int _getLastNonNullIndex(List<dynamic> list) {
     int lastIndex = -1;
     for (int i = 0; i < list.length; i++) {
