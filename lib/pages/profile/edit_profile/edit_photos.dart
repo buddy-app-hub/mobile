@@ -227,7 +227,21 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                   // La foto que estaba en oldIndex pasa a newIndex (la que arrastre), y la que estaba en newIndex pasa a oldIndex
                   if (oldIndex != newIndex) {
                     if (oldIndex < firstFreeIndex && newIndex < firstFreeIndex) { // Tienen que estar dentro de las fotos que se cargaron
-                      await _uploadPhotos([oldIndex, newIndex]);
+                       setState(() {
+                    _isLoading = true;
+                  });
+
+                  try {
+                    await _uploadPhotos([oldIndex, newIndex]);
+                    await _loadUserPhotos();
+                  } catch (e) {
+                    print('Error al reordernar las fotos: $e');
+                  }
+
+                  setState(() {
+                    _isLoading = false;
+                  });
+                      
                     }
                   }
                 },
