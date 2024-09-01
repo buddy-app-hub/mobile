@@ -15,8 +15,8 @@ class EditPhotosPage extends StatefulWidget {
 
 class _EditPhotosPageState extends State<EditPhotosPage> {
   final ImagePicker _picker = ImagePicker();
-  List<File?> _selectedPhotos = List.filled(6, null);
-  List<String?> _photoUrls = List.filled(6, null);
+  List<File?> _newPhotos = List.filled(6, null);
+  List<String?> _storedPhotoUrls = List.filled(6, null);
   final FilesService _filesService = FilesService();
   bool _isLoading = false;
 
@@ -37,7 +37,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
       final List<String?> urls =
           await _filesService.getUserPhotos(authProvider.user!.uid, context);
       setState(() {
-        _photoUrls = urls;
+        _storedPhotoUrls = urls;
         _isLoading = false;
       });
     } catch (e) {
@@ -52,8 +52,8 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _selectedPhotos[index] = File(pickedFile.path);
-        _photoUrls[index] =
+        _newPhotos[index] = File(pickedFile.path);
+        _storedPhotoUrls[index] =
             null; // Clear the URL since we're picking a new image
       });
     }
@@ -77,10 +77,10 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                   Navigator.pop(context); // Cerramos el modal primero
 
                   // Si elimino una foto recien subida, la descarto
-                  if (_selectedPhotos.elementAt(index) != null) {
+                  if (_newPhotos.elementAt(index) != null) {
                     setState(() {
-                      _selectedPhotos[index] = null;
-                      _photoUrls[index] = null;
+                      _newPhotos[index] = null;
+                      _storedPhotoUrls[index] = null;
                     });
                     return;
                   }
@@ -126,7 +126,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
     try {
       await _filesService.uploadUserPhotos(
         userId: authProvider.user!.uid,
-        images: _selectedPhotos,
+        images: _newPhotos,
         context: context,
         swapFromTo: swapFromTo,
         onProgress: (index, progress) {
@@ -159,8 +159,8 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
 
   @override
   Widget build(BuildContext context) {
-    int firstFreeIndex = max(_getLastNonNullIndex(_selectedPhotos),
-            _getLastNonNullIndex(_photoUrls)) +
+    int firstFreeIndex = max(_getLastNonNullIndex(_newPhotos),
+            _getLastNonNullIndex(_storedPhotoUrls)) +
         1;
 
     return Scaffold(
@@ -204,14 +204,14 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(8),
-                          image: _selectedPhotos[index] != null
+                          image: _newPhotos[index] != null
                               ? DecorationImage(
-                                  image: FileImage(_selectedPhotos[index]!),
+                                  image: FileImage(_newPhotos[index]!),
                                   fit: BoxFit.cover,
                                 )
-                              : (_photoUrls[index] != null
+                              : (_storedPhotoUrls[index] != null
                                   ? DecorationImage(
-                                      image: NetworkImage(_photoUrls[index]!),
+                                      image: NetworkImage(_storedPhotoUrls[index]!),
                                       fit: BoxFit.cover,
                                     )
                                   : null),
