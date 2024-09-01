@@ -98,9 +98,30 @@ class BuddyService {
     }
   }
 
+  Future<void> updateBuddyProfilePhotosArray(
+      BuildContext context, List<String> newPhotosArray) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    BuddyProfile newProfile = authProvider.userData!.buddy!.buddyProfile!;
+    newProfile.photos = newPhotosArray;
+
+    try {
+      await ApiService.patch(
+        endpoint: "/buddies/${authProvider.user!.uid}/profile",
+        body: newProfile.toJson(),
+      );
+      print("Array de fotos actualizado con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar el array de fotos: $e");
+    }
+  }
+
   Future<List<Connection>> getConnections(UserData userData) async {
     var response = await ApiService.get<dynamic>(
-      endpoint:  "/connections/buddies/${userData.buddy?.firebaseUID}",
+      endpoint: "/connections/buddies/${userData.buddy?.firebaseUID}",
     );
 
     List<Connection> connections = (response as List<dynamic>)

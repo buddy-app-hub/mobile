@@ -14,6 +14,7 @@ class BuddyProfile {
   final WorkerDetails? workerDetails;
   List<Interest>? interests;
   List<TimeOfDay>? availability;
+  List<String>? photos;
 
   BuddyProfile({
     this.isOnPause = false,
@@ -22,6 +23,7 @@ class BuddyProfile {
     this.workerDetails,
     this.interests,
     this.availability,
+    this.photos,
   });
 
   factory BuddyProfile.fromJson(Map<String, dynamic> json) => _$BuddyProfileFromJson(json);

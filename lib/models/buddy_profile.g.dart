@@ -23,6 +23,8 @@ BuddyProfile _$BuddyProfileFromJson(Map<String, dynamic> json) => BuddyProfile(
       availability: (json['availability'] as List<dynamic>?)
           ?.map((e) => TimeOfDay.fromJson(e as Map<String, dynamic>))
           .toList(),
+      photos:
+          (json['photos'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$BuddyProfileToJson(BuddyProfile instance) =>
@@ -33,4 +35,5 @@ Map<String, dynamic> _$BuddyProfileToJson(BuddyProfile instance) =>
       'workerDetails': instance.workerDetails?.toJson(),
       'interests': instance.interests?.map((e) => e.toJson()).toList(),
       'availability': instance.availability?.map((e) => e.toJson()).toList(),
+      'photos': instance.photos,
     };
