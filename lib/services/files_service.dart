@@ -166,6 +166,9 @@ class FilesService {
   Future<void> deletePhoto(
       String userId, BuildContext context, int indexPhotoToDelete) async {
     final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final BuddyService buddyService = BuddyService();
+    final ElderService elderService = ElderService();
+    
     List<String>? photos = authProvider.isBuddy
         ? authProvider.userData!.buddy!.buddyProfile!.photos
         : authProvider.userData!.elder!.elderProfile!.photos;

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/elder_profile.dart';
 import 'package:mobile/models/interest.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/services/api_service_base.dart';
 import 'package:provider/provider.dart';
@@ -97,7 +99,7 @@ class ElderService {
   }
 
   Future<void> updateElderProfilePhotosArray(
-    BuildContext context, List<String> newPhotosArray) async {
+      BuildContext context, List<String> newPhotosArray) async {
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
 
@@ -115,5 +117,17 @@ class ElderService {
     } catch (e) {
       print("Error al actualizar el array de fotos: $e");
     }
+  }
+
+  Future<List<Connection>> getConnections(UserData userData) async {
+    var response = await ApiService.get<dynamic>(
+      endpoint: "/connections/elders/${userData.elder?.firebaseUID}",
+    );
+
+    List<Connection> connections = (response as List<dynamic>)
+        .map((e) => Connection.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    return connections;
   }
 }

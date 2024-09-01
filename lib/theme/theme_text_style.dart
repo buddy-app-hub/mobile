@@ -75,7 +75,7 @@ class ThemeTextStyle {
   static TextStyle titleSmallOnPrimary(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onPrimary,
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: FontWeight.w400,
     );
   }
@@ -83,10 +83,12 @@ class ThemeTextStyle {
   static TextStyle titleSmallOnBackground(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onBackground,
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: FontWeight.w400,
     );
   }
+
+  
 
   static TextStyle titleSmallOnSecondary(BuildContext context) {
     return TextStyle(
@@ -96,11 +98,35 @@ class ThemeTextStyle {
     );
   }
 
+  static TextStyle titleSmallerOnBackground(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onSurface,
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle titleSmallerOnPrimary(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onPrimary,
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
   static TextStyle titleMediumOnBackground(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onBackground,
-      fontSize: 20,
+      fontSize: 18,
       fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle titleMediumOnPrimaryContainer(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onPrimaryContainer,
+      fontSize: 18,
+      fontWeight: FontWeight.w300,
     );
   }
 

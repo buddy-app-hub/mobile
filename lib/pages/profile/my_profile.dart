@@ -55,6 +55,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
