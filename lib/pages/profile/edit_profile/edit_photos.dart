@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'dart:io';
-
+import 'dart:math';
 import 'package:mobile/services/files_service.dart';
 import 'package:provider/provider.dart';
 
@@ -74,13 +74,13 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                 title: Text('Eliminar'),
                 onTap: () async {
                   Navigator.pop(context); // Cerramos el modal primero
-                  
+
                   // Si elimino una foto recien subida, la descarto
                   if (_selectedPhotos.elementAt(index) != null) {
                     setState(() {
-                    _selectedPhotos[index] = null;
-                    _photoUrls[index] = null;
-                  });
+                      _selectedPhotos[index] = null;
+                      _photoUrls[index] = null;
+                    });
                     return;
                   }
 
@@ -90,9 +90,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
 
                   try {
                     await _filesService.deletePhoto(
-                        authProvider.user!.uid,
-                        context,
-                        index);
+                        authProvider.user!.uid, context, index);
                     await _loadUserPhotos();
                   } catch (e) {
                     print('Error al eliminar la foto: $e');
@@ -187,12 +185,16 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                 ),
                 itemCount: 6,
                 itemBuilder: (context, index) {
+                  int firstFreeIndex = max(
+                          _getLastNonNullIndex(_selectedPhotos),
+                          _getLastNonNullIndex(_photoUrls)) +
+                      1;
+
                   return GestureDetector(
                     onTap: () {
-                      if (_selectedPhotos[index] == null &&
-                          _photoUrls[index] == null) {
+                      if (index == firstFreeIndex) { // Chequeamos si el indice corresponde al primer cuadrado libre
                         _pickImage(index);
-                      } else {
+                      } else if (index < firstFreeIndex) {
                         _showPhotoOptions(index);
                       }
                     },
@@ -212,8 +214,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                                   )
                                 : null),
                       ),
-                      child: _selectedPhotos[index] == null &&
-                              _photoUrls[index] == null
+                      child: index == firstFreeIndex
                           ? Icon(Icons.add_a_photo, color: Colors.grey[700])
                           : null,
                     ),
@@ -222,5 +223,16 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
               ),
             ),
     );
+  }
+
+// Función auxiliar para obtener el índice del último elemento no nulo
+  int _getLastNonNullIndex(List<dynamic> list) {
+    int lastIndex = -1;
+    for (int i = 0; i < list.length; i++) {
+      if (list[i] != null) {
+        lastIndex = i;
+      }
+    }
+    return lastIndex;
   }
 }
