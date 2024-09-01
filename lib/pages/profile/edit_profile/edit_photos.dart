@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
@@ -25,13 +26,15 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
   }
 
   Future<void> _loadUserPhotos() async {
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
 
     setState(() {
       _isLoading = true;
     });
     try {
-      final List<String?> urls = await _filesService.getUserPhotos(authProvider.user!.uid);
+      final List<String?> urls =
+          await _filesService.getUserPhotos(authProvider.user!.uid, context);
       setState(() {
         _photoUrls = urls;
         _isLoading = false;
@@ -49,12 +52,16 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
     if (pickedFile != null) {
       setState(() {
         _selectedPhotos[index] = File(pickedFile.path);
-        _photoUrls[index] = null; // Clear the URL since we're picking a new image
+        _photoUrls[index] =
+            null; // Clear the URL since we're picking a new image
       });
     }
   }
 
   void _showPhotoOptions(int index) {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -65,12 +72,26 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
               ListTile(
                 leading: Icon(Icons.delete),
                 title: Text('Eliminar'),
-                onTap: () {
+                onTap: () async {
+                  Navigator.pop(context); // Cerramos el modal primero
+
                   setState(() {
-                    _selectedPhotos[index] = null;
-                    _photoUrls[index] = null; // Clear the URL as well
+                    _isLoading = true; // Mostramos el indicador de carga
                   });
-                  Navigator.pop(context);
+
+                  try {
+                    await _filesService.deletePhoto(
+                        authProvider.user!.uid,
+                        context,
+                        index);
+                    await _loadUserPhotos();
+                  } catch (e) {
+                    print('Error al eliminar la foto: $e');
+                  }
+
+                  setState(() {
+                    _isLoading = false;
+                  });
                 },
               ),
               ListTile(
@@ -88,7 +109,8 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
   }
 
   Future<void> _uploadPhotos() async {
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
 
     setState(() {
       _isLoading = true;
@@ -97,6 +119,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
       await _filesService.uploadUserPhotos(
         userId: authProvider.user!.uid,
         images: _selectedPhotos,
+        context: context,
         onProgress: (index, progress) {
           // Optional: Handle progress updates here
         },
@@ -141,7 +164,9 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator()) // Show loading indicator if loading
+          ? Center(
+              child:
+                  CircularProgressIndicator()) // Show loading indicator if loading
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: GridView.builder(
@@ -154,7 +179,8 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      if (_selectedPhotos[index] == null && _photoUrls[index] == null) {
+                      if (_selectedPhotos[index] == null &&
+                          _photoUrls[index] == null) {
                         _pickImage(index);
                       } else {
                         _showPhotoOptions(index);
@@ -176,7 +202,8 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                                   )
                                 : null),
                       ),
-                      child: _selectedPhotos[index] == null && _photoUrls[index] == null
+                      child: _selectedPhotos[index] == null &&
+                              _photoUrls[index] == null
                           ? Icon(Icons.add_a_photo, color: Colors.grey[700])
                           : null,
                     ),

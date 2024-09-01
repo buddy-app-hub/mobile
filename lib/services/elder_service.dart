@@ -95,4 +95,25 @@ class ElderService {
       print("Error al actualizar la disponibilidad: $e");
     }
   }
+
+  Future<void> updateElderProfilePhotosArray(
+    BuildContext context, List<String> newPhotosArray) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    ElderProfile newProfile = authProvider.userData!.elder!.elderProfile!;
+    newProfile.photos = newPhotosArray;
+
+    try {
+      await ApiService.patch(
+        endpoint: "/elders/${authProvider.user!.uid}/profile",
+        body: newProfile.toJson(),
+      );
+      print("Array de fotos actualizado con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar el array de fotos: $e");
+    }
+  }
 }
