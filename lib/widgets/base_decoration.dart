@@ -52,7 +52,7 @@ class BaseDecoration {
     );
   }
 
-  static Container buildTitleProfile(BuildContext context, String title) {
+  static Container buildTitle(BuildContext context, String title) {
     return Container(
       margin: EdgeInsets.fromLTRB(28, 30, 5, 20),
       child: Align(
@@ -60,6 +60,19 @@ class BaseDecoration {
         child: Text(
           title,
           style: ThemeTextStyle.titleLargePrimary700(context),
+        ),
+      ),
+    );
+  }
+
+  static Container buildTitleProfile(BuildContext context, String title, bool isBuddy) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(28, 30, 5, 20),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Text(
+          title,
+          style: isBuddy ? ThemeTextStyle.titleLargePrimary700(context) : ThemeTextStyle.titleLargeTertiary700(context),
         ),
       ),
     );
@@ -76,6 +89,41 @@ class BaseDecoration {
       padding: EdgeInsets.fromLTRB(11, 7, 11.3, 7),
       child: Text(
         tag,
+        style: ThemeTextStyle.itemLargeOnBackground(context),
+      ),
+    );
+  }
+
+  static Widget buildInterestTag(BuildContext context, Interest interest, bool isBuddy, ThemeData theme) {
+    final emoji = getEmojiInterest(interest.name);
+    return Container(
+      margin: EdgeInsets.fromLTRB(0, 0, 4.5, 0),
+      decoration: BoxDecoration(
+        border: Border.all(color: isBuddy ? theme.colorScheme.primary : theme.colorScheme.tertiary),
+        borderRadius: BorderRadius.circular(32),
+        color: isBuddy ? theme.colorScheme.primary.withOpacity(0.05) : theme.colorScheme.tertiary.withOpacity(0.05),
+      ),
+      padding: EdgeInsets.fromLTRB(11, 7, 11.3, 7),
+      child: Text(
+        '$emoji ${interest.name}',
+        style: ThemeTextStyle.itemLargeOnBackground(context),
+      ),
+    );
+  }
+
+  static Widget buildAvailabilityTag(BuildContext context, custom_time.TimeOfDay availability, bool isBuddy, ThemeData theme) {
+    String startHour = intToTime(availability.from);
+    String endHour = intToTime(availability.to);
+    return Container(
+      margin: EdgeInsets.fromLTRB(0, 0, 4.5, 0),
+      decoration: BoxDecoration(
+        border: Border.all(color: isBuddy ? theme.colorScheme.primary : theme.colorScheme.tertiary),
+        borderRadius: BorderRadius.circular(32),
+        color: isBuddy ? theme.colorScheme.primary.withOpacity(0.05) : theme.colorScheme.tertiary.withOpacity(0.05),
+      ),
+      padding: EdgeInsets.fromLTRB(11, 7, 11.3, 7),
+      child: Text(
+        '📅 ${availability.dayOfWeek} de $startHour a $endHour',
         style: ThemeTextStyle.itemLargeOnBackground(context),
       ),
     );
@@ -273,6 +321,62 @@ class BaseDecoration {
                   TextSpan(
                     text: ' ($reviews)', //TODO saque el opiniones porque seguia con overflow, se lo puede contener en un wrap quizas o dejarlo asis
                     style: ThemeTextStyle.titleSmallBright(context),
+                  ),
+              ]),
+            ),
+          ],
+        ),
+      ],
+    ); 
+  }
+
+  static Widget buildRowLocationReviewProfile(BuildContext context, bool isBuddy, String location, String rate, String reviews) {
+    return Row(
+      children: [
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(4, 3.3, 6, 3.3),
+              child: SizedBox(
+                width: 10.6,
+                height: 13.3,
+                child: SvgPicture.asset(
+                  'assets/icons/iconLocation.svg',
+                  color: isBuddy ? Theme.of(context).colorScheme.onSecondaryContainer : Theme.of(context).colorScheme.onTertiaryFixedVariant,
+                ),
+              ),
+            ),
+            Text(
+              location,
+              style: isBuddy ? ThemeTextStyle.titleSmallsSecondaryContainer(context) : ThemeTextStyle.titleSmallsTertiaryFixedVariant(context),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(10, 3.3, 3, 3.3),
+              child: SizedBox(
+                width: 10.6,
+                height: 13.3,
+                child: SvgPicture.asset(
+                  'assets/icons/star.svg',
+                  color: isBuddy ? Theme.of(context).colorScheme.onSecondaryContainer : Theme.of(context).colorScheme.onTertiaryFixedVariant,
+                ),
+              ),
+            ),
+            RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: isBuddy ? Theme.of(context).colorScheme.onSecondaryContainer : Theme.of(context).colorScheme.onTertiaryFixedVariant,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+                children: [
+                  TextSpan(text: rate),
+                  TextSpan(
+                    text: ' ($reviews)', //TODO saque el opiniones porque seguia con overflow, se lo puede contener en un wrap quizas o dejarlo asis
+                    style: isBuddy ? ThemeTextStyle.titleSmallsSecondaryContainer(context) : ThemeTextStyle.titleSmallsTertiaryFixedVariant(context),
                   ),
               ]),
             ),

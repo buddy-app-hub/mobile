@@ -2,11 +2,13 @@ import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
+import 'package:mobile/services/files_service.dart';
 
 class UserHelper {
 
   BuddyService buddyService = BuddyService();
   ElderService elderService = ElderService();
+  FilesService _filesService = FilesService();
 
   Future<List<Connection>> fetchConnections(UserData userData) async {
     List<Connection> connections;
@@ -19,6 +21,12 @@ class UserHelper {
     return connections;
   }
 
+  Future<Object> fetchPersonProfile(String personID, bool isBuddy) async {
+    Object? personalProfile = isBuddy
+      ? (await elderService.getElder(personID)).elderProfile
+      : (await buddyService.getBuddy(personID)).buddyProfile;
+    return personalProfile!;
+  }
 
   Future<(String, String)> fetchPersonFullName(Connection connection, bool isBuddy) async {
     String personID;
@@ -46,7 +54,14 @@ class UserHelper {
     return (personID, personalData.firstName);
   }
 
-  Future<String> fetchPersonName(String senderID, UserData userData) async {
+  Future<String> fetchProfileFullName(String personID, bool isBuddy) async {
+    var personalData = isBuddy
+      ? (await elderService.getElder(personID)).personalData
+      : (await buddyService.getBuddy(personID)).personalData;
+    return '${personalData.firstName} ${personalData.lastName}';
+  }
+
+  Future<String> fetchSenderName(String senderID, UserData userData) async {
     var userID = userData.buddy != null
       ? userData.buddy?.firebaseUID
       : userData.elder?.firebaseUID;
@@ -69,5 +84,15 @@ class UserHelper {
       : userData.elder?.firebaseUID;
 
     return userID == senderID;
+  }
+
+  Future<String> loadProfileImage(String personID) async {
+    String? imageUrl =
+        await _filesService.getProfileImageUrl(personID);
+    if (imageUrl == null) {
+      return '';
+    } else {
+      return imageUrl; 
+    }
   }
 }

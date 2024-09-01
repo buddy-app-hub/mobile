@@ -20,6 +20,16 @@ class ThemeTextStyle {
     );
   }
 
+  static TextStyle titleLargeTertiary700(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onTertiaryFixedVariant,
+      fontWeight: FontWeight.w700,
+      fontSize: 18,
+      height: 1.3,
+      letterSpacing: 0.1,
+    );
+  }
+
   static TextStyle titleLargeOnPrimary(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onPrimary,
@@ -138,6 +148,23 @@ class ThemeTextStyle {
     );
   }
 
+  static TextStyle titleLargeOnPrimaryFixed(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onPrimaryFixed,
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle titleLargeOnTertiaryContainer(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onTertiaryContainer,
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+
   static TextStyle itemLargeOnBackground(BuildContext context) {
     return TextStyle(
       fontWeight: FontWeight.w400,
@@ -145,6 +172,16 @@ class ThemeTextStyle {
       height: 1.3,
       letterSpacing: 0.1,
       color: Theme.of(context).colorScheme.onBackground,
+    );
+  }
+
+  static TextStyle itemSmallOnBackground(BuildContext context) {
+    return TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 10,
+      height: 1.3,
+      letterSpacing: 0.1,
+      color: Theme.of(context).colorScheme.onSurface,
     );
   }
 
@@ -156,6 +193,25 @@ class ThemeTextStyle {
       fontFamily: 'Comfortaa', //TODO: fix font family para reviews
     );
   }
+
+  static TextStyle titleSmallsSecondaryContainer(BuildContext context) {
+    return TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: Theme.of(context).colorScheme.onSecondaryContainer,
+      fontFamily: 'Comfortaa', //TODO: fix font family para reviews
+    );
+  }
+
+  static TextStyle titleSmallsTertiaryFixedVariant(BuildContext context) {
+    return TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: Theme.of(context).colorScheme.onTertiaryFixedVariant,
+      fontFamily: 'Comfortaa', //TODO: fix font family para reviews
+    );
+  }
+
 
   static TextStyle titleMediumInverseSurface(BuildContext context) {
     return TextStyle(

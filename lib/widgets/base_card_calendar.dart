@@ -65,11 +65,13 @@ class _BaseCardCalendarState extends State<BaseCardCalendar> {
       children: [
         Row(
           children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(15, 15, 15, 10),
-              child: Text(
-                'Hoy, ${formattedDate()}',
-                style: ThemeTextStyle.titleMediumOnBackground(context),
+            Flexible(
+              child: Container(
+                margin: EdgeInsets.fromLTRB(15, 15, 15, 10),
+                child: Text(
+                  'Hoy, ${formattedDate()}',
+                  style: ThemeTextStyle.titleMediumOnBackground(context),
+                ),
               ),
             ),
           ],

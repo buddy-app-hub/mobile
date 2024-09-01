@@ -3,8 +3,7 @@ import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/connections/chats/chat_screen.dart';
-import 'package:mobile/services/chat_service.dart';
+import 'package:mobile/pages/profile/view_profile.dart';
 import 'package:provider/provider.dart';
 
 UserHelper userHelper = UserHelper();
@@ -52,17 +51,12 @@ class BaseConnectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthSessionProvider>(context);
-    UserData userData = authProvider.userData!;
+    bool isBuddy = authProvider.userData!.buddy != null;
     return GestureDetector(
       onTap: () async {
-        final chatService = ChatService();
-        final chatRoomId = await chatService.createChatRoom(
-          personName,
-          [personID], userData
-        );
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>  ChatScreen(chatRoomId: chatRoomId)),
+          MaterialPageRoute(builder: (context) =>  ViewProfilePage(personID: personID, isBuddy: isBuddy)),
         );
       },
       child: Column(

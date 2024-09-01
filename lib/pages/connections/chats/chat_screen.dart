@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 final UserHelper userHelper = UserHelper();
 
 Future<String> fetchSenderData(Message message, UserData userData) async {
-  String personName = await userHelper.fetchPersonName(message.senderId, userData);
+  String personName = await userHelper.fetchSenderName(message.senderId, userData);
   return personName;
 }
 
