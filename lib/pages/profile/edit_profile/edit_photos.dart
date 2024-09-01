@@ -74,6 +74,15 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                 title: Text('Eliminar'),
                 onTap: () async {
                   Navigator.pop(context); // Cerramos el modal primero
+                  
+                  // Si elimino una foto recien subida, la descarto
+                  if (_selectedPhotos.elementAt(index) != null) {
+                    setState(() {
+                    _selectedPhotos[index] = null;
+                    _photoUrls[index] = null;
+                  });
+                    return;
+                  }
 
                   setState(() {
                     _isLoading = true; // Mostramos el indicador de carga
@@ -157,8 +166,9 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
           IconButton(
             icon: Icon(Icons.check),
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-            onPressed: () {
-              _uploadPhotos(); // Upload photos when the check button is pressed
+            onPressed: () async {
+              await _uploadPhotos(); // Upload photos when the check button is pressed
+              Navigator.pop(context);
             },
           ),
         ],

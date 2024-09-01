@@ -54,7 +54,9 @@ class FilesService {
       String downloadUrl = await storageRef.getDownloadURL();
       return downloadUrl;
     } catch (e) {
-      print('Error obteniendo URL de imagen de perfil: $e');
+      if (! e.toString().contains('object-not-found')) {
+        print('Error obteniendo URL de imagen de perfil: $e');
+      }
       return null;
     }
   }
@@ -74,10 +76,6 @@ class FilesService {
     List<String> photosArray = authProvider.isBuddy
         ? authProvider.userData!.buddy!.buddyProfile!.photos!
         : authProvider.userData!.elder!.elderProfile!.photos!;
-    
-    print(photosArray);
-    print(images);
-    print("holaa");
 
     try {
       for (int i = 0; i < images.length; i++) {
@@ -147,6 +145,10 @@ class FilesService {
       if (e is FirebaseException && e.code != 'object-not-found') {
         print('Error obteniendo fotos para el usuario $userId: $e');
       }
+    }
+
+    if (i != photos!.length) {
+      print('IMPORTANTE: la cantidad de fotos en storage es $i pero en la base son ${photos.length}. Revisar users/$userId/photos');
     }
 
     return photoUrls;
