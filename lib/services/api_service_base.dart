@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/services/auth_service.dart';
 
 class ApiService {
-  static const String baseUrl = "http://localhost:8086";
+  static const String baseUrl = "http://192.168.0.80:8086";
 
   static Future<dynamic> get<T>({
     required String endpoint,

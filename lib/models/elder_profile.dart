@@ -9,11 +9,13 @@ class ElderProfile {
   String? description;
   List<Interest>? interests;
   List<TimeOfDay>? availability;
+  List<String>? photos;
 
   ElderProfile({
     this.description,
     this.interests,
     this.availability,
+    this.photos,
   });
 
   factory ElderProfile.fromJson(Map<String, dynamic> json) => _$ElderProfileFromJson(json);

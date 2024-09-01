@@ -98,9 +98,30 @@ class ElderService {
     }
   }
 
+  Future<void> updateElderProfilePhotosArray(
+      BuildContext context, List<String> newPhotosArray) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    ElderProfile newProfile = authProvider.userData!.elder!.elderProfile!;
+    newProfile.photos = newPhotosArray;
+
+    try {
+      await ApiService.patch(
+        endpoint: "/elders/${authProvider.user!.uid}/profile",
+        body: newProfile.toJson(),
+      );
+      print("Array de fotos actualizado con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar el array de fotos: $e");
+    }
+  }
+
   Future<List<Connection>> getConnections(UserData userData) async {
     var response = await ApiService.get<dynamic>(
-      endpoint:  "/connections/elders/${userData.elder?.firebaseUID}",
+      endpoint: "/connections/elders/${userData.elder?.firebaseUID}",
     );
 
     List<Connection> connections = (response as List<dynamic>)

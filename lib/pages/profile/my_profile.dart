@@ -3,11 +3,46 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_availability.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
+import 'package:mobile/pages/profile/edit_profile/edit_photos.dart';
+import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
 import 'package:mobile/pages/profile/settings.dart';
+import 'package:mobile/services/files_service.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-class MyProfilePage extends StatelessWidget {
+class MyProfilePage extends StatefulWidget {
+  @override
+  _MyProfilePageState createState() => _MyProfilePageState();
+}
+
+class _MyProfilePageState extends State<MyProfilePage> {
+  String? _profileImageUrl;
+  final FilesService _filesService = FilesService();
+  final EditProfileImageBottomSheet _bottomSheet =
+      EditProfileImageBottomSheet();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    try {
+      String? imageUrl =
+          await _filesService.getProfileImageUrl(authProvider.user!.uid);
+      setState(() {
+        _profileImageUrl = imageUrl;
+      });
+    } catch (e) {
+      print('Error al cargar la imagen de perfil: $e');
+      // TODO: manejar el error mostrando un mensaje al usuario.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -60,10 +95,30 @@ class MyProfilePage extends StatelessWidget {
         children: [
           Column(
             children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: NetworkImage(
-                    "https://media.diariouno.com.ar/p/46001b6b2986d60fca9c73571135ca64/adjuntos/298/imagenes/009/381/0009381866/1200x0/smart/julian-1jpg.jpg"),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundImage: _profileImageUrl != null
+                        ? NetworkImage(_profileImageUrl!)
+                        : AssetImage('assets/images/default_user.jpg')
+                            as ImageProvider,
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: InkWell(
+                      onTap: () {
+                        _bottomSheet.show(context, _loadProfileImage);
+                      },
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.edit, color: theme.iconTheme.color),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 10),
               Text(
@@ -243,7 +298,7 @@ class MyProfilePage extends StatelessWidget {
       case 'Biografia':
         targetPage = EditBiographyPage();
       case 'Fotos':
-        targetPage = MyProfilePage(); // EditPhotosPage();
+        targetPage = EditPhotosPage();
       case 'Video introductorio':
         targetPage = MyProfilePage(); // EditIntroVideoPage();
       case 'Intereses':
