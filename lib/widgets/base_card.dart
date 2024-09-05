@@ -36,7 +36,7 @@ class BaseCard extends StatelessWidget {
           },
           child: SizedBox(
             width: 375,
-            // height: 175,
+            height: 175,
             child: _buildItemInfo(context, theme),
           ),
         ),
@@ -77,7 +77,7 @@ class BaseCard extends StatelessWidget {
                   style: ThemeTextStyle.titleSmallOnBackground(context),
                 ),
                 Text(
-                  description,
+                  description, //limit description
                   style: ThemeTextStyle.titleSmallOnBackground(context),
                 ),
               ],

@@ -73,7 +73,7 @@ class SocialHubPage extends StatelessWidget {
                           rate: '4.1', 
                           reviews: '10', 
                           time: 'Miercoles de 10.00 a 11.00',
-                          description: 'Espacio grupal que busca fomentar la lectura y promover la creatividad de sus participantes...', 
+                          description: 'Espacio grupal que busca fomentar la lectura...', 
                           image: 'assets/images/reading_club.png',
                         ),
                         BaseCard(
@@ -91,7 +91,7 @@ class SocialHubPage extends StatelessWidget {
                           rate: '4.2', 
                           reviews: '18', 
                           time: 'Martes de 14.00 a 15.00',
-                          description: 'Sumérgete en un mundo de aromas y luces, y aprende a crear velas personalizadas que iluminarán tu hogar.', 
+                          description: 'Sumérgete en un mundo de aromas y luces, y aprende a crear velas que iluminarán tu hogar.', 
                           image: 'assets/images/candles.jpeg',
                         ),
                         BaseCard(
@@ -100,7 +100,7 @@ class SocialHubPage extends StatelessWidget {
                           rate: '4.4', 
                           reviews: '15', 
                           time: 'Lunes de 17.00 a 18.00',
-                          description: 'Moldea tu imaginación y crea piezas únicas en nuestro taller de cerámica. ¡Déjate llevar por la arcilla!', 
+                          description: 'Moldea tu imaginación y crea piezas únicas en nuestro taller de cerámica...', 
                           image: 'assets/images/pottery.jpeg',
                         ),
                       ],
