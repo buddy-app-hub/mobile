@@ -25,14 +25,15 @@ Future<Widget> buildConnectionCards(Connection connection, UserData userData) as
   bool isBuddy = userData.buddy != null;
   String personID, personName;
   (personID, personName) = await userHelper.fetchPersonIDAndName(connection, isBuddy);
-  return buildConnectionCard(personID, personName,'image');
+  String? imageUrl = await userHelper.loadProfileImage(personID);
+  return buildConnectionCard(personID, personName, imageUrl);
 }
 
 BaseConnectionCard buildConnectionCard(String personID, String personName, String image) {
   return BaseConnectionCard(
     personID: personID,
     personName: personName,
-    image: 'assets/images/avatarBuddy.jpeg',
+    image: image,
   );
 }
 
@@ -66,7 +67,10 @@ class BaseConnectionCard extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 fit: BoxFit.cover,
-                image: AssetImage(image),
+                image: image.isEmpty
+                  ? AssetImage('assets/images/default_user.jpg')
+                  : NetworkImage(image)
+                    as ImageProvider,
               ),
               borderRadius: BorderRadius.circular(10.0),
             ),

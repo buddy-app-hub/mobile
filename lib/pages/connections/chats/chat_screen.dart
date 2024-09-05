@@ -106,7 +106,8 @@ class _ChatScreenState extends State<ChatScreen> {
               margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
               child: CircleAvatar(
                 radius: 22,
-                backgroundImage: AssetImage('assets/images/avatarBuddy.jpeg'),
+                backgroundColor: theme.colorScheme.surfaceBright, //TODO que aparezca la imagen de los participantes
+                child: Icon(Icons.groups) ,
               ),
             ),
             Flexible(

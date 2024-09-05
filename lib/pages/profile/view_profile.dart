@@ -106,6 +106,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
             Center(
               child: _buildProfileData(context, theme),
             ),
+            // todo determinar si vamos a uar el carrousel o no
             // Positioned(
             //   left: 0,
             //   right: 0,
@@ -161,9 +162,9 @@ class _ViewProfileState extends State<ViewProfilePage> {
         CircleAvatar(
           radius: 60,
           backgroundImage: _profileImageUrl.isEmpty
-              ? AssetImage('assets/images/avatarBuddy.jpeg') //todo fix con default
-              : NetworkImage(_profileImageUrl)
-                  as ImageProvider,
+            ? AssetImage('assets/images/default_user.jpg')
+            : NetworkImage(_profileImageUrl)
+                as ImageProvider,
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -344,7 +345,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
               image: DecorationImage(
                 fit: BoxFit.cover,
                 image: AssetImage(
-                  'assets/images/avatar.png',
+                  'assets/images/default_user.jpg',
                 ),
               ),
               borderRadius: BorderRadius.circular(100.0),
