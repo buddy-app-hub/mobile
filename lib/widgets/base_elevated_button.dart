@@ -58,13 +58,15 @@ class BaseElevatedButton extends BaseButton {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             leftIcon ?? const SizedBox.shrink(),
-            Text(
-              text,
-              style: buttonTextStyle ?? TextStyle(
-                color: color,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              )
+            Flexible(
+              child: Text(
+                text,
+                style: buttonTextStyle ?? TextStyle(
+                  color: color,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                )
+              ),
             ),
             rightIcon ?? const SizedBox.shrink(),
           ],

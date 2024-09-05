@@ -13,7 +13,7 @@ import 'package:mobile/pages/connections/my_connections.dart';
 import 'package:mobile/pages/home.dart';
 import 'package:mobile/pages/profile/settings.dart';
 import 'package:mobile/pages/profile/my_profile.dart';
-import 'package:mobile/pages/profile/view_profile.dart';
+// import 'package:mobile/pages/profile/view_profile.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/auth_service.dart';
 import 'package:provider/provider.dart';
@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
           Routes.myConnections: (context) => MyConnectionsPage(),
           Routes.myProfile: (context) => MyProfilePage(),
           Routes.settings: (context) => SettingsPage(),
-          Routes.viewProfile: (context) => ViewProfilePage(),
+          // Routes.viewProfile: (context) => ViewProfilePage(),
           Routes.chooseUser: (context) => const ChooseUserPage(),
           Routes.beBuddy: (context) => const BecomeBuddyPage(),
           Routes.wantBuddyForMyself: (context) => const WantBuddyForMyselfPage(),

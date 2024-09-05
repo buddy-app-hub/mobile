@@ -3,8 +3,7 @@ import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/connections/chats/chat_screen.dart';
-import 'package:mobile/services/chat_service.dart';
+import 'package:mobile/pages/profile/view_profile.dart';
 import 'package:provider/provider.dart';
 
 UserHelper userHelper = UserHelper();
@@ -26,14 +25,15 @@ Future<Widget> buildConnectionCards(Connection connection, UserData userData) as
   bool isBuddy = userData.buddy != null;
   String personID, personName;
   (personID, personName) = await userHelper.fetchPersonIDAndName(connection, isBuddy);
-  return buildConnectionCard(personID, personName,'image');
+  String? imageUrl = await userHelper.loadProfileImage(personID);
+  return buildConnectionCard(personID, personName, imageUrl);
 }
 
 BaseConnectionCard buildConnectionCard(String personID, String personName, String image) {
   return BaseConnectionCard(
     personID: personID,
     personName: personName,
-    image: 'assets/images/avatarBuddy.jpeg',
+    image: image,
   );
 }
 
@@ -52,17 +52,12 @@ class BaseConnectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthSessionProvider>(context);
-    UserData userData = authProvider.userData!;
+    bool isBuddy = authProvider.userData!.buddy != null;
     return GestureDetector(
       onTap: () async {
-        final chatService = ChatService();
-        final chatRoomId = await chatService.createChatRoom(
-          personName,
-          [personID], userData
-        );
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>  ChatScreen(chatRoomId: chatRoomId)),
+          MaterialPageRoute(builder: (context) =>  ViewProfilePage(personID: personID, isBuddy: isBuddy)),
         );
       },
       child: Column(
@@ -72,7 +67,10 @@ class BaseConnectionCard extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 fit: BoxFit.cover,
-                image: AssetImage(image),
+                image: image.isEmpty
+                  ? AssetImage('assets/images/default_user.jpg')
+                  : NetworkImage(image)
+                    as ImageProvider,
               ),
               borderRadius: BorderRadius.circular(10.0),
             ),

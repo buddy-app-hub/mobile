@@ -2,7 +2,9 @@ String getEmojiInterest(String interest) {
   String interestLower = interest.toLowerCase();
   Map<RegExp, String> emojiMap = {
     RegExp(r'programación|programacion|computadora|gaming') : '💻',
-    RegExp(r'fútbol|futbol|balón pie|deportes') : '⚽',
+    RegExp(r'fútbol|futbol|balón pie|deportes|baseball') : '⚽',
+    RegExp(r'golf|mini-golf|mini golf') : '⛳️',
+    RegExp(r'boxeo|combat|boxing') : '🥊',
     RegExp(r'comida') : '🍔',
     RegExp(r'cocina|cocinar'): '🍳',
     RegExp(r'música|musica|cantar') : '🎶',
@@ -12,7 +14,7 @@ String getEmojiInterest(String interest) {
     RegExp(r'conocer gente|hablar') : '🙂',
     RegExp(r'teatro|actuar') : '🎭',
     RegExp(r'museos|historia') : '🏛️',
-    RegExp(r'arte|pintar') : '🎨',
+    RegExp(r'arte|pintar|velas|cerámica') : '🎨',
     RegExp(r'naturaleza|aire libre|gardinería|gardineria') : '🍃',
     RegExp(r'bordado|costura|coser') : '🪡',
     RegExp(r'crochet|tejer|macrame') : '🧶',

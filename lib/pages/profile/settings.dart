@@ -70,13 +70,13 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildSettings(BuildContext context) {
     return Column(
       children: [
-        BaseDecoration.buildTitleProfile(context, 'Configuración de tu cuenta'),
+        BaseDecoration.buildTitle(context, 'Configuración de tu cuenta'),
         _buildPersonalInformation(context),
-        BaseDecoration.buildTitleProfile(context, 'Actividad'),
+        BaseDecoration.buildTitle(context, 'Actividad'),
         _buildActivity(context),
-        BaseDecoration.buildTitleProfile(context, 'Nuestras redes sociales'),
+        BaseDecoration.buildTitle(context, 'Nuestras redes sociales'),
         _buildSocialNetworks(context),
-        BaseDecoration.buildTitleProfile(context, ''),
+        BaseDecoration.buildTitle(context, ''),
         _buildLogOut(context),
       ],
     );

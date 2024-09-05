@@ -16,7 +16,10 @@ class BaseAvatarStack extends StatelessWidget {
           right: index * 35.0,
           child: CircleAvatar(
             radius: 30,
-            backgroundImage: AssetImage(avatarUrl),
+            backgroundImage: avatarUrl.isEmpty
+                  ? AssetImage('assets/images/default_user.jpg')
+                  : NetworkImage(avatarUrl)
+                    as ImageProvider,
           ),
         );
       }).toList(),

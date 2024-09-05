@@ -34,19 +34,22 @@ Future<Column> buildCards(Connection connection, UserData userData) async {
   bool isBuddy = userData.buddy != null;
   String personID, personName;
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
+  List<String> images = await fetchAvatars(personID, isBuddy, userData);
   return Column(
     children: connection.meetings
         .where((m) =>
             !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder)
-        .map((meeting) => buildCard(personID, personName, meeting))
+        .map((meeting) => buildCard(personID, personName, meeting, images))
         .toList(),
   );
 }
 
 
 
-Future<List<String>> fetchAvatars(String personID, bool isBuddy) async {
-  return ['assets/images/avatar.png', 'assets/images/avatarBuddy.jpeg'];
+Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userData) async {
+  String? imageUser = await userHelper.loadProfileImage(isBuddy ? userData.buddy!.firebaseUID : userData.elder!.firebaseUID);
+  String? imageConnection = await userHelper.loadProfileImage(personID);
+  return [imageUser, imageConnection];
 }
 
 String formatDate(custom_time.TimeOfDay date) {
@@ -61,7 +64,7 @@ String formatLocation(MeetingLocation location) {
   return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
 }
 
-BaseCardMeeting buildCard(String personID, String personName, Meeting meeting) {
+BaseCardMeeting buildCard(String personID, String personName, Meeting meeting, List<String> images) {
   return BaseCardMeeting(
     activity: meeting.activity,
     personID: personID,
@@ -69,7 +72,7 @@ BaseCardMeeting buildCard(String personID, String personName, Meeting meeting) {
     date: formatDate(meeting.date),
     time: formatTime(meeting.date),
     location: formatLocation(meeting.location),
-    avatars: ['assets/images/avatar.png', 'assets/images/avatarBuddy.jpeg'],
+    avatars: images,
   );
 }
 

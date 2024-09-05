@@ -191,7 +191,7 @@ class _EditAvailabilityPageState extends State<EditAvailabilityPage> {
                     ],
                   ),
                   const SizedBox(height: 25.0),
-                  BaseDecoration.buildTitleProfile(context, 'Horarios cargados'), //no se si va
+                  BaseDecoration.buildTitle(context, 'Horarios cargados'), //no se si va
                   Wrap(
                     alignment: WrapAlignment.center,
                     spacing: 4.0,

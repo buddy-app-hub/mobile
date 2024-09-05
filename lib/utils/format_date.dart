@@ -40,6 +40,24 @@ String getHourFromTimestamp(Timestamp timestamp) {
   return formatter.format(dateTime);
 }
 
+String getTimeFromTimestamp(Timestamp timestamp) {
+  final dateTime = timestamp.toDate();
+  final formatter = DateFormat('HH:mm');
+  final todayDate = DateTime.now();
+  final today = DateTime(todayDate.year, todayDate.month, todayDate.day);
+  final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+  final difference = today.difference(messageDate);
+  if (today.isAtSameMomentAs(messageDate)) {
+    return formatter.format(dateTime);
+  } else if (difference.inDays == 1) {
+    return 'Ayer';
+  } else if ((difference.inDays > 1) && (difference.inDays < 7)) {
+    return weekdays[messageDate.weekday - 1];
+  } else {
+    return '${messageDate.day}/${months[messageDate.month - 1]}/${messageDate.year}';
+  }
+}
+
 String formatDateChat(DateTime date) {
   final todayDate = DateTime.now();
   final today = DateTime(todayDate.year, todayDate.month, todayDate.day);
