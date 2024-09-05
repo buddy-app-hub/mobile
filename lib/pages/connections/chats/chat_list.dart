@@ -81,13 +81,15 @@ class _ChatsListState extends State<ChatsList> {
                                   final chat = chats[index];
                                   return ListTile(
                                     leading: CircleAvatar(
-                                      radius: 25,
-                                      backgroundImage: AssetImage('assets/images/avatarBuddy.jpeg'),
+                                      radius: 30,
+                                      // backgroundImage: AssetImage('assets/images/avatarBuddy.jpeg'),
+                                      backgroundColor: theme.colorScheme.secondaryFixedDim, //TODO que aparezca la imagen de los participantes
+                                      child: Icon(Icons.groups),
                                     ),
                                     title: Text(chat.name),
                                     subtitle: Text(chat.lastMessage),
                                     trailing: Text(
-                                      ' ${getHourFromTimestamp(chat.lastMessageTime)}',
+                                      ' ${getTimeFromTimestamp(chat.lastMessageTime)}',
                                       style: TextStyle(color: theme.colorScheme.surfaceTint),
                                     ),
                                     onTap: () {
