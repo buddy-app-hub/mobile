@@ -26,11 +26,12 @@ Future<Widget> buildConnectionCards(Connection connection, UserData userData) as
   String personID, personName;
   (personID, personName) = await userHelper.fetchPersonIDAndName(connection, isBuddy);
   String? imageUrl = await userHelper.loadProfileImage(personID);
-  return buildConnectionCard(personID, personName, imageUrl);
+  return buildConnectionCard(connection, personID, personName, imageUrl);
 }
 
-BaseConnectionCard buildConnectionCard(String personID, String personName, String image) {
+BaseConnectionCard buildConnectionCard(Connection connectionID, String personID, String personName, String image) {
   return BaseConnectionCard(
+    connection: connectionID,
     personID: personID,
     personName: personName,
     image: image,
@@ -38,12 +39,14 @@ BaseConnectionCard buildConnectionCard(String personID, String personName, Strin
 }
 
 class BaseConnectionCard extends StatelessWidget {
+  final Connection connection;
   final String personID;
   final String personName;
   final String image;
 
   const BaseConnectionCard({
     super.key,
+    required this.connection,
     required this.personID,
     required this.personName,
     required this.image,
@@ -57,7 +60,7 @@ class BaseConnectionCard extends StatelessWidget {
       onTap: () async {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>  ViewProfilePage(personID: personID, isBuddy: isBuddy)),
+          MaterialPageRoute(builder: (context) =>  ViewProfilePage(connection: connection , personID: personID, isBuddy: isBuddy)),
         );
       },
       child: Column(

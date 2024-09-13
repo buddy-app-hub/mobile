@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/helper/user_helper.dart';
+import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/interest.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/pages/connections/meetings/new_meeting.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -10,10 +12,11 @@ import 'package:mobile/widgets/base_decoration.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
 
 class ViewProfilePage extends StatefulWidget {
+  final Connection connection;
   final String personID;
   final bool isBuddy;
 
-  const ViewProfilePage({required this.personID, required this.isBuddy});
+  const ViewProfilePage({required this.connection, required this.personID, required this.isBuddy});
 
   @override
   State<ViewProfilePage> createState() => _ViewProfileState();
@@ -88,6 +91,9 @@ class _ViewProfileState extends State<ViewProfilePage> {
   @override 
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final NewMeetingBottomSheet _bottomSheet =
+      NewMeetingBottomSheet();
+      
     return
     SafeArea(
       top: false,
@@ -96,6 +102,15 @@ class _ViewProfileState extends State<ViewProfilePage> {
         appBar: AppBar(
           backgroundColor: widget.isBuddy ? theme.colorScheme.primaryFixedDim : theme.colorScheme.tertiaryContainer,
           shadowColor: widget.isBuddy ? theme.colorScheme.primaryFixedDim : theme.colorScheme.tertiaryContainer,
+          actions: [
+          if (!widget.isBuddy)
+            IconButton(
+              onPressed: () {
+                _bottomSheet.show(context, widget.connection);
+              },
+              icon: Icon(Icons.add, color: theme.colorScheme.onTertiaryContainer),
+            ),
+        ],
         ),
         backgroundColor: widget.isBuddy ? theme.colorScheme.primaryFixedDim : theme.colorScheme.tertiaryContainer,
         extendBody: true,

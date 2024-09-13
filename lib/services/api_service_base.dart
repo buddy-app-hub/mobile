@@ -66,6 +66,26 @@ class ApiService {
     }
   }
 
+  static Future<dynamic> put<T>({
+    required String endpoint,
+    required Map<String, dynamic> body,
+  }) async {
+    final userToken = await AuthService().currentUser?.getIdToken();
+    final headers = {
+      'Authorization': 'Bearer $userToken',
+      'Content-Type': 'application/json',
+    };
+
+    final uri = Uri.parse('$baseUrl$endpoint');
+    final response = await http.put(uri, headers: headers, body: jsonEncode(body));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Error al actualizar datos en el endpoint');
+    }
+  }
+
   static Future<void> delete<T>({
     required String endpoint,
   }) async {

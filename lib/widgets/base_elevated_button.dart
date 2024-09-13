@@ -1,5 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/meeting.dart';
+import 'package:mobile/models/user_data.dart';
+import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/widgets/base_button.dart';
+import 'package:path/path.dart';
+
+
+BaseElevatedButton buildNextMeetingButton(BuildContext context, UserData userData, VoidCallback onPressed) {
+  return BaseElevatedButton(
+    text: 'Chat',
+    buttonTextStyle: TextStyle(
+      color: Theme.of(context).colorScheme.onTertiary,
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
+    ),
+    buttonStyle: ThemeButtonStyle.tertiaryRoundedButtonStyle(context),
+    onPressed: onPressed,
+    height: 40,
+    width: 100,
+  );
+}
+
+BaseElevatedButton buildNewEventButton(BuildContext context, bool isBuddy, Meeting meeting, VoidCallback onPressed) {
+  String buttonText;
+  bool buttonDisabled = false;
+  double buttonSize = 150;
+  if (isBuddy && meeting.isConfirmedByBuddy && !meeting.isConfirmedByElder) {
+    buttonText = 'Esperando confirmación';
+    buttonDisabled = true;
+  } else if (!isBuddy && !meeting.isConfirmedByBuddy && meeting.isConfirmedByElder) {
+    buttonText = 'Esperando confirmación';
+    buttonDisabled = true;
+  } else {
+    buttonText = 'Confirmar';
+  }
+
+  return BaseElevatedButton(
+    text: buttonText,
+    buttonTextStyle: TextStyle(
+      color: Theme.of(context).colorScheme.onPrimary,
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
+    ),
+    buttonStyle: ThemeButtonStyle.primaryRoundedButtonStyle(context),
+    onPressed: onPressed,
+    isDisabled: buttonDisabled,
+    height: 40,
+    width: buttonSize,
+  );
+}
+
 
 class BaseElevatedButton extends BaseButton {
   BaseElevatedButton(
@@ -37,7 +87,7 @@ class BaseElevatedButton extends BaseButton {
 
     @override
     Widget build(BuildContext context) {
-      color ??= Theme.of(context).colorScheme.onBackground;
+      color ??= Theme.of(context).colorScheme.onSurface;
       return alignment != null
         ? Align(
             alignment: alignment ?? Alignment.center,
@@ -61,6 +111,7 @@ class BaseElevatedButton extends BaseButton {
             Flexible(
               child: Text(
                 text,
+                textAlign: TextAlign.center,
                 style: buttonTextStyle ?? TextStyle(
                   color: color,
                   fontSize: 22,

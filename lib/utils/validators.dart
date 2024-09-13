@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/utils/format_date.dart';
 
 String? validateEmail(String? value) {
   const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
@@ -64,4 +66,31 @@ bool validateTimeRange(TimeOfDay? from, TimeOfDay? to) {
   final differenceMilliseconds = toMilliseconds - fromMilliseconds; //quitar restriccion de que tiene que ser minimo una hora si no va
 
   return fromMilliseconds < toMilliseconds && differenceMilliseconds >= 3600000;
+}
+
+bool validateMeetingTimeRange(TimeOfDay? from, TimeOfDay? to) {
+  if (from == null || to == null) {
+    return false;
+  }
+
+  final fromMilliseconds = from.hour * 3600000 + from.minute * 60000;
+  final toMilliseconds = to.hour * 3600000 + to.minute * 60000;
+  final differenceMilliseconds = toMilliseconds - fromMilliseconds; // encuentros de una hora
+
+  return fromMilliseconds < toMilliseconds && differenceMilliseconds == 3600000;
+}
+
+bool validateDate(custom_time.TimeOfDay date) {
+  final formattedDate = formatTimeOfDayToDate(date);
+
+  final currentDate = DateTime.now();
+  final nextWeekDate = currentDate.add(Duration(days: 7));
+  return formattedDate.isAfter(currentDate) && formattedDate.isBefore(nextWeekDate);
+}
+
+bool validateFutureDate(custom_time.TimeOfDay date) {
+  final formattedDate = formatTimeOfDayToDate(date);
+
+  final currentDate = DateTime.now();
+  return formattedDate.isAfter(currentDate);
 }

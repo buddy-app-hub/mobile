@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/models/time_of_day.dart' as custom_time;
 
 List<String> months = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto',
@@ -8,7 +9,7 @@ List<String> months = [
 ];
 
 List<String> weekdays = [
-  'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
+  'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo' //fix acentos los trae raros
 ];
 
 String formattedDate() {
@@ -18,6 +19,10 @@ String formattedDate() {
   String weekday = weekdays[now.weekday - 1];
   String month = months[now.month - 1];
   return '$weekday $day de $month';
+}
+
+String formatMeetingDate(DateTime date) {
+  return '${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}';
 }
 
 int timeToInt(TimeOfDay time) {
@@ -54,7 +59,7 @@ String getTimeFromTimestamp(Timestamp timestamp) {
   } else if ((difference.inDays > 1) && (difference.inDays < 7)) {
     return weekdays[messageDate.weekday - 1];
   } else {
-    return '${messageDate.day}/${months[messageDate.month - 1]}/${messageDate.year}';
+    return '${messageDate.day}/${messageDate.month}/${messageDate.year}';
   }
 }
 
@@ -72,4 +77,28 @@ String formatDateChat(DateTime date) {
   } else {
     return '${messageDate.day} de ${months[messageDate.month - 1]} de ${messageDate.year}';
   }
+}
+
+custom_time.TimeOfDay formatDateTimeOfDay(DateTime? date, TimeOfDay?fromTime, TimeOfDay? toTime) {
+  return custom_time.TimeOfDay(
+    dayOfWeek: '${weekdays[date!.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}',
+    from: timeToInt(fromTime!),
+    to: timeToInt(toTime!),
+  );
+}
+
+
+DateTime formatTimeOfDayToDate(custom_time.TimeOfDay timeOfDay) {
+  final List<String> dateParts = timeOfDay.dayOfWeek.split(' ');
+
+  final int day = int.parse(dateParts[1]);
+  final int month = months.indexOf(dateParts[3]) + 1;
+  final int? year = int.tryParse(dateParts[5]);
+  return DateTime(year!, month, day);
+}
+
+TimeOfDay formatIntToTime(int time) {
+  int hour = time ~/ 100;
+  int minute = time % 100;
+  return TimeOfDay(hour: hour, minute: minute);
 }
