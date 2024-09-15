@@ -41,7 +41,7 @@ class _SignupPageState extends State<SignupPage> {
       top: false,
       bottom: false,
       child: Scaffold(
-        backgroundColor: theme.colorScheme.primary.withOpacity(0.5),
+        backgroundColor: theme.colorScheme.surface,
         extendBody: true,
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
@@ -54,7 +54,7 @@ class _SignupPageState extends State<SignupPage> {
               bottom: 0,
               child: Container(
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.background,
+                  color: theme.colorScheme.surface,
                 ),
                 // child: Image.asset(
                 //   'assets/images/login.png',
@@ -83,7 +83,7 @@ class _SignupPageState extends State<SignupPage> {
                     Container(
                       decoration: BaseDecoration.boxCurveLeft(context),
                       child: Container(
-                        padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
+                        padding: EdgeInsets.fromLTRB(0, 50, 0, 50),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
