@@ -8,7 +8,7 @@ import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/pages/connections/meetings/edit_meeting.dart';
-import 'package:mobile/pages/home.dart';
+import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -30,6 +30,11 @@ Future<List<Widget>> fetchNewMeetingsAsFuture(ThemeData theme, UserData userData
   return stream.toList();
 }
 
+Future<List<Widget>> fetchRescheduledMeetingsAsFuture(ThemeData theme, UserData userData) async {
+  final stream = fetchRescheduledMeetings(theme, userData);
+  return stream.toList();
+}
+
 Stream<Widget> fetchMeetings(ThemeData theme, UserData userData) async* {
   List<Connection> connections = await userHelper.fetchConnections(userData);
 
@@ -43,6 +48,14 @@ Stream<Widget> fetchNewMeetings(ThemeData theme, UserData userData) async* {
 
   for (var connection in connections) {
     yield await buildNewMeetingCards(theme, connection, userData);
+  }
+}
+
+Stream<Widget> fetchRescheduledMeetings(ThemeData theme, UserData userData) async* {
+  List<Connection> connections = await userHelper.fetchConnections(userData);
+
+  for (var connection in connections) {
+    yield await buildRescheduledMeetingCards(theme, connection, userData);
   }
 }
 
@@ -78,38 +91,71 @@ Future<Widget> buildCards(ThemeData theme, Connection connection, UserData userD
   }
 }
 
-  Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, UserData userData) async {
-    bool isBuddy = userData.buddy != null;
-    String personID, personName;
-    (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
-    List<String> images = await fetchAvatars(personID, isBuddy, userData);
-    connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
-    List<Meeting> meetings = connection.meetings.where((m) =>
-          validateFutureDate(m.date) &&
-          !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
-    if (meetings.isEmpty) {
-      return Column();
-    } else {
-      Meeting meeting = meetings.first;
-      return Column( 
-        children: [
-          Row(
-            children: [
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                child: Text(
-                  'Encuentros a confirmar',
-                  style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-                ),
+//TODO que devuelva todas los encuentros reprogramados
+Future<Widget> buildRescheduledMeetingCards(ThemeData theme, Connection connection, UserData userData) async {
+  bool isBuddy = userData.buddy != null;
+  String personID, personName;
+  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
+  List<String> images = await fetchAvatars(personID, isBuddy, userData);
+  connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+  List<Meeting> meetings = connection.meetings.where((m) =>
+        validateFutureDate(m.date) && m.isRescheduled &&
+        !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
+  if (meetings.isEmpty) {
+    return Column();
+  } else {
+    Meeting meeting = meetings.first;
+    return Column( 
+      children: [
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+              child: Text(
+                'Encuentros reprogramados',
+                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
               ),
-            ],
-          ),
-          buildNextEventCard(isBuddy, personID, personName, connection, meeting, images),
-        ],
-      );
-    }
+            ),
+          ],
+        ),
+        buildNextEventCard(isBuddy, personID, personName, connection, meeting, images),
+      ],
+    );
   }
+}
 
+//TODO que devuelva todas los encuentros nuevos
+Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, UserData userData) async {
+  bool isBuddy = userData.buddy != null;
+  String personID, personName;
+  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
+  List<String> images = await fetchAvatars(personID, isBuddy, userData);
+  connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+  List<Meeting> meetings = connection.meetings.where((m) =>
+        validateFutureDate(m.date) && !m.isRescheduled &&
+        !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
+  if (meetings.isEmpty) {
+    return Column();
+  } else {
+    Meeting meeting = meetings.first;
+    return Column( 
+      children: [
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+              child: Text(
+                'Encuentros a confirmar',
+                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
+              ),
+            ),
+          ],
+        ),
+        buildNextEventCard(isBuddy, personID, personName, connection, meeting, images),
+      ],
+    );
+  }
+}
 
 
 Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userData) async {
@@ -133,7 +179,7 @@ String formatLocation(MeetingLocation location) {
 BaseCardMeeting buildCard(bool isBuddy, String personID, String personName, Connection connection, Meeting meeting, List<String> images) {
   return BaseCardMeeting(
     isBuddy: isBuddy,
-    isNextEvent: false,
+    isNextMeeting: false,
     connection: connection,
     meeting: meeting,
     personID: personID,
@@ -148,7 +194,7 @@ BaseCardMeeting buildCard(bool isBuddy, String personID, String personName, Conn
 BaseCardMeeting buildNextEventCard(bool isBuddy,String personID, String personName, Connection connection, Meeting meeting, List<String> images) {
   return BaseCardMeeting(
     isBuddy: isBuddy,
-    isNextEvent: true,
+    isNextMeeting: true,
     connection: connection,
     meeting: meeting,
     personID: personID,
@@ -162,7 +208,7 @@ BaseCardMeeting buildNextEventCard(bool isBuddy,String personID, String personNa
 
 class BaseCardMeeting extends StatelessWidget {
   final bool isBuddy;
-  final bool isNextEvent;
+  final bool isNextMeeting;
   final Connection connection;
   final Meeting meeting;
   final String personID;
@@ -175,7 +221,7 @@ class BaseCardMeeting extends StatelessWidget {
   const BaseCardMeeting({
     super.key,
     required this.isBuddy,
-    required this.isNextEvent,
+    required this.isNextMeeting,
     required this.connection,
     required this.meeting,
     required this.personID,
@@ -191,10 +237,10 @@ class BaseCardMeeting extends StatelessWidget {
     final theme = Theme.of(context);
     return Center(
       child: Card(
-        color: isNextEvent ? theme.colorScheme.primaryFixed : theme.colorScheme.tertiaryContainer,
+        color: isNextMeeting ? theme.colorScheme.primaryFixed : theme.colorScheme.tertiaryContainer,
         clipBehavior: Clip.hardEdge,
         child: InkWell(
-          splashColor: isNextEvent ? theme.colorScheme.primary : theme.colorScheme.tertiary,
+          splashColor: isNextMeeting ? theme.colorScheme.primary : theme.colorScheme.tertiary,
           onTap: () {
             debugPrint('Item tapped.');
           },
@@ -214,10 +260,8 @@ class BaseCardMeeting extends StatelessWidget {
 
   Widget _buildConnectionInfo(BuildContext context, ThemeData theme) {
     final authProvider = Provider.of<AuthSessionProvider>(context);
+    final connectionService = ConnectionService();
     UserData userData = authProvider.userData!;
-    // final MeetingBottomSheet _bottomSheet =
-    //   MeetingBottomSheet();
-      
     
     return Row(
       children: [
@@ -246,15 +290,41 @@ class BaseCardMeeting extends StatelessWidget {
                         PopupMenuItem(
                           value: 'Cancelar',
                           child: Text('Cancelar'),
-                        ),
+                          onTap: () => showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('Cancelar encuentro'),
+                                content: Text('¿Estás seguro de que quieres cancelar el encuentro?'),
+                                actions: [
+                                  TextButton(
+                                    child: Text('Cancelar'),
+                                    onPressed: () => Navigator.pop(context), 
+                                  ),
+                                  TextButton(
+                                    child: Text('Confirmar'),
+                                    onPressed: () async{
+                                      meeting.isCancelled = true;
+                                      await connectionService.updateConnectionMeetings(context, connection, meeting);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Encuentro cancelado')),
+                                      );
+                                      Navigator.pushNamed(context, Routes.splashScreen);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                       ],
                       onSelected: (value) {
                         print('Selected: $value');
                         // _bottomSheet.show(context, isBuddy, connection, meeting);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => EditMeetingPage(isBuddy: isBuddy, connection: connection, meeting: meeting)),
-                        );
+                        if (value.contains('Reprogramar')) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EditMeetingPage(isBuddy: isBuddy, connection: connection, meeting: meeting)),
+                          );
+                        }
                       },
                     ),
                   ],
@@ -276,8 +346,8 @@ class BaseCardMeeting extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (isNextEvent)
-                       buildNewEventButton(context, isBuddy, meeting, () async {
+                      if (isNextMeeting)
+                       buildNewMeetingButton(context, isBuddy, meeting, () async {
                           final connectionService = ConnectionService();
                           if (isBuddy) {
                             meeting.isConfirmedByBuddy = true;
@@ -285,12 +355,9 @@ class BaseCardMeeting extends StatelessWidget {
                             meeting.isConfirmedByElder = true;
                           }
                           await connectionService.updateConnectionMeetings(context, connection, meeting);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
-                          );
+                          Navigator.pushNamed(context, Routes.splashScreen);
                         }),
-                      if (!isNextEvent)
+                      if (!isNextMeeting)
                         buildNextMeetingButton(context, userData, () async {
                           final chatService = ChatService();
                           final chatRoomId = await chatService.createChatRoom(
@@ -305,11 +372,11 @@ class BaseCardMeeting extends StatelessWidget {
                       // BaseElevatedButton(
                       //   text: 's',
                       //   buttonTextStyle: TextStyle(
-                      //     color: isNextEvent ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onTertiary,
+                      //     color: isNextMeeting ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onTertiary,
                       //     fontSize: 13,
                       //     fontWeight: FontWeight.bold,
                       //   ),
-                      //   buttonStyle: isNextEvent ? ThemeButtonStyle.primaryRoundedButtonStyle(context) :
+                      //   buttonStyle: isNextMeeting ? ThemeButtonStyle.primaryRoundedButtonStyle(context) :
                       //       ThemeButtonStyle.tertiaryRoundedButtonStyle(context),
                       //   onPressed: () async {
                       //     final chatService = ChatService();

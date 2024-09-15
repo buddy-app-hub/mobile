@@ -21,7 +21,7 @@ BaseElevatedButton buildNextMeetingButton(BuildContext context, UserData userDat
   );
 }
 
-BaseElevatedButton buildNewEventButton(BuildContext context, bool isBuddy, Meeting meeting, VoidCallback onPressed) {
+BaseElevatedButton buildNewMeetingButton(BuildContext context, bool isBuddy, Meeting meeting, VoidCallback onPressed) {
   String buttonText;
   bool buttonDisabled = false;
   double buttonSize = 150;

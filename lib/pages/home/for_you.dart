@@ -60,6 +60,26 @@ class _ForYouPageState extends State<ForYouPage> {
                   Column(
                     children: [
                       FutureBuilder<List<Widget>>(
+                        future: fetchRescheduledMeetingsAsFuture(theme, userData),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasError) {
+                              return Text('Error fetching meetings');
+                            } else {
+                              return Column(
+                                children: snapshot.data!,
+                              );
+                            }
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      FutureBuilder<List<Widget>>(
                         future: fetchMeetingsAsFuture(theme, userData),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.done) {

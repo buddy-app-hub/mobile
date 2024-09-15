@@ -5,11 +5,8 @@ import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
-import 'package:mobile/services/buddy_service.dart';
-import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
-import 'package:mobile/widgets/base_card_meeting.dart';
 
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
@@ -70,7 +67,6 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   @override
   void initState() {
     super.initState();
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
     _isElderHouseController.text = 'Mi casa'; 
   }
 
@@ -122,8 +118,6 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthSessionProvider>(context);
-    final BuddyService buddyService = BuddyService();
-    final ElderService elderService = ElderService();
     final scaffoldContext = context;
 
     return SingleChildScrollView(
@@ -179,7 +173,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                         activity: activity, 
                         dateLastModification: DateTime.now(),
                       );
-                      sendEvent(meeting);
+                      sendNewMeeting(meeting);
                       setState(() {
                         _dateController.clear();
                         _fromController.clear();
@@ -396,12 +390,12 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
     );
   }
 
-  Future<void> sendEvent(Meeting meeting) async {
+  Future<void> sendNewMeeting(Meeting meeting) async {
     final combinedMessage = 'Encuentro programado el día ${meeting.date} desde ${intToTime(meeting.date.from)} hasta ${intToTime(meeting.date.from)} en ${meeting.location.placeName}';
     
     if (combinedMessage.isNotEmpty) {
       await connectionService.createMeetingOfConnection(context, widget.connection, meeting);
-      // await chatService.sendMessageNewEvent(widget.chatRoomID, combinedMessage);
+      // await chatService.sendMessageNewMeeting(widget.chatRoomID, combinedMessage);
     }
   }
 }

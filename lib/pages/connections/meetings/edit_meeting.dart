@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
+import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -14,7 +15,7 @@ import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
-
+//si se usa el mismo tipo que cuando se crea un nuevo encuentro
 // class MeetingBottomSheet {
 //   void show(BuildContext context, bool isBuddy, Connection connection, Meeting meeting) {
 //     final scaffoldContext = context;
@@ -194,7 +195,7 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 //                         activity: activity, 
 //                         dateLastModification: widget.meeting.dateLastModification,
 //                       );
-//                       sendEvent(newMeeting);
+//                       editMeeting(newMeeting);
 //                       Navigator.pop(context);
 //                       setState(() {
 //                         _dateController.clear();
@@ -414,12 +415,12 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 //     );
 //   }
 
-//   Future<void> sendEvent(Meeting meeting) async {
+//   Future<void> editMeeting(Meeting meeting) async {
 //     final combinedMessage = 'Encuentro programado el día ${meeting.date} desde ${intToTime(meeting.date.from)} hasta ${intToTime(meeting.date.from)} en ${meeting.location.placeName}';
     
 //     if (combinedMessage.isNotEmpty) {
 //       await connectionService.updateConnectionMeetings(context, widget.connection, meeting);
-//       // await chatService.sendMessageNewEvent(widget.chatRoomID, combinedMessage);
+//       // await chatService.sendMessageNewMeeting(widget.chatRoomID, combinedMessage);
 //     }
 //   }
 // }
@@ -533,7 +534,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
   
     return Scaffold(
       appBar: AppBar(
-        title: Text('Reprogramar'),
+        title: Text('Reprogramar encuentro'),
         actions: [
           IconButton(
             onPressed: () {
@@ -572,23 +573,13 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
                     country: country), 
                   activity: activity, 
                   dateLastModification: widget.meeting.dateLastModification,
+                  isRescheduled: true,
                 );
-                sendEvent(newMeeting);
-                // setState(() {
-                //   _dateController.clear();
-                //   _fromController.clear();
-                //   _toController.clear();
-                //   _placeNameController.clear();
-                //   _streetNameController.clear();
-                //   _streetNumberController.clear();
-                //   _cityController.clear();
-                //   _stateController.clear();
-                //   _countryController.clear();
-                //   _activityController.clear();
-                //   _dateTime = null;
-                //   _fromTime = null;
-                //   _toTime = null;
-                // });
+                editMeeting(newMeeting);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Encuentro modificado correctamente')),
+                );
+                Navigator.pushNamed(context, Routes.splashScreen);
               }
             },
             icon: Icon(Icons.check),
@@ -802,12 +793,11 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
     );
   }
 
-  Future<void> sendEvent(Meeting meeting) async {
+  Future<void> editMeeting(Meeting meeting) async {
     final combinedMessage = 'Encuentro programado el día ${meeting.date} desde ${intToTime(meeting.date.from)} hasta ${intToTime(meeting.date.from)} en ${meeting.location.placeName}';
     
     if (combinedMessage.isNotEmpty) {
       await connectionService.updateConnectionMeetings(context, widget.connection, meeting);
-      // await chatService.sendMessageNewEvent(widget.chatRoomID, combinedMessage);
     }
   }
 }
