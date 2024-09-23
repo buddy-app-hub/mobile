@@ -91,8 +91,6 @@ class _ViewProfileState extends State<ViewProfilePage> {
   @override 
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final NewMeetingBottomSheet _bottomSheet =
-      NewMeetingBottomSheet();
       
     return
     SafeArea(
@@ -106,7 +104,10 @@ class _ViewProfileState extends State<ViewProfilePage> {
           if (!widget.isBuddy)
             IconButton(
               onPressed: () {
-                _bottomSheet.show(context, widget.connection);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NewMeetingPage(connection: widget.connection)),
+                );
               },
               icon: Icon(Icons.add, color: theme.colorScheme.onTertiaryContainer),
             ),

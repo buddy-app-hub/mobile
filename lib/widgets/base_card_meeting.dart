@@ -267,12 +267,12 @@ class BaseCardMeeting extends StatelessWidget {
       children: [
         Expanded(
           child: Container(
-            margin: EdgeInsets.all(15),
+            margin: EdgeInsets.fromLTRB(10, 10, 10, 15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(
                       child: Text(
@@ -280,6 +280,7 @@ class BaseCardMeeting extends StatelessWidget {
                         style: ThemeTextStyle.titleMediumOnBackground(context),
                       ),
                     ),
+                    // SizedBox(width: 12,),
                     PopupMenuButton(
                       icon: Icon(Icons.more_vert),
                       itemBuilder: (context) => [
@@ -291,30 +292,30 @@ class BaseCardMeeting extends StatelessWidget {
                           value: 'Cancelar',
                           child: Text('Cancelar'),
                           onTap: () => showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text('Cancelar encuentro'),
-                                content: Text('¿Estás seguro de que quieres cancelar el encuentro?'),
-                                actions: [
-                                  TextButton(
-                                    child: Text('Cancelar'),
-                                    onPressed: () => Navigator.pop(context), 
-                                  ),
-                                  TextButton(
-                                    child: Text('Confirmar'),
-                                    onPressed: () async{
-                                      meeting.isCancelled = true;
-                                      await connectionService.updateConnectionMeetings(context, connection, meeting);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Encuentro cancelado')),
-                                      );
-                                      Navigator.pushNamed(context, Routes.splashScreen);
-                                    },
-                                  ),
-                                ],
-                              ),
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Cancelar encuentro'),
+                              content: Text('¿Estás seguro de que quieres cancelar el encuentro?'),
+                              actions: [
+                                TextButton(
+                                  child: Text('Cancelar'),
+                                  onPressed: () => Navigator.pop(context), 
+                                ),
+                                TextButton(
+                                  child: Text('Confirmar'),
+                                  onPressed: () async{
+                                    meeting.isCancelled = true;
+                                    await connectionService.updateConnectionMeetings(context, connection, meeting);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Encuentro cancelado')),
+                                    );
+                                    Navigator.pushNamed(context, Routes.splashScreen);
+                                  },
+                                ),
+                              ],
                             ),
                           ),
+                        ),
                       ],
                       onSelected: (value) {
                         print('Selected: $value');
