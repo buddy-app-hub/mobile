@@ -129,6 +129,9 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                 );
               } else {
                 print('Meeting scheduled for: ${formatMeetingDate(_dateTime!)} from $_fromTime to $_toTime');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Encuentro creado correctamente')),
+                );
                 Navigator.pop(scaffoldContext);
                 final meeting = Meeting(
                   date: formatDateTimeOfDay(_dateTime, _fromTime, _toTime),
