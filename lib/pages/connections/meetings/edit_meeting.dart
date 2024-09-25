@@ -6,8 +6,6 @@ import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
-import 'package:mobile/services/buddy_service.dart';
-import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
 import 'package:provider/provider.dart';
@@ -113,17 +111,13 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthSessionProvider>(context);
-    final BuddyService buddyService = BuddyService();
-    final ElderService elderService = ElderService();
-    final scaffoldContext = context;
-
   
     return Scaffold(
       appBar: AppBar(
         title: Text('Reprogramar encuentro'),
         actions: [
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               final placeName = _placeNameController.text;
               final streetName = _streetNameController.text;
               final int? streetNumber = int.tryParse(_streetNumberController.text);
@@ -161,7 +155,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
                   dateLastModification: widget.meeting.dateLastModification,
                   isRescheduled: true,
                 );
-                editMeeting(newMeeting);
+                await editMeeting(newMeeting);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Encuentro modificado correctamente')),
                 );

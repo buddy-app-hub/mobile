@@ -103,7 +103,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
         title: Text('Programar encuentro'),
         actions: [
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               final placeName = _placeNameController.text;
               final streetName = _streetNameController.text;
               final int? streetNumber = int.tryParse(_streetNumberController.text);
@@ -118,10 +118,10 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                   content: Text('Por favor, complete todos los campos correctamente.'),
                   backgroundColor: theme.colorScheme.error,
                 );
-                Navigator.pop(scaffoldContext);
+                // Navigator.pop(scaffoldContext);
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
               } else if (!validateMeetingTimeRange(_fromTime, _toTime)) {
-                Navigator.pop(scaffoldContext);
+                // Navigator.pop(scaffoldContext);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Por favor, el encuentro tiene que ser de una hora.'),
@@ -146,7 +146,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                   activity: activity, 
                   dateLastModification: DateTime.now(),
                 );
-                sendNewMeeting(meeting);
+                await sendNewMeeting(meeting);
                 setState(() {
                   _dateController.clear();
                   _fromController.clear();

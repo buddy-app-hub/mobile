@@ -104,7 +104,10 @@ Future<Widget> buildRescheduledMeetingCards(ThemeData theme, Connection connecti
   if (meetings.isEmpty) {
     return Column();
   } else {
-    Meeting meeting = meetings.first;
+    List<Widget> meetingCards = meetings.map((meeting) {
+      return buildNextEventCard(isBuddy, personID, personName, connection, meeting, images);
+    }).toList();
+
     return Column( 
       children: [
         Row(
@@ -118,27 +121,32 @@ Future<Widget> buildRescheduledMeetingCards(ThemeData theme, Connection connecti
             ),
           ],
         ),
-        buildNextEventCard(isBuddy, personID, personName, connection, meeting, images),
+        ...meetingCards,
       ],
     );
   }
 }
 
-//TODO que devuelva todas los encuentros nuevos
 Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, UserData userData) async {
   bool isBuddy = userData.buddy != null;
   String personID, personName;
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
+
   connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+
   List<Meeting> meetings = connection.meetings.where((m) =>
-        validateFutureDate(m.date) && !m.isRescheduled &&
-        !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
+      validateFutureDate(m.date) && !m.isRescheduled &&
+      !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
+
   if (meetings.isEmpty) {
     return Column();
   } else {
-    Meeting meeting = meetings.first;
-    return Column( 
+    List<Widget> meetingCards = meetings.map((meeting) {
+      return buildNextEventCard(isBuddy, personID, personName, connection, meeting, images);
+    }).toList();
+
+    return Column(
       children: [
         Row(
           children: [
@@ -151,11 +159,12 @@ Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, User
             ),
           ],
         ),
-        buildNextEventCard(isBuddy, personID, personName, connection, meeting, images),
+        ...meetingCards,
       ],
     );
   }
 }
+
 
 
 Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userData) async {
@@ -267,7 +276,7 @@ class BaseCardMeeting extends StatelessWidget {
       children: [
         Expanded(
           child: Container(
-            margin: EdgeInsets.fromLTRB(10, 10, 10, 15),
+            margin: EdgeInsets.fromLTRB(10, 10, 5, 15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -335,7 +344,7 @@ class BaseCardMeeting extends StatelessWidget {
                   style: ThemeTextStyle.titleSmallOnBackground(context),
                 ),
                 Text(
-                  '📅 $date',
+                  '🗓️ $date',
                   style: ThemeTextStyle.titleSmallOnBackground(context),
                 ),
                 Text(
@@ -370,29 +379,6 @@ class BaseCardMeeting extends StatelessWidget {
                             MaterialPageRoute(builder: (context) =>  ChatScreen(chatRoomId: chatRoomId)),
                           );
                         }),
-                      // BaseElevatedButton(
-                      //   text: 's',
-                      //   buttonTextStyle: TextStyle(
-                      //     color: isNextMeeting ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onTertiary,
-                      //     fontSize: 13,
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      //   buttonStyle: isNextMeeting ? ThemeButtonStyle.primaryRoundedButtonStyle(context) :
-                      //       ThemeButtonStyle.tertiaryRoundedButtonStyle(context),
-                      //   onPressed: () async {
-                      //     final chatService = ChatService();
-                      //     final chatRoomId = await chatService.createChatRoom(
-                      //       person,
-                      //       [personID], userData
-                      //     );
-                      //     Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(builder: (context) =>  ChatScreen(chatRoomId: chatRoomId)),
-                      //     );
-                      //   },
-                      //   height: 40,
-                      //   width: 120,
-                      // ),
                       Spacer(),
                       Container(
                         width: 100,
