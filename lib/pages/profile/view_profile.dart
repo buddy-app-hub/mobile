@@ -106,7 +106,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NewMeetingPage(connection: widget.connection)),
+                  MaterialPageRoute(builder: (context) => NewMeetingPage(connection: widget.connection, isBuddy: widget.isBuddy)),
                 );
               },
               icon: Icon(Icons.add, color: theme.colorScheme.onTertiaryContainer),

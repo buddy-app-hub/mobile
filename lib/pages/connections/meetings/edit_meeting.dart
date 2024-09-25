@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
+import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
@@ -36,8 +38,10 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
   
   bool _isElderHouseSelected = false;
   bool _isElderHouseAddress = false;
+  UserHelper userHelper = UserHelper();
   final chatService = ChatService();
   final connectionService = ConnectionService();
+  List<custom_time.TimeOfDay> _availability = List.empty();
   DateTime? _dateTime;
   TimeOfDay? _fromTime;
   TimeOfDay? _toTime;
@@ -46,6 +50,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
   void initState() {
     super.initState();
     final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    _fetchPersonAvailability();
     _isElderHouseController.text = 'Mi casa' ; 
     _isElderHouseSelected = widget.meeting.location.isEldersHome;
     _dateController.text = widget.meeting.date.dayOfWeek;
@@ -63,21 +68,48 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
     _toTime = formatIntToTime(widget.meeting.date.to);
   }
 
+  Future<void> _fetchPersonAvailability() async {
+    final profileID = widget.isBuddy ? widget.connection.elderID : widget.connection.buddyID;
+    final availability = await userHelper.fetchProfileAvailability(profileID, widget.isBuddy);
+    if (availability!.isNotEmpty) {
+      setState(() {
+        _availability = availability;
+      });
+    }
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _dateTime,
-      firstDate: DateTime.now().subtract(const Duration(days: 7)),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 7)),
       helpText: 'Seleccionar un día',
       cancelText: 'Cancelar',
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     );
+
     if (picked != null) {
-      setState(() {
-        _dateTime = picked;
-        _dateController.text = formatMeetingDate(picked);
-      });
+      String selectedDay = formatDayOfWeek(picked.weekday);
+      bool isAvailableDay = _availability.any((a) => a.dayOfWeek.contains(selectedDay));
+
+      if (isAvailableDay) {
+        custom_time.TimeOfDay? availabilityTime = _availability.firstWhere(
+        (a) => a.dayOfWeek.contains(selectedDay),
+      );
+        setState(() {
+          _dateTime = picked;
+          _dateController.text = formatMeetingDate(picked);
+          _fromTime = formatIntToTime(availabilityTime.from);
+          _fromController.text = intToTime(availabilityTime.from);
+          _toTime = formatIntToTime(availabilityTime.to);
+          _toController.text = intToTime(availabilityTime.to);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('El día seleccionado no está disponible')),
+        );
+      }
     }
   }
 
@@ -94,16 +126,35 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
       hourLabelText: 'Hora',
       minuteLabelText: 'Minutos',
     );
-    if (picked != null) {
-      setState(() {
-        if (isFromTime) {
-          _fromTime = picked;
-          _fromController.text = picked.format(context);
+
+    if (picked != null && _dateTime != null) {
+      String selectedDay = formatDayOfWeek(_dateTime!.weekday);
+
+      custom_time.TimeOfDay? availabilityTime = _availability.firstWhere(
+        (a) => a.dayOfWeek.contains(selectedDay),
+      );
+
+      if (availabilityTime != null) {
+        int selectedTime = picked.hour * 100 + picked.minute;
+        int fromTime = availabilityTime.from;
+        int toTime = availabilityTime.to;
+
+        if (selectedTime >= fromTime && selectedTime <= toTime) {
+          setState(() {
+            if (isFromTime) {
+              _fromTime = picked;
+              _fromController.text = picked.format(context);
+            } else {
+              _toTime = picked;
+              _toController.text = picked.format(context);
+            }
+          });
         } else {
-          _toTime = picked;
-          _toController.text = picked.format(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('La hora seleccionada no está disponible')),
+          );
         }
-      });
+      }
     }
   }
 
