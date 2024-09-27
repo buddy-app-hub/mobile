@@ -26,6 +26,9 @@ Elder _$ElderFromJson(Map<String, dynamic> json) => Elder(
       elderProfile: json['elderProfile'] == null
           ? null
           : ElderProfile.fromJson(json['elderProfile'] as Map<String, dynamic>),
+      recommendedBuddy: (json['recommendedBuddy'] as List<dynamic>?)
+          ?.map((e) => RecommendedBuddy.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$ElderToJson(Elder instance) => <String, dynamic>{
@@ -40,4 +43,6 @@ Map<String, dynamic> _$ElderToJson(Elder instance) => <String, dynamic>{
       'phoneNumber': instance.phoneNumber.toJson(),
       'identityCard': instance.identityCard?.toJson(),
       'elderProfile': instance.elderProfile?.toJson(),
+      'recommendedBuddy':
+          instance.recommendedBuddy?.map((e) => e.toJson()).toList(),
     };
