@@ -7,7 +7,8 @@ import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 
 class ProfileWidgets {
-  static Widget buildProfileData(BuildContext context, ThemeData theme, String profileImageUrl, String personName, bool isBuddy) {
+  static Widget buildProfileData(BuildContext context, ThemeData theme,
+      String profileImageUrl, String personName, bool isBuddy) {
     return Column(
       children: [
         CircleAvatar(
@@ -36,7 +37,7 @@ class ProfileWidgets {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    BaseDecoration.buildRowLocationReviewProfile(
+                    ProfileWidgets.buildRowLocationReviewProfile(
                         context, isBuddy, 'Buenos Aires', '4.4', '41'),
                   ],
                 ),
@@ -48,16 +49,26 @@ class ProfileWidgets {
     );
   }
 
-  static Widget buildProfileInfo(BuildContext context, ThemeData theme, bool isBuddy, String description, List<Interest> interest, List<custom_time.TimeOfDay> availability) {
+  static Widget buildProfileInfo(
+      BuildContext context,
+      ThemeData theme,
+      bool isBuddy,
+      String description,
+      List<Interest> interest,
+      List<custom_time.TimeOfDay> availability) {
     return Container(
       margin: EdgeInsets.fromLTRB(0, 0, 0, 45),
       child: Column(
         children: [
-          BaseDecoration.buildTitleProfile(context, isBuddy ? 'Sobre este adulto mayor' : 'Sobre este buddy', isBuddy),
+          BaseDecoration.buildTitleProfile(
+              context,
+              isBuddy ? 'Sobre este adulto mayor' : 'Sobre este buddy',
+              isBuddy),
           buildPersonalInformation(context, description),
           BaseDecoration.buildTitleProfile(context, 'Intereses', isBuddy),
           buildInterests(context, theme, interest, isBuddy),
-          BaseDecoration.buildTitleProfile(context, 'Disponibilidad horaria', isBuddy),
+          BaseDecoration.buildTitleProfile(
+              context, 'Disponibilidad horaria', isBuddy),
           buildAvailability(context, theme, availability, isBuddy),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -88,7 +99,8 @@ class ProfileWidgets {
     );
   }
 
-  static Widget buildPersonalInformation(BuildContext context, String description) {
+  static Widget buildPersonalInformation(
+      BuildContext context, String description) {
     return Container(
       margin: EdgeInsets.fromLTRB(35, 0, 35, 0),
       child: Column(
@@ -107,7 +119,8 @@ class ProfileWidgets {
     );
   }
 
-  static Widget buildInterests(BuildContext context, ThemeData theme, List<Interest> interests, bool isBuddy) {
+  static Widget buildInterests(BuildContext context, ThemeData theme,
+      List<Interest> interests, bool isBuddy) {
     return Container(
       margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: interests.isNotEmpty
@@ -116,14 +129,16 @@ class ProfileWidgets {
               spacing: 4.0,
               runSpacing: 8.0,
               children: interests
-                  .map((tag) => BaseDecoration.buildInterestTag(context, tag, isBuddy, theme))
+                  .map((tag) => BaseDecoration.buildInterestTag(
+                      context, tag, isBuddy, theme))
                   .toList(),
             )
           : Container(),
     );
   }
 
-  static Widget buildAvailability(BuildContext context, ThemeData theme, List<custom_time.TimeOfDay> availability, bool isBuddy) {
+  static Widget buildAvailability(BuildContext context, ThemeData theme,
+      List<custom_time.TimeOfDay> availability, bool isBuddy) {
     return Container(
       margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Wrap(
@@ -131,7 +146,8 @@ class ProfileWidgets {
         spacing: 4.0,
         runSpacing: 8.0,
         children: availability
-            .map((day) => BaseDecoration.buildAvailabilityTag(context, day, isBuddy, theme))
+            .map((day) => BaseDecoration.buildAvailabilityTag(
+                context, day, isBuddy, theme))
             .toList(),
       ),
     );
@@ -177,7 +193,8 @@ class ProfileWidgets {
                           width: 152.5,
                           child: Text(
                             'Pepe Argento',
-                            style: ThemeTextStyle.itemLargeOnBackground(context),
+                            style:
+                                ThemeTextStyle.itemLargeOnBackground(context),
                           ),
                         ),
                       ),
@@ -210,6 +227,123 @@ class ProfileWidgets {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget buildRowLocationReviewProfile(BuildContext context,
+      bool isBuddy, String location, String rate, String xpHours) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    margin: EdgeInsets.fromLTRB(4, 3.3, 6, 3.3),
+                    child: SizedBox(
+                      width: 21,
+                      height: 21,
+                      child: SvgPicture.asset(
+                        'assets/icons/iconLocation.svg',
+                        color: Colors.green,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    location,
+                    style: TextStyle(
+                      color: isBuddy
+                          ? Theme.of(context).colorScheme.onSecondaryContainer
+                          : Theme.of(context)
+                              .colorScheme
+                              .onTertiaryFixedVariant,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Container(
+                    margin: EdgeInsets.fromLTRB(10, 3.3, 3, 3.3),
+                    child: SizedBox(
+                      width: 21,
+                      height: 21,
+                      child: SvgPicture.asset(
+                        'assets/icons/star.svg',
+                        color: const Color.fromARGB(255, 230, 207, 8),
+                      ),
+                    ),
+                  ),
+                  RichText(
+                    text: TextSpan(
+                        style: TextStyle(
+                          color: isBuddy
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .onTertiaryFixedVariant,
+                          fontSize: 18,
+                        ),
+                        children: [
+                          TextSpan(text: rate),
+                        ]),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                margin: EdgeInsets.fromLTRB(4, 3.3, 6, 3.3),
+                child: SizedBox(
+                  width: 21,
+                  height: 21,
+                  child: SvgPicture.asset(
+                    'assets/icons/eventavailable.svg',
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontFamily: 'Comfortaa',
+                    color: isBuddy
+                        ? Theme.of(context).colorScheme.onSecondaryContainer
+                        : Theme.of(context).colorScheme.onTertiaryFixedVariant,
+                    fontSize: 18, // Tamaño para xpHours
+                    fontWeight: FontWeight.w400,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '$xpHours hs ', // Texto principal
+                      style: TextStyle(fontFamily: 'Comfortaa',)
+                    ),
+                    TextSpan(
+                      text: 'de experiencias', // Texto más pequeño
+                      style: TextStyle(
+                        fontFamily: 'Comfortaa',
+                        fontSize: 14, // Tamaño de fuente más pequeño
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

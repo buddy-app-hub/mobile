@@ -22,97 +22,94 @@ class NewBuddy extends StatelessWidget {
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
 
-return Stack(
-      children: [
-        Center(
-          child: Column(
-            children: [
-            SizedBox(height: 10,),
-              CarouselSlider(
-                items: imageUrls.map((url) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.asset(
-                      url,
-                      fit: BoxFit.cover,
-                      width: MediaQuery.of(context).size.width,
-                    ),
-                  );
-                }).toList(),
-                options: CarouselOptions(
-                  height: 300,
-                  autoPlay: true,
-                  enlargeCenterPage: true,
-                  enableInfiniteScroll: true,
-                  scrollPhysics: BouncingScrollPhysics(),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(height: 10),
+          // Carousel de imágenes
+          CarouselSlider(
+            items: imageUrls.map((url) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.asset(
+                  url,
+                  fit: BoxFit.cover,
+                  width: MediaQuery.of(context).size.width,
                 ),
-              ),
-            ],
+              );
+            }).toList(),
+            options: CarouselOptions(
+              height: 300,
+              autoPlay: true,
+              enlargeCenterPage: true,
+              enableInfiniteScroll: true,
+              scrollPhysics:
+                  BouncingScrollPhysics(), // Asegura que el deslizamiento funcione
+            ),
           ),
-        ),
-        SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.fromLTRB(0, 330, 0, 0),
-            child: 
-              Column(
+          SizedBox(height: 20),
+          // Información del Buddy
+          Container(
+            decoration: BaseDecoration.boxCurveLR(context),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  decoration: BaseDecoration.boxCurveLR(context),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          '$buddyName, $buddyAge',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
+                      Text(
+                        '$buddyName, $buddyAge',
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              // Acción para ver otro Buddy
-                            },
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.symmetric(horizontal: 16.0),
-                              backgroundColor: Colors.grey[300],
-                            ),
-                            child: Text(
-                              'Ver otro Buddy',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                          SizedBox(width: 20),
-
-                          ElevatedButton(
-                            onPressed: () {
-                              // Acción para conectar con el Buddy
-                            },
-                            child: Text('Conectar'),
-                          ),
-                        ],
+                      SizedBox(
+                        height: 10,
                       ),
-                      ProfileWidgets.buildProfileInfo(
-                        context,
-                        theme,
-                        true,
-                        authProvider.userData!.elder!.elderProfile!.description!,
-                        authProvider.userData!.elder!.elderProfile!.interests!,
-                        authProvider.userData!.elder!.elderProfile!.availability!,
-                      ),
+                      ProfileWidgets.buildRowLocationReviewProfile(
+                          context, true, 'A 2 km', '4.4', '23'),
                     ],
                   ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        // Acción para ver otro Buddy
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        backgroundColor: Colors.grey[300],
+                      ),
+                      child: Text(
+                        'Ver otro Buddy',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Acción para conectar con el Buddy
+                      },
+                      child: Text('Conectar'),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 5),
+                ProfileWidgets.buildProfileInfo(
+                  context,
+                  theme,
+                  true,
+                  authProvider.userData!.elder!.elderProfile!.description!,
+                  authProvider.userData!.elder!.elderProfile!.interests!,
+                  authProvider.userData!.elder!.elderProfile!.availability!,
                 ),
               ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

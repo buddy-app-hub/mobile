@@ -125,7 +125,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
             ),
             SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.fromLTRB(0, 200, 0, 0),
+                padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
