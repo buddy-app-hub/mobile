@@ -26,30 +26,8 @@ class _NewConnectionState extends State<NewConnectionPage> {
         extendBody: true,
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
-        body: 
-        // Stack(
-        //   children: [
-        //     Column(
-        //       children: [
-        //         Row(
-        //           children: [
-        //             Container(
-        //               margin: EdgeInsets.fromLTRB(
-        //                   22, MediaQuery.of(context).padding.top + 18, 0, 18),
-        //               child: Text('Te presentamos a tu nuevo \nBuddy ideal',
-        //                   style: ThemeTextStyle.titleMediumOnPrimaryContainer(
-        //                     context,
-        //                   )),
-        //             ),
-        //           ],
-        //         ),
-            
-                NewBuddy(),
-              // ],
-            ),
-        //   ],
-        // ),
-      // ),
+        body: NewBuddy(),
+      ),
     );
   }
 }

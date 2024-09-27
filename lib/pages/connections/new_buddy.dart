@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/profile_widgets.dart';
+import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +27,15 @@ class NewBuddy extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 10),
+          Text('Conocé tu posible nuevo',
+              style: ThemeTextStyle.titleMediumOnPrimaryContainer(
+                context,
+              )),
+              Text('Buddy',
+              style: ThemeTextStyle.titleLargeOnPrimaryFixed(
+                context,
+              )),
+          SizedBox(height: 20),
           // Carousel de imágenes
           CarouselSlider(
             items: imageUrls.map((url) {

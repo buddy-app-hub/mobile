@@ -74,9 +74,9 @@ class ProfileWidgets {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BaseDecoration.buildTitleProfile(context, 'Opiniones', isBuddy),
+              BaseDecoration.buildTitleProfile(context, 'Resumen de comentarios', isBuddy),
               Container(
-                margin: EdgeInsets.fromLTRB(0, 25, 28, 0),
+                margin: EdgeInsets.fromLTRB(0, 20, 28, 0),
                 child: Align(
                   alignment: Alignment.topRight,
                   child: TextButton(
@@ -85,7 +85,7 @@ class ProfileWidgets {
                       // Navegación a la página de opiniones.
                     },
                     child: Text(
-                      "Ver más",
+                      "Ver todos",
                       style: ThemeTextStyle.titleSmallBright(context),
                     ),
                   ),
@@ -93,7 +93,7 @@ class ProfileWidgets {
               ),
             ],
           ),
-          buildReviews(context, theme),
+          buildReviewsSummary(context, theme, 'Esto es un resumen de todas las experiencias que tuvo esta persona. Todos dicen que pasaron muy lindos momentos, que es muy simpático y alegre, y generoso.'),
         ],
       ),
     );
@@ -232,6 +232,18 @@ class ProfileWidgets {
       ),
     );
   }
+
+static Widget buildReviewsSummary(BuildContext context, ThemeData theme, String summaryText) {
+  return Container(
+    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 32),
+    child: Text(
+      summaryText,
+      style: ThemeTextStyle.itemLargeOnBackground(context),
+      textAlign: TextAlign.justify,
+    ),
+  );
+}
+
 
   static Widget buildRowLocationReviewProfile(BuildContext context,
       bool isBuddy, String location, String rate, String xpHours) {
