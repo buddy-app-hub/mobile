@@ -61,7 +61,6 @@ class MyApp extends StatelessWidget {
           Routes.myConnections: (context) => MyConnectionsPage(),
           Routes.myProfile: (context) => MyProfilePage(),
           Routes.settings: (context) => SettingsPage(),
-          // Routes.viewProfile: (context) => ViewProfilePage(),
           Routes.chooseUser: (context) => const ChooseUserPage(),
           Routes.beBuddy: (context) => const BecomeBuddyPage(),
           Routes.wantBuddyForMyself: (context) => const WantBuddyForMyselfPage(),
