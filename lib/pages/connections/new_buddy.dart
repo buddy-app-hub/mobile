@@ -31,7 +31,7 @@ class NewBuddy extends StatelessWidget {
               style: ThemeTextStyle.titleMediumOnPrimaryContainer(
                 context,
               )),
-              Text('Buddy',
+          Text('Buddy',
               style: ThemeTextStyle.titleLargeOnPrimaryFixed(
                 context,
               )),
@@ -102,8 +102,27 @@ class NewBuddy extends StatelessWidget {
                       onPressed: () {
                         // Acción para conectar con el Buddy
                       },
-                      child: Text('Conectar'),
-                    ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme
+                            .colorScheme.primary,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical:
+                                12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              16),
+                        ),
+                      ),
+                      child: Text(
+                        'Conectar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: theme.colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
                   ],
                 ),
                 SizedBox(height: 5),
