@@ -4,13 +4,13 @@ part 'meeting_location.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class MeetingLocation {
-  final bool isEldersHome;
-  final String placeName;
-  final String streetName;
-  final int streetNumber;
-  final String city;
-  final String state;
-  final String country;
+  bool isEldersHome;
+  String placeName;
+  String streetName;
+  int streetNumber;
+  String city;
+  String state;
+  String country;
 
   MeetingLocation({
     required this.isEldersHome,

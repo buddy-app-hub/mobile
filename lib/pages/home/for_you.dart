@@ -26,55 +26,81 @@ class _ForYouPageState extends State<ForYouPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       extendBody: true,
       extendBodyBehindAppBar: true, 
       resizeToAvoidBottomInset: false, 
       body: Stack (
         children: [
-          SingleChildScrollView( // Hacer que el contenido sea desplazable verticalmente
+          SingleChildScrollView(
             child: Padding (
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
               child: Column(
                 children: [
-                  Row(
+                  Column(
                     children: [
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0, 15, 0, 5),
-                        child: Text(
-                          'Próximos encuentros',
-                          style: ThemeTextStyle.titleMediumInverseSurface(context),
-                        ),
+                      FutureBuilder<List<Widget>>(
+                        future: fetchMeetingsAsFuture(theme, userData),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasError) {
+                              return Text('Error fetching meetings');
+                            } else {
+                              return Column(
+                                children: snapshot.data!,
+                              );
+                            }
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
                       ),
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                    child: Column(
-                      children: [
-                        FutureBuilder<List<Widget>>(
-                          future: fetchMeetingsAsFuture(userData),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.done) {
-                              if (snapshot.hasError) {
-                                return Text('Error fetching meetings');
-                              } else {
-                                return Column(
-                                  children: snapshot.data!,
-                                );
-                              }
+                  Column(
+                    children: [
+                      FutureBuilder<List<Widget>>(
+                        future: fetchNewMeetingsAsFuture(theme, userData),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasError) {
+                              return Text('Error fetching meetings');
                             } else {
-                              return CircularProgressIndicator();
+                              return Column(
+                                children: snapshot.data!,
+                              );
                             }
-                          },
-                        ),
-                      ],
-                    ),
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      FutureBuilder<List<Widget>>(
+                        future: fetchRescheduledMeetingsAsFuture(theme, userData),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasError) {
+                              return Text('Error fetching meetings');
+                            } else {
+                              return Column(
+                                children: snapshot.data!,
+                              );
+                            }
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                      ),
+                    ],
                   ),
                   Row(
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(0, 25, 0, 5),
+                        margin: EdgeInsets.fromLTRB(0, 18, 0, 5),
                         child: Text(
                           'Eventos Agendados',
                           style: ThemeTextStyle.titleMediumInverseSurface(context),
@@ -82,13 +108,10 @@ class _ForYouPageState extends State<ForYouPage> {
                       ),
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 18, 0, 0),
-                    child: Column(
-                      children: [
-                        BaseCardCalendar(meetings: [],),
-                      ],
-                    ),
+                  Column(
+                    children: [
+                      BaseCardCalendar(meetings: [],),
+                    ],
                   ),
                 ],
               ),

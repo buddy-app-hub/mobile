@@ -6,16 +6,16 @@ part 'meeting.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Meeting {
-  final TimeOfDay date;
-  final bool isCancelled;
-  final bool isConfirmedByBuddy;
-  final bool isConfirmedByElder;
-  final bool isRescheduled;
-  final String activity;
-  final DateTime dateLastModification;
+  TimeOfDay date;
+  bool isCancelled;
+  bool isConfirmedByBuddy;
+  bool isConfirmedByElder;
+  bool isRescheduled;
+  String activity;
+  DateTime dateLastModification;
 
   @JsonKey(name: 'location')
-  final MeetingLocation location;
+  MeetingLocation location;
 
   Meeting({
     required this.date,

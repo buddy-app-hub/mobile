@@ -77,7 +77,10 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
                                       if (snapshot.connectionState == ConnectionState.done) {
                                         if (snapshot.hasError) {
                                           return Text('Error fetching meetings');
-                                        } else {
+                                        } else if (snapshot.data!.isEmpty) {
+                                          return Text('No hay conexiones');
+                                        }
+                                        else {
                                           return Column(
                                             children: snapshot.data!,
                                           );
