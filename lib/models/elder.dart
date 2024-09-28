@@ -21,7 +21,7 @@ class Elder {
   final PhoneNumber phoneNumber;
   final IdentityCard? identityCard;
   final ElderProfile? elderProfile;
-  final List<RecommendedBuddy>? recommendedBuddy;
+  final List<RecommendedBuddy>? recommendedBuddies;
 
   Elder({
     required this.firebaseUID,
@@ -35,7 +35,7 @@ class Elder {
     required this.phoneNumber,
     this.identityCard,
     this.elderProfile,
-    this.recommendedBuddy,
+    this.recommendedBuddies,
   });
 
   factory Elder.fromJson(Map<String, dynamic> json) => _$ElderFromJson(json);
