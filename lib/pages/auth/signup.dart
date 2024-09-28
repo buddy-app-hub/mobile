@@ -228,7 +228,10 @@ class _SignupPageState extends State<SignupPage> {
               emailController.text, passwordController.text);
           if (credential != null) {
             print("Usuario registrado con éxito en Firebase");
-            Navigator.pushNamed(context, Routes.chooseUser);
+            Navigator.pushNamed(context, Routes.login);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Tu cuenta aún no ha sido verificada. Por favor, verifica tu correo electrónico para activarla.')),
+            );
           }
         } on FirebaseAuthException catch (e) {
           if (e.code == 'weak-password') {

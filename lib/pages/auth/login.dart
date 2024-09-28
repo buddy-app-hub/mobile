@@ -221,6 +221,16 @@ class _LoginPageState extends State<LoginPage> {
             passwordController.text
         );
 
+        if (credential != null && credential.emailVerified) {
+          print("Sesión iniciada con correo verificado.");
+          Navigator.pushNamed(context, Routes.splashScreen);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Por favor verifica tu correo antes de iniciar sesión.')),
+          );
+          FirebaseAuth.instance.signOut();
+        }
+
         if (credential != null) Navigator.pushNamed(context, Routes.splashScreen);
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
