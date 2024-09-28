@@ -15,6 +15,8 @@ class BuddyProfile {
   List<Interest>? interests;
   List<TimeOfDay>? availability;
   List<String>? photos;
+  int? globalRating; // Average rating of each of the meetings in which he participated (1 to 5)
+
 
   BuddyProfile({
     this.isOnPause = false,
@@ -24,6 +26,7 @@ class BuddyProfile {
     this.interests,
     this.availability,
     this.photos,
+    this.globalRating,
   });
 
   factory BuddyProfile.fromJson(Map<String, dynamic> json) => _$BuddyProfileFromJson(json);

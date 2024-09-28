@@ -16,6 +16,7 @@ ElderProfile _$ElderProfileFromJson(Map<String, dynamic> json) => ElderProfile(
           .toList(),
       photos:
           (json['photos'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      globalRating: (json['globalRating'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ElderProfileToJson(ElderProfile instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$ElderProfileToJson(ElderProfile instance) =>
       'interests': instance.interests?.map((e) => e.toJson()).toList(),
       'availability': instance.availability?.map((e) => e.toJson()).toList(),
       'photos': instance.photos,
+      'globalRating': instance.globalRating,
     };
