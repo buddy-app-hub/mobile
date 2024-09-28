@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/connections/new_buddy.dart';
+import 'package:mobile/pages/connections/new_recommended_buddy.dart';
 import 'package:provider/provider.dart';
 
 class NewConnectionPage extends StatefulWidget {
@@ -26,7 +26,7 @@ class _NewConnectionState extends State<NewConnectionPage> {
         extendBody: true,
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
-        body: NewBuddy(),
+        body: NewRecommendedBuddy(),
       ),
     );
   }

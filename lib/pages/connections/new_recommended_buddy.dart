@@ -6,7 +6,7 @@ import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 import 'package:provider/provider.dart';
 
-class NewBuddy extends StatelessWidget {
+class NewRecommendedBuddy extends StatelessWidget {
   final List<String> imageUrls = [
     'assets/images/buddyProfile.jpeg',
     'assets/images/buddyProfile2.jpeg',
