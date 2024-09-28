@@ -4,14 +4,14 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/new_recommended_buddy.dart';
 import 'package:provider/provider.dart';
 
-class NewConnectionPage extends StatefulWidget {
-  const NewConnectionPage({super.key});
+class NewConnectionsPage extends StatefulWidget {
+  const NewConnectionsPage({super.key});
 
   @override
-  State<NewConnectionPage> createState() => _NewConnectionState();
+  State<NewConnectionsPage> createState() => _NewConnectionsState();
 }
 
-class _NewConnectionState extends State<NewConnectionPage> {
+class _NewConnectionsState extends State<NewConnectionsPage> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthSessionProvider>(context);
