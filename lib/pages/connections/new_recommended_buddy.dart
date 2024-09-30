@@ -76,6 +76,17 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     }
   }
 
+  void _changeToNextBuddy() async {
+    setState(() {
+      currentBuddyIndex += 1;
+    });
+
+    if (recommendedBuddies!.length > currentBuddyIndex + 1) {
+      return;
+    }
+    _loadUserPhotos();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -89,7 +100,13 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     if (recommendedBuddies!.isEmpty ||
         currentBuddyIndex >= recommendedBuddies!.length) {
       return Center(
-        child: Text('No hay buddies recomendados disponibles en este momento.'),
+        child: Text(
+          'No hay buddies recomendados disponibles en este momento.\n\nIntentá más tarde !',
+          textAlign: TextAlign.center, // Centra cada línea de texto
+          style: ThemeTextStyle.titleMediumOnPrimaryContainer(
+            context,
+          ),
+        ),
       );
     }
 
@@ -138,8 +155,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                         },
                         errorBuilder: (BuildContext context, Object exception,
                             StackTrace? stackTrace) {
-                          return Icon(
-                              Icons.error);
+                          return Icon(Icons.error);
                         },
                       )
                     : null,
@@ -189,7 +205,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        // Acción para ver otro Buddy
+                        _changeToNextBuddy();
                       },
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -203,7 +219,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                     SizedBox(width: 20),
                     ElevatedButton(
                       onPressed: () {
-                        // Acción para conectar con el Buddy
+                        // TODO: abrir modal para gestionar primer encuentro
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
