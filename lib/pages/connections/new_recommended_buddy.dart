@@ -1,27 +1,100 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:mobile/models/recommended_buddy.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/profile_widgets.dart';
+import 'package:mobile/services/buddy_service.dart';
+import 'package:mobile/services/files_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
-class NewRecommendedBuddy extends StatelessWidget {
-  final List<String> imageUrls = [
-    'assets/images/buddyProfile.jpeg',
-    'assets/images/buddyProfile2.jpeg',
-    'assets/images/buddyProfile3.jpeg'
-  ];
+class NewRecommendedBuddy extends StatefulWidget {
+  @override
+  _NewRecommendedBuddyState createState() => _NewRecommendedBuddyState();
+}
 
-  final String buddyName = 'Juan Pérez';
-  final int buddyAge = 20;
-  final double buddyRating = 4.5;
+class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
+  List<RecommendedBuddy>? recommendedBuddies;
+  int currentBuddyIndex = 0;
+  late AuthSessionProvider authProvider;
+  List<String?> _photoUrls = [];
+  final FilesService _filesService = FilesService();
+  bool _photosLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRecommendedBuddies();
+  }
+
+  Future<void> _fetchRecommendedBuddies() async {
+    authProvider =
+        Provider.of<AuthSessionProvider>(this.context, listen: false);
+
+    BuddyService buddyService = BuddyService();
+    try {
+      List<RecommendedBuddy> rb =
+          await buddyService.getRecommendedBuddies(authProvider.userData!);
+      setState(() {
+        recommendedBuddies = rb;
+        _loadUserPhotos(); // Cargamos las fotos después de obtener las recomendaciones
+      });
+    } catch (error) {
+      print("Error fetching recommended buddies: $error");
+      setState(() {
+        recommendedBuddies = [];
+      });
+    }
+  }
+
+  Future<void> _loadUserPhotos() async {
+    if (recommendedBuddies == null || recommendedBuddies!.isEmpty) {
+      print("No recommended buddies available to load photos.");
+      return;
+    }
+
+    setState(() {
+      _photosLoading = true;
+    });
+
+    try {
+      final List<String?> urls = await _filesService.getUserPhotos(
+          recommendedBuddies![currentBuddyIndex].buddy!.firebaseUID,
+          true,
+          this.context);
+      setState(() {
+        _photoUrls = urls;
+        _photosLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _photosLoading = false;
+      });
+      print('Error loading photos: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authProvider =
-        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    if (recommendedBuddies == null || _photosLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (recommendedBuddies!.isEmpty ||
+        currentBuddyIndex >= recommendedBuddies!.length) {
+      return Center(
+        child: Text('No hay buddies recomendados disponibles en este momento.'),
+      );
+    }
+
+    final RecommendedBuddy recommendedBuddy =
+        recommendedBuddies![currentBuddyIndex];
 
     return SingleChildScrollView(
       child: Column(
@@ -38,14 +111,38 @@ class NewRecommendedBuddy extends StatelessWidget {
           SizedBox(height: 20),
           // Carousel de imágenes
           CarouselSlider(
-            items: imageUrls.map((url) {
+            items: _photoUrls.map((url) {
               return ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: Image.asset(
-                  url,
-                  fit: BoxFit.cover,
-                  width: MediaQuery.of(context).size.width,
-                ),
+                child: url != null
+                    ? Image.network(
+                        url!,
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent? loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          } else {
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        (loadingProgress.expectedTotalBytes ??
+                                            1)
+                                    : null,
+                              ),
+                            );
+                          }
+                        },
+                        errorBuilder: (BuildContext context, Object exception,
+                            StackTrace? stackTrace) {
+                          return Icon(
+                              Icons.error);
+                        },
+                      )
+                    : null,
               );
             }).toList(),
             options: CarouselOptions(
@@ -53,8 +150,7 @@ class NewRecommendedBuddy extends StatelessWidget {
               autoPlay: true,
               enlargeCenterPage: true,
               enableInfiniteScroll: true,
-              scrollPhysics:
-                  BouncingScrollPhysics(), // Asegura que el deslizamiento funcione
+              scrollPhysics: BouncingScrollPhysics(),
             ),
           ),
           SizedBox(height: 20),
@@ -70,14 +166,21 @@ class NewRecommendedBuddy extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        '$buddyName, $buddyAge',
+                        '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${recommendedBuddy.buddy!.personalData.age}',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       SizedBox(
                         height: 10,
                       ),
                       ProfileWidgets.buildRowLocationReviewProfile(
-                          context, true, 'A 2 km', '4.4', '23'),
+                          context,
+                          true,
+                          'A ${recommendedBuddy.distanceToKM} km',
+                          recommendedBuddy.buddy!.buddyProfile?.globalRating
+                                  ?.toString() ??
+                              '0',
+                          '23' // TODO: sacar hardcodeo
+                          ),
                     ],
                   ),
                 ),
@@ -103,15 +206,11 @@ class NewRecommendedBuddy extends StatelessWidget {
                         // Acción para conectar con el Buddy
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: theme
-                            .colorScheme.primary,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical:
-                                12),
+                        backgroundColor: theme.colorScheme.primary,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              16),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       child: Text(
@@ -130,9 +229,9 @@ class NewRecommendedBuddy extends StatelessWidget {
                   context,
                   theme,
                   true,
-                  authProvider.userData!.elder!.elderProfile!.description!,
-                  authProvider.userData!.elder!.elderProfile!.interests!,
-                  authProvider.userData!.elder!.elderProfile!.availability!,
+                  recommendedBuddy.buddy!.buddyProfile!.description!,
+                  recommendedBuddy.buddy!.buddyProfile!.interests!,
+                  recommendedBuddy.buddy!.buddyProfile!.availability!,
                 ),
               ],
             ),

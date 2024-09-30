@@ -11,8 +11,8 @@ class ElderProfile {
   List<Interest>? interests;
   List<TimeOfDay>? availability;
   List<String>? photos;
-  int? globalRating; // Average rating of each of the meetings in which he participated (1 to 5)
-  ConnectionPreferences connectionPreferences;
+  double? globalRating; // Average rating of each of the meetings in which he participated (1 to 5)
+  ConnectionPreferences? connectionPreferences;
 
   ElderProfile({
     this.description,
@@ -20,7 +20,7 @@ class ElderProfile {
     this.availability,
     this.photos,
     this.globalRating,
-    required this.connectionPreferences,
+    this.connectionPreferences,
   });
 
   factory ElderProfile.fromJson(Map<String, dynamic> json) => _$ElderProfileFromJson(json);

@@ -25,9 +25,11 @@ BuddyProfile _$BuddyProfileFromJson(Map<String, dynamic> json) => BuddyProfile(
           .toList(),
       photos:
           (json['photos'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      globalRating: (json['globalRating'] as num?)?.toInt(),
-      connectionPreferences: ConnectionPreferences.fromJson(
-          json['connectionPreferences'] as Map<String, dynamic>),
+      globalRating: (json['globalRating'] as num?)?.toDouble(),
+      connectionPreferences: json['connectionPreferences'] == null
+          ? null
+          : ConnectionPreferences.fromJson(
+              json['connectionPreferences'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$BuddyProfileToJson(BuddyProfile instance) =>
@@ -40,5 +42,5 @@ Map<String, dynamic> _$BuddyProfileToJson(BuddyProfile instance) =>
       'availability': instance.availability?.map((e) => e.toJson()).toList(),
       'photos': instance.photos,
       'globalRating': instance.globalRating,
-      'connectionPreferences': instance.connectionPreferences.toJson(),
+      'connectionPreferences': instance.connectionPreferences?.toJson(),
     };
