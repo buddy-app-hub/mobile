@@ -126,128 +126,147 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                 context,
               )),
           SizedBox(height: 20),
-          // Carousel de imágenes
-          CarouselSlider(
-            items: _photoUrls.map((url) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: url != null
-                    ? Image.network(
-                        url!,
-                        fit: BoxFit.cover,
-                        width: MediaQuery.of(context).size.width,
-                        loadingBuilder: (BuildContext context, Widget child,
-                            ImageChunkEvent? loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          } else {
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        (loadingProgress.expectedTotalBytes ??
-                                            1)
-                                    : null,
-                              ),
-                            );
-                          }
-                        },
-                        errorBuilder: (BuildContext context, Object exception,
-                            StackTrace? stackTrace) {
-                          return Icon(Icons.error);
-                        },
-                      )
-                    : null,
+
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 1000),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
               );
-            }).toList(),
-            options: CarouselOptions(
-              height: 300,
-              autoPlay: true,
-              enlargeCenterPage: true,
-              enableInfiniteScroll: true,
-              scrollPhysics: BouncingScrollPhysics(),
-            ),
-          ),
-          SizedBox(height: 20),
-          // Información del Buddy
-          Container(
-            decoration: BaseDecoration.boxCurveLR(context),
+            },
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              key: ValueKey<int>(
+                  currentBuddyIndex),
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${recommendedBuddy.buddy!.personalData.age}',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      ProfileWidgets.buildRowLocationReviewProfile(
-                          context,
-                          true,
-                          'A ${recommendedBuddy.distanceToKM} km',
-                          recommendedBuddy.buddy!.buddyProfile?.globalRating
-                                  ?.toString() ??
-                              '0',
-                          '23' // TODO: sacar hardcodeo
-                          ),
-                    ],
+                CarouselSlider(
+                  items: _photoUrls.map((url) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: url != null
+                          ? Image.network(
+                              url,
+                              fit: BoxFit.cover,
+                              width: MediaQuery.of(context).size.width,
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  (loadingProgress
+                                                          .expectedTotalBytes ??
+                                                      1)
+                                              : null,
+                                    ),
+                                  );
+                                }
+                              },
+                              errorBuilder: (BuildContext context,
+                                  Object exception, StackTrace? stackTrace) {
+                                return Icon(Icons.error);
+                              },
+                            )
+                          : null,
+                    );
+                  }).toList(),
+                  options: CarouselOptions(
+                    height: 300,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    enableInfiniteScroll: true,
+                    scrollPhysics: BouncingScrollPhysics(),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        _changeToNextBuddy();
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        backgroundColor: Colors.grey[300],
-                      ),
-                      child: Text(
-                        'Ver otro Buddy',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        // TODO: abrir modal para gestionar primer encuentro
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                SizedBox(height: 20),
+                Container(
+                  decoration: BaseDecoration.boxCurveLR(context),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${recommendedBuddy.buddy!.personalData.age}',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            ProfileWidgets.buildRowLocationReviewProfile(
+                                context,
+                                true,
+                                'A ${recommendedBuddy.distanceToKM} km',
+                                recommendedBuddy
+                                        .buddy!.buddyProfile?.globalRating
+                                        ?.toString() ??
+                                    '0',
+                                '23' // TODO: sacar hardcodeo
+                                ),
+                          ],
                         ),
                       ),
-                      child: Text(
-                        'Conectar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: theme.colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              _changeToNextBuddy();
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              backgroundColor: Colors.grey[300],
+                            ),
+                            child: Text(
+                              'Ver otro Buddy',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              // TODO: abrir modal para gestionar primer encuentro
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.colorScheme.primary,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Text(
+                              'Conectar',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: theme.colorScheme.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-                    )
-                  ],
-                ),
-                SizedBox(height: 5),
-                ProfileWidgets.buildProfileInfo(
-                  context,
-                  theme,
-                  true,
-                  recommendedBuddy.buddy!.buddyProfile!.description!,
-                  recommendedBuddy.buddy!.buddyProfile!.interests!,
-                  recommendedBuddy.buddy!.buddyProfile!.availability!,
+                      SizedBox(height: 5),
+                      ProfileWidgets.buildProfileInfo(
+                        context,
+                        theme,
+                        true,
+                        recommendedBuddy.buddy!.buddyProfile!.description!,
+                        recommendedBuddy.buddy!.buddyProfile!.interests!,
+                        recommendedBuddy.buddy!.buddyProfile!.availability!,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
