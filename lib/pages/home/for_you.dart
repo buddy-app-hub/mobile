@@ -32,11 +32,32 @@ class _ForYouPageState extends State<ForYouPage> {
       resizeToAvoidBottomInset: false, 
       body: Stack (
         children: [
-          SingleChildScrollView( // Hacer que el contenido sea desplazable verticalmente
+          SingleChildScrollView(
             child: Padding (
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
               child: Column(
                 children: [
+                  Column(
+                    children: [
+                      FutureBuilder<List<Widget>>(
+                        future: fetchMeetingsAsFuture(theme, userData),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasError) {
+                              print(snapshot);
+                              return Text('Error fetching meetings');
+                            } else {
+                              return Column(
+                                children: snapshot.data!,
+                              );
+                            }
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                   Column(
                     children: [
                       FutureBuilder<List<Widget>>(
@@ -61,26 +82,6 @@ class _ForYouPageState extends State<ForYouPage> {
                     children: [
                       FutureBuilder<List<Widget>>(
                         future: fetchRescheduledMeetingsAsFuture(theme, userData),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            if (snapshot.hasError) {
-                              return Text('Error fetching meetings');
-                            } else {
-                              return Column(
-                                children: snapshot.data!,
-                              );
-                            }
-                          } else {
-                            return CircularProgressIndicator();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      FutureBuilder<List<Widget>>(
-                        future: fetchMeetingsAsFuture(theme, userData),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.done) {
                             if (snapshot.hasError) {

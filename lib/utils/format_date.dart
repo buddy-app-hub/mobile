@@ -25,6 +25,10 @@ String formatMeetingDate(DateTime date) {
   return '${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}';
 }
 
+String formatDayOfWeek(int weekday) {
+  return weekdays[weekday - 1];
+}
+
 int timeToInt(TimeOfDay time) {
   return time.hour * 100 + time.minute;
 }
@@ -100,5 +104,6 @@ DateTime formatTimeOfDayToDate(custom_time.TimeOfDay timeOfDay) {
 TimeOfDay formatIntToTime(int time) {
   int hour = time ~/ 100;
   int minute = time % 100;
+
   return TimeOfDay(hour: hour, minute: minute);
 }
