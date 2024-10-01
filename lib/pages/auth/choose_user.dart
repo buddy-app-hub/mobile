@@ -76,7 +76,7 @@ class _ChooseUserPageState extends State<ChooseUserPage> {
       Navigator.pushNamed(context, Routes.wantBuddyForMyself);
     } else if (controller.page == 1) {
       Navigator.pushNamed(context, Routes.wantBuddyForLovedOne);
-    } else {
+    } else if (controller.page == 2) {
       Navigator.pushNamed(context, Routes.beBuddy);
     }
   }

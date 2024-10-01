@@ -8,9 +8,31 @@ import 'package:mobile/models/phone_number.dart';
 import 'package:mobile/models/student_details.dart';
 import 'package:mobile/models/worker_details.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/routes.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:provider/provider.dart';
+
+List<DropdownMenuItem<String>>? items = [
+  DropdownMenuItem(
+    value: 'Masculino',
+    child: Text('Masculino'),
+  ),
+  DropdownMenuItem(
+    value: 'Femenino',
+    child: Text('Femenino'),
+  ),
+  DropdownMenuItem(
+    value: 'No binario',
+    child: Text('No binario'),
+  ),
+  DropdownMenuItem(
+    value: 'Otro',
+    child: Text('Otro'),
+  ),
+  DropdownMenuItem(
+    value: 'Prefiero no decir',
+    child: Text('Prefiero no decir'),
+  ),
+];
 
 class BecomeBuddyPage extends StatefulWidget {
   const BecomeBuddyPage({super.key});
@@ -60,9 +82,17 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
         identityCard: IdentityCard(),
         bankAccount: BankAccount(),
       );
-
-      buddyService.createBuddy(context, buddy);
-      Navigator.pushNamed(context, Routes.splashScreen);
+      
+      try {
+        await authProvider.sendCode(buddy.phoneNumber.countryCode + buddy.phoneNumber.number);
+      } catch (e) {
+        print('Error $e');
+      }
+      // buddyService.createBuddy(context, buddy);
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => PinVerificationPage(elder: null, buddy: buddy, isBuddy: false,)),
+      // );
     } else {
       print("Formulario inválido");
     }
@@ -74,17 +104,25 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiero ser buddy'),
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.fromLTRB(20, 10, 20, 40),
         child: Form(
           key: formKey,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Container(
+                  padding: EdgeInsets.fromLTRB(8, 0, 28, 20),
+                  child: Text(
+                    'Quiero ser buddy',
+                    style: TextStyle(fontSize: 24),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
                 TextFormField(
                   controller: firstNameController,
                   decoration: InputDecoration(
@@ -123,10 +161,22 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: genderController,
+                DropdownButtonFormField<String>(
+                  onChanged: (value) {
+                    setState(() {
+                      genderController.text = value!;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ingresá tu género';
+                    }
+                    return null;
+                  },
+                  items: items,
                   decoration: InputDecoration(
                     hintText: "Género",
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide.none,
@@ -134,12 +184,6 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                     fillColor: theme.colorScheme.primary.withOpacity(0.1),
                     filled: true,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu género';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -180,23 +224,27 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                   },
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    backgroundColor: theme.colorScheme.primary,
-                  ),
-                  child: Text(
-                    "Listo",
-                    style: TextStyle(
-                        color: theme.colorScheme.onPrimary, fontSize: 20),
-                  ),
-                ),
+                
               ],
             ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.fromLTRB(28, 20, 28, 40),
+        child: ElevatedButton(
+          onPressed: _submitForm,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            backgroundColor: theme.colorScheme.primary,
+          ),
+          child: Text(
+            "Listo",
+            style: TextStyle(
+                color: theme.colorScheme.onPrimary, fontSize: 20),
           ),
         ),
       ),

@@ -3,12 +3,33 @@ import 'package:mobile/models/elder_profile.dart';
 import 'package:mobile/models/identity_card.dart';
 import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/routes.dart';
-import 'package:mobile/services/api_service_base.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/phone_number.dart';
+
+List<DropdownMenuItem<String>>? items = [
+  DropdownMenuItem(
+    value: 'Masculino',
+    child: Text('Masculino'),
+  ),
+  DropdownMenuItem(
+    value: 'Femenino',
+    child: Text('Femenino'),
+  ),
+  DropdownMenuItem(
+    value: 'No binario',
+    child: Text('No binario'),
+  ),
+  DropdownMenuItem(
+    value: 'Otro',
+    child: Text('Otro'),
+  ),
+  DropdownMenuItem(
+    value: 'Prefiero no decir',
+    child: Text('Prefiero no decir'),
+  ),
+];
 
 class WantBuddyForMyselfPage extends StatefulWidget {
   const WantBuddyForMyselfPage({super.key});
@@ -55,9 +76,12 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
         elderProfile: ElderProfile(),
         identityCard: IdentityCard(),
       );
-
-        elderService.createElder(context, elder);
-        Navigator.pushNamed(context, Routes.splashScreen);
+      await authProvider.sendCode(elder.phoneNumber.countryCode + elder.phoneNumber.number);
+      // elderService.createElder(context, elder);
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => PinVerificationPage(elder: elder, buddy: null, isBuddy: false,)),
+      // );
       
     } else {
       print("Formulario inválido");
@@ -70,17 +94,25 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiero un buddy para mi'),
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.fromLTRB(20, 10, 20, 40),
         child: Form(
           key: formKey,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Container(
+                  padding: EdgeInsets.fromLTRB(8, 0, 28, 20),
+                  child: Text(
+                    'Quiero un buddy para mi',
+                    style: TextStyle(fontSize: 24),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
                 TextFormField(
                   controller: firstNameController,
                   decoration: InputDecoration(
@@ -119,10 +151,22 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: genderController,
+                DropdownButtonFormField<String>(
+                  onChanged: (value) {
+                    setState(() {
+                      genderController.text = value!;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ingresá tu género';
+                    }
+                    return null;
+                  },
+                  items: items,
                   decoration: InputDecoration(
                     hintText: "Género",
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide.none,
@@ -130,12 +174,6 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
                     fillColor: theme.colorScheme.primary.withOpacity(0.1),
                     filled: true,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu género';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -176,23 +214,27 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
                   },
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    backgroundColor: theme.colorScheme.primary,
-                  ),
-                  child: Text(
-                    "Listo",
-                    style: TextStyle(
-                        color: theme.colorScheme.onPrimary, fontSize: 20),
-                  ),
-                ),
+                
               ],
             ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.fromLTRB(28, 20, 28, 40),
+        child: ElevatedButton(
+          onPressed: _submitForm,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            backgroundColor: theme.colorScheme.primary,
+          ),
+          child: Text(
+            "Listo",
+            style: TextStyle(
+                color: theme.colorScheme.onPrimary, fontSize: 20),
           ),
         ),
       ),
