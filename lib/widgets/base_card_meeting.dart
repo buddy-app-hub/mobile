@@ -165,8 +165,6 @@ Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, User
   }
 }
 
-
-
 Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userData) async {
   String? imageUser = await userHelper.loadProfileImage(isBuddy ? userData.buddy!.firebaseUID : userData.elder!.firebaseUID);
   String? imageConnection = await userHelper.loadProfileImage(personID);

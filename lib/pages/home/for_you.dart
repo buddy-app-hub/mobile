@@ -44,6 +44,7 @@ class _ForYouPageState extends State<ForYouPage> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.done) {
                             if (snapshot.hasError) {
+                              print(snapshot);
                               return Text('Error fetching meetings');
                             } else {
                               return Column(

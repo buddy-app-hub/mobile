@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mobile/models/connection_preferences.dart';
 import 'interest.dart';
 import 'time_of_day.dart';
 
@@ -10,12 +11,16 @@ class ElderProfile {
   List<Interest>? interests;
   List<TimeOfDay>? availability;
   List<String>? photos;
+  double? globalRating; // Average rating of each of the meetings in which he participated (1 to 5)
+  ConnectionPreferences? connectionPreferences;
 
   ElderProfile({
     this.description,
     this.interests,
     this.availability,
     this.photos,
+    this.globalRating,
+    this.connectionPreferences,
   });
 
   factory ElderProfile.fromJson(Map<String, dynamic> json) => _$ElderProfileFromJson(json);

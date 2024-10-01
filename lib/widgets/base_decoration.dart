@@ -330,62 +330,6 @@ class BaseDecoration {
     ); 
   }
 
-  static Widget buildRowLocationReviewProfile(BuildContext context, bool isBuddy, String location, String rate, String reviews) {
-    return Row(
-      children: [
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(4, 3.3, 6, 3.3),
-              child: SizedBox(
-                width: 10.6,
-                height: 13.3,
-                child: SvgPicture.asset(
-                  'assets/icons/iconLocation.svg',
-                  color: isBuddy ? Theme.of(context).colorScheme.onSecondaryContainer : Theme.of(context).colorScheme.onTertiaryFixedVariant,
-                ),
-              ),
-            ),
-            Text(
-              location,
-              style: isBuddy ? ThemeTextStyle.titleSmallsSecondaryContainer(context) : ThemeTextStyle.titleSmallsTertiaryFixedVariant(context),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(10, 3.3, 3, 3.3),
-              child: SizedBox(
-                width: 10.6,
-                height: 13.3,
-                child: SvgPicture.asset(
-                  'assets/icons/star.svg',
-                  color: isBuddy ? Theme.of(context).colorScheme.onSecondaryContainer : Theme.of(context).colorScheme.onTertiaryFixedVariant,
-                ),
-              ),
-            ),
-            RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  color: isBuddy ? Theme.of(context).colorScheme.onSecondaryContainer : Theme.of(context).colorScheme.onTertiaryFixedVariant,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ),
-                children: [
-                  TextSpan(text: rate),
-                  TextSpan(
-                    text: ' ($reviews)', //TODO saque el opiniones porque seguia con overflow, se lo puede contener en un wrap quizas o dejarlo asis
-                    style: isBuddy ? ThemeTextStyle.titleSmallsSecondaryContainer(context) : ThemeTextStyle.titleSmallsTertiaryFixedVariant(context),
-                  ),
-              ]),
-            ),
-          ],
-        ),
-      ],
-    ); 
-  }
-
   static Row buildRowLocation(BuildContext context, String location) {
     return Row(
       children: [
