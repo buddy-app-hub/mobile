@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/elder.dart';
+import 'package:mobile/models/elder_profile.dart';
+import 'package:mobile/models/identity_card.dart';
 import 'package:mobile/models/loved_one.dart';
+import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/models/phone_number.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/api_service_base.dart';
+import 'package:mobile/services/elder_service.dart';
 import 'package:provider/provider.dart';
 
 class WantBuddyForLovedOnePage extends StatefulWidget {
@@ -39,44 +43,38 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
   TextEditingController elderGenderController = TextEditingController();
 
   Future<void> _submitForm() async {
+    final ElderService elderService = ElderService();
+
     if (formKey.currentState!.validate()) {
       Elder elder = Elder(
-          firebaseUID: authProvider.user!.uid,
+        firebaseUID: authProvider.user!.uid,
+        personalData: PersonalData(
           firstName: elderFirstNameController.text,
           lastName: elderLastNameController.text,
           gender: elderGenderController.text,
-          phoneNumber: PhoneNumber(
-              countryCode: phoneCountryCodeController.text,
-              number: phoneNumberController.text),
-          registrationDate: DateTime.now(),
-          registrationMethod:
-              'email', // TODO: ajustar cuando se agregue registro por Google
-          email: authProvider.user!.email!,
-          onLovedOneMode: true,
-          lovedOne: LovedOne(
-              firstName: firstNameController.text,
-              lastName: lastNameController.text,
-              phoneNumber: PhoneNumber(
-                  countryCode: phoneCountryCodeController.text,
-                  number: phoneNumberController.text),
-              email: authProvider.user!.email!,
-              relationshipToElder: relationshipToElderController.text));
+        ),
+        phoneNumber: PhoneNumber(
+            countryCode: phoneCountryCodeController.text,
+            number: phoneNumberController.text),
+        registrationDate: DateTime.now(),
+        registrationMethod:
+            'email', // TODO: ajustar cuando se agregue registro por Google
+        email: authProvider.user!.email!,
+        onLovedOneMode: true,
+        lovedOne: LovedOne(
+            firstName: firstNameController.text,
+            lastName: lastNameController.text,
+            phoneNumber: PhoneNumber(
+                countryCode: phoneCountryCodeController.text,
+                number: phoneNumberController.text),
+            email: authProvider.user!.email!,
+            relationshipToElder: relationshipToElderController.text),
+        elderProfile: ElderProfile(),
+        identityCard: IdentityCard(),
+      );
 
-      try {
-        await ApiService.post(
-          endpoint: "/elders",
-          body: elder.toJson(),
-        );
-
-        print("Datos enviados con éxito");
-
-        await authProvider
-            .fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
-
-        Navigator.pushNamed(context, Routes.home);
-      } catch (e) {
-        print("Error al enviar los datos: $e");
-      }
+      elderService.createElder(context, elder);
+      Navigator.pushNamed(context, Routes.splashScreen);
     } else {
       print("Formulario inválido");
     }

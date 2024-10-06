@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mobile/models/connection_preferences.dart';
 import 'interest.dart';
 import 'time_of_day.dart';
 
@@ -6,14 +7,20 @@ part 'elder_profile.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ElderProfile {
-  final String description;
-  final List<Interest> interests;
-  final List<TimeOfDay> availability;
+  String? description;
+  List<Interest>? interests;
+  List<TimeOfDay>? availability;
+  List<String>? photos;
+  double? globalRating; // Average rating of each of the meetings in which he participated (1 to 5)
+  ConnectionPreferences? connectionPreferences;
 
   ElderProfile({
-    required this.description,
-    required this.interests,
-    required this.availability,
+    this.description,
+    this.interests,
+    this.availability,
+    this.photos,
+    this.globalRating,
+    this.connectionPreferences,
   });
 
   factory ElderProfile.fromJson(Map<String, dynamic> json) => _$ElderProfileFromJson(json);

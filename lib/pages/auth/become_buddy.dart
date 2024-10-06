@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/bank_account.dart';
 import 'package:mobile/models/buddy.dart';
+import 'package:mobile/models/buddy_profile.dart';
+import 'package:mobile/models/identity_card.dart';
+import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/models/phone_number.dart';
+import 'package:mobile/models/student_details.dart';
+import 'package:mobile/models/worker_details.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
-import 'package:mobile/services/api_service_base.dart';
+import 'package:mobile/services/buddy_service.dart';
 import 'package:provider/provider.dart';
 
 class BecomeBuddyPage extends StatefulWidget {
@@ -30,35 +36,33 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
   TextEditingController phoneCountryCodeController = TextEditingController();
 
   Future<void> _submitForm() async {
+    final BuddyService buddyService = BuddyService();
+
     if (formKey.currentState!.validate()) {
       Buddy buddy = Buddy(
         firebaseUID: authProvider.user!.uid,
-        firstName: firstNameController.text,
-        lastName: lastNameController.text,
-        gender: genderController.text,
+        personalData: PersonalData(
+          firstName: firstNameController.text,
+          lastName: lastNameController.text,
+          gender: genderController.text,
+        ),
         phoneNumber: PhoneNumber(
             countryCode: phoneCountryCodeController.text,
-            number: phoneNumberController.text
-        ),
+            number: phoneNumberController.text),
         registrationDate: DateTime.now(),
-        registrationMethod: 'email', // TODO: ajustar cuando se agregue registro por Google
+        registrationMethod:
+            'email', // TODO: ajustar cuando se agregue registro por Google
         email: authProvider.user!.email!,
+        buddyProfile: BuddyProfile(
+          studentDetails: StudentDetails(),
+          workerDetails: WorkerDetails(),
+        ),
+        identityCard: IdentityCard(),
+        bankAccount: BankAccount(),
       );
 
-      try {
-        await ApiService.post(
-          endpoint: "/buddies",
-          body: buddy.toJson(),
-        );
-        print("Datos enviados con éxito");
-
-        await authProvider
-            .fetchUserData(); // Actualizamos los datos del usuario "manualmente", ya que no cambio en si el usuario de firebase
-
-        Navigator.pushNamed(context, Routes.home);
-      } catch (e) {
-        print("Error al enviar los datos: $e");
-      }
+      buddyService.createBuddy(context, buddy);
+      Navigator.pushNamed(context, Routes.splashScreen);
     } else {
       print("Formulario inválido");
     }

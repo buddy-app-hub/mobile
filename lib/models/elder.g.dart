@@ -15,27 +15,20 @@ Elder _$ElderFromJson(Map<String, dynamic> json) => Elder(
       lovedOne: json['lovedOne'] == null
           ? null
           : LovedOne.fromJson(json['lovedOne'] as Map<String, dynamic>),
-      firstName: json['firstName'] as String,
-      lastName: json['lastName'] as String,
-      age: (json['age'] as num?)?.toInt(),
-      gender: json['gender'] as String,
-      birthDate: json['birthDate'] == null
-          ? null
-          : DateTime.parse(json['birthDate'] as String),
-      nationality: json['nationality'] as String?,
-      maritalStatus: json['maritalStatus'] as String?,
+      personalData:
+          PersonalData.fromJson(json['personalData'] as Map<String, dynamic>),
       email: json['email'] as String,
       phoneNumber:
           PhoneNumber.fromJson(json['phoneNumber'] as Map<String, dynamic>),
       identityCard: json['identityCard'] == null
           ? null
           : IdentityCard.fromJson(json['identityCard'] as Map<String, dynamic>),
-      address: json['address'] == null
-          ? null
-          : Address.fromJson(json['address'] as Map<String, dynamic>),
       elderProfile: json['elderProfile'] == null
           ? null
           : ElderProfile.fromJson(json['elderProfile'] as Map<String, dynamic>),
+      recommendedBuddies: (json['recommendedBuddies'] as List<dynamic>?)
+          ?.map((e) => RecommendedBuddy.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$ElderToJson(Elder instance) => <String, dynamic>{
@@ -45,16 +38,11 @@ Map<String, dynamic> _$ElderToJson(Elder instance) => <String, dynamic>{
       'registrationDate': instance.registrationDate.toIso8601String(),
       'onLovedOneMode': instance.onLovedOneMode,
       'lovedOne': instance.lovedOne?.toJson(),
-      'firstName': instance.firstName,
-      'lastName': instance.lastName,
-      'age': instance.age,
-      'gender': instance.gender,
-      'birthDate': instance.birthDate?.toIso8601String(),
-      'nationality': instance.nationality,
-      'maritalStatus': instance.maritalStatus,
+      'personalData': instance.personalData.toJson(),
       'email': instance.email,
       'phoneNumber': instance.phoneNumber.toJson(),
       'identityCard': instance.identityCard?.toJson(),
-      'address': instance.address?.toJson(),
       'elderProfile': instance.elderProfile?.toJson(),
+      'recommendedBuddies':
+          instance.recommendedBuddies?.map((e) => e.toJson()).toList(),
     };

@@ -4,12 +4,12 @@ part 'bank_account.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class BankAccount {
-  final String bankAccountNumber;
-  final String bankName;
+  final String? bankAccountNumber;
+  final String? bankName;
 
   BankAccount({
-    required this.bankAccountNumber,
-    required this.bankName,
+    this.bankAccountNumber,
+    this.bankName,
   });
 
   factory BankAccount.fromJson(Map<String, dynamic> json) => _$BankAccountFromJson(json);

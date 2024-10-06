@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mobile/models/connection_preferences.dart';
 import 'student_details.dart';
 import 'worker_details.dart';
 import 'interest.dart';
@@ -9,19 +10,25 @@ part 'buddy_profile.g.dart';
 @JsonSerializable(explicitToJson: true)
 class BuddyProfile {
   final bool isOnPause;
-  final String description;
+  String? description;
   final StudentDetails? studentDetails;
   final WorkerDetails? workerDetails;
-  final List<Interest> interests;
-  final List<TimeOfDay> availability;
+  List<Interest>? interests;
+  List<TimeOfDay>? availability;
+  List<String>? photos;
+  double? globalRating; // Average rating of each of the meetings in which he participated (1 to 5)
+  ConnectionPreferences? connectionPreferences;
 
   BuddyProfile({
     this.isOnPause = false,
-    required this.description,
+    this.description,
     this.studentDetails,
     this.workerDetails,
-    required this.interests,
-    required this.availability,
+    this.interests,
+    this.availability,
+    this.photos,
+    this.globalRating,
+    this.connectionPreferences
   });
 
   factory BuddyProfile.fromJson(Map<String, dynamic> json) => _$BuddyProfileFromJson(json);

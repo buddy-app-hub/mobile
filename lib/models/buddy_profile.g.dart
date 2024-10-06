@@ -8,7 +8,7 @@ part of 'buddy_profile.dart';
 
 BuddyProfile _$BuddyProfileFromJson(Map<String, dynamic> json) => BuddyProfile(
       isOnPause: json['isOnPause'] as bool? ?? false,
-      description: json['description'] as String,
+      description: json['description'] as String?,
       studentDetails: json['studentDetails'] == null
           ? null
           : StudentDetails.fromJson(
@@ -17,12 +17,19 @@ BuddyProfile _$BuddyProfileFromJson(Map<String, dynamic> json) => BuddyProfile(
           ? null
           : WorkerDetails.fromJson(
               json['workerDetails'] as Map<String, dynamic>),
-      interests: (json['interests'] as List<dynamic>)
-          .map((e) => Interest.fromJson(e as Map<String, dynamic>))
+      interests: (json['interests'] as List<dynamic>?)
+          ?.map((e) => Interest.fromJson(e as Map<String, dynamic>))
           .toList(),
-      availability: (json['availability'] as List<dynamic>)
-          .map((e) => TimeOfDay.fromJson(e as Map<String, dynamic>))
+      availability: (json['availability'] as List<dynamic>?)
+          ?.map((e) => TimeOfDay.fromJson(e as Map<String, dynamic>))
           .toList(),
+      photos:
+          (json['photos'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      globalRating: (json['globalRating'] as num?)?.toDouble(),
+      connectionPreferences: json['connectionPreferences'] == null
+          ? null
+          : ConnectionPreferences.fromJson(
+              json['connectionPreferences'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$BuddyProfileToJson(BuddyProfile instance) =>
@@ -31,6 +38,9 @@ Map<String, dynamic> _$BuddyProfileToJson(BuddyProfile instance) =>
       'description': instance.description,
       'studentDetails': instance.studentDetails?.toJson(),
       'workerDetails': instance.workerDetails?.toJson(),
-      'interests': instance.interests.map((e) => e.toJson()).toList(),
-      'availability': instance.availability.map((e) => e.toJson()).toList(),
+      'interests': instance.interests?.map((e) => e.toJson()).toList(),
+      'availability': instance.availability?.map((e) => e.toJson()).toList(),
+      'photos': instance.photos,
+      'globalRating': instance.globalRating,
+      'connectionPreferences': instance.connectionPreferences?.toJson(),
     };
