@@ -245,4 +245,13 @@ class ThemeTextStyle {
       leadingDistribution: TextLeadingDistribution.even
     );
   }
+
+  static TextStyle titleInfoSmallOutline(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.outline,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      leadingDistribution: TextLeadingDistribution.even
+    );
+  }
 }
