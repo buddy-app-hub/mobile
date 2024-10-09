@@ -1,14 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile/services/api_service_base.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../models/user_data.dart';
 
 // Singleton: para manejar una sola instancia de FirebaseAuth.instance
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  var _verificationId = '';
 
   factory AuthService() {
     return _instance;
@@ -43,7 +40,7 @@ class AuthService {
   }
 
   Future<void> checkEmailVerified() async {
-    User? user = FirebaseAuth.instance.currentUser;
+    User? user = _auth.currentUser;
     
     await user?.reload();
 
@@ -55,7 +52,7 @@ class AuthService {
   }
 
   Future<void> sendEmailVerification() async {
-    User? user = FirebaseAuth.instance.currentUser;
+    User? user = _auth.currentUser;
 
     if (user != null && !user.emailVerified) {
       await user.sendEmailVerification();
@@ -63,39 +60,39 @@ class AuthService {
     }
   }
 
-  Future<void> verifyPhoneNumber(String phoneNumber) async {
-    try {
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await FirebaseAuth.instance.signInWithCredential(credential);
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          print('Verification failed: ${e.message}');
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          _verificationId = verificationId;
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          print('Code auto-retrieval timeout: $verificationId');
-        },
-      );
-    } catch (e) {
-      print('Error verifying phone number: $e');
-    }
+  Future<void> verifyPhoneNumber(String phoneNumber, 
+    void Function(PhoneAuthCredential) verificationCompleted, 
+    void Function(FirebaseAuthException) verificationFailed,
+    void Function(String, int?) codeSent,
+    void Function(String) codeAutoRetrievalTimeout,
+    ) async {
+
+    await _auth.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      verificationCompleted: verificationCompleted,
+      verificationFailed: verificationFailed,
+      codeSent: codeSent,
+      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+    ).onError((error, stackTrace) {
+        print(error);
+        print(stackTrace);
+    });
   }
 
-  Future<void> verifyCode(String smsCode) async {
-  try {
-    AuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: _verificationId,
-      smsCode: smsCode,
-    );
+  Future<void> verifyCode(String verificationId, String smsCode) async {
+    try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
 
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-
-      print('Verification successful: ${userCredential.user?.uid}');
+      await currentUser?.linkWithCredential(credential).then((userCredential) {
+        print('Usuario se registro con el número de teléfono: ${userCredential.user!.phoneNumber}');
+        print('Número de teléfono asociado con éxito.');
+      }).catchError((error) {
+        print('Error al asociar el número de teléfono: $error');
+      });
+      
     } catch (e) {
       print('Error verifying code: $e');
     }

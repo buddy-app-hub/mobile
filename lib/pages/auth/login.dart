@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:mobile/pages/auth/choose_user.dart';
+import 'package:mobile/pages/auth/phone_verification.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/auth/signup.dart';
 import 'package:mobile/routes.dart';
@@ -222,8 +225,30 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         if (credential != null && credential.emailVerified) {
-          print("Sesión iniciada con correo verificado.");
-          Navigator.pushNamed(context, Routes.splashScreen);
+          if (credential.phoneNumber != null) {
+            print("Sesión iniciada con correo verificado.");
+
+            if (authProvider.userData != null &&
+              authProvider.userData!.userWithPendingSignUp) {
+              print("Registro de usuario pendiente, falta la elección de tipo de usuario.");
+              String? countryCode = await extractCountryCode(credential.phoneNumber!);
+              print(countryCode);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChooseUserPage(countryCode: (countryCode == null) ? countryCode! : '', phone: credential.phoneNumber!,)),
+              );
+            } else {
+              Navigator.pushNamed(context, Routes.splashScreen);
+            }
+
+          } else {
+            print("Sesión iniciada con correo verificado, falta verificar el teléfono.");
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PhonePage()),
+            );
+          }
+          
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Por favor verifica tu correo antes de iniciar sesión.')),
@@ -231,12 +256,18 @@ class _LoginPageState extends State<LoginPage> {
           FirebaseAuth.instance.signOut();
         }
 
-        if (credential != null) Navigator.pushNamed(context, Routes.splashScreen);
+        // if (credential != null) Navigator.pushNamed(context, Routes.splashScreen);
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
           print('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No se encontro un usuario con ese mail.')),
+          );
+        } else if (e.code == 'wrong-password' || e.code == 'invalid-email') {
           print('Wrong password provided for that user.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Por favor verifica tu correo y/o contraseña.')),
+          );
         }
       }
     } else {
@@ -314,5 +345,16 @@ class _LoginPageState extends State<LoginPage> {
       buttonTextStyle: ThemeTextStyle.titleLargeGoogle(context),
     );
     
+  }
+
+  Future<String?> extractCountryCode(String phoneNumber) async {
+    try {
+      PhoneNumber number = await PhoneNumber.getRegionInfoFromPhoneNumber(phoneNumber);
+      String? countryCode = number.isoCode;
+      return countryCode;
+    } catch (e) {
+      print('Error al extraer el ISO del número de telefono: $e');
+      return null;
+    }
   }
 }

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/routes.dart';
+import 'package:mobile/pages/auth/become_buddy.dart';
+import 'package:mobile/pages/auth/want_buddy_loved_one.dart';
+import 'package:mobile/pages/auth/want_buddy_myself.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class ChooseUserPage extends StatefulWidget {
+  const ChooseUserPage({super.key, required this.countryCode, required this.phone});
+
+  final String phone;
+  final String countryCode;
   @override
   _ChooseUserPageState createState() => _ChooseUserPageState();
 }
@@ -73,11 +79,35 @@ class _ChooseUserPageState extends State<ChooseUserPage> {
 
   _chosenUser(context, PageController controller) {
     if (controller.page == 0) {
-      Navigator.pushNamed(context, Routes.wantBuddyForMyself);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WantBuddyForMyselfPage(
+            countryCode: widget.countryCode,
+            phone: widget.phone,
+          ),
+        ),
+      );
     } else if (controller.page == 1) {
-      Navigator.pushNamed(context, Routes.wantBuddyForLovedOne);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WantBuddyForLovedOnePage(
+            countryCode: widget.countryCode,
+            phone: widget.phone,
+          ),
+        ),
+      );
     } else if (controller.page == 2) {
-      Navigator.pushNamed(context, Routes.beBuddy);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BecomeBuddyPage(
+            countryCode: widget.countryCode,
+            phone: widget.phone,
+          ),
+        ),
+      );
     }
   }
 
