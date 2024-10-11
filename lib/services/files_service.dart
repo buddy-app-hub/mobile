@@ -132,7 +132,7 @@ class FilesService {
     }
   }
 
-  Future<List<String?>> getUserPhotos(String userId, BuildContext context) async {
+  Future<List<String?>> getCurrentUserPhotos(BuildContext context) async {
     List<String?> photoUrls = List.filled(6, null);
     final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
     List<String>? photos = authProvider.isBuddy
@@ -142,7 +142,7 @@ class FilesService {
     int i = 0;
     try {
       final storageRef =
-          await _firebaseStorage.ref().child('users/$userId/photos').listAll();
+          await _firebaseStorage.ref().child('users/${authProvider.user!.uid}/photos').listAll();
       for (var item in storageRef.items) {
         String downloadUrl = await item.getDownloadURL();
         // Me fijo en que posicion debe estar la foto e inserto la url en esta
@@ -152,15 +152,50 @@ class FilesService {
       }
     } catch (e) {
       if (e is FirebaseException && e.code != 'object-not-found') {
-        print('Error obteniendo fotos para el usuario $userId: $e');
+        print('Error obteniendo fotos para el usuario ${authProvider.user!.uid}: $e');
       }
     }
 
     if (i != photos!.length) {
-      print('IMPORTANTE: la cantidad de fotos en storage es $i pero en la base son ${photos.length}. Revisar users/$userId/photos');
+      print('IMPORTANTE: la cantidad de fotos en storage es $i pero en la base son ${photos.length}. Revisar users/${authProvider.user!.uid}/photos');
     }
 
     return photoUrls;
+  }
+
+  Future<List<String?>> getUserPhotos(String id, bool isBuddy, BuildContext context) async {
+    List<String?> photoUrls = List.filled(6, null);
+    List<String>? photos;
+    if (isBuddy){
+      BuddyService buddyService = BuddyService();
+      photos = (await buddyService.getBuddy(id)).buddyProfile!.photos;
+    } else {
+      ElderService elderService = ElderService();
+      photos = (await elderService.getElder(id)).elderProfile!.photos;
+    }
+
+    int i = 0;
+    try {
+      final storageRef =
+          await _firebaseStorage.ref().child('users/$id/photos').listAll();
+      for (var item in storageRef.items) {
+        String downloadUrl = await item.getDownloadURL();
+        // Me fijo en que posicion debe estar la foto e inserto la url en esta
+        int orderedIndex = photos!.indexOf(item.name);
+        photoUrls[orderedIndex] = downloadUrl;
+        i++;
+      }
+    } catch (e) {
+      if (e is FirebaseException && e.code != 'object-not-found') {
+        print('Error obteniendo fotos para el usuario $id: $e');
+      }
+    }
+
+    if (i != photos!.length) {
+      print('IMPORTANTE: la cantidad de fotos en storage es $i pero en la base son ${photos.length}. Revisar users/$id/photos');
+    }
+
+    return photoUrls.where((url) => url != null).toList();
   }
 
   Future<void> deletePhoto(

@@ -13,6 +13,8 @@ class Meeting {
   bool isRescheduled;
   String activity;
   DateTime dateLastModification;
+  int? elderRatingForBuddy; // Rating that Elder made to Buddy
+  int? buddyRatingForElder; // Rating that Buddy made to Elder
 
   @JsonKey(name: 'location')
   MeetingLocation location;
@@ -26,8 +28,11 @@ class Meeting {
     this.isRescheduled = false,
     required this.activity,
     required this.dateLastModification,
+    this.elderRatingForBuddy,
+    this.buddyRatingForElder,
   });
 
-  factory Meeting.fromJson(Map<String, dynamic> json) => _$MeetingFromJson(json);
+  factory Meeting.fromJson(Map<String, dynamic> json) =>
+      _$MeetingFromJson(json);
   Map<String, dynamic> toJson() => _$MeetingToJson(this);
 }

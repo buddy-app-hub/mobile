@@ -104,5 +104,6 @@ DateTime formatTimeOfDayToDate(custom_time.TimeOfDay timeOfDay) {
 TimeOfDay formatIntToTime(int time) {
   int hour = time ~/ 100;
   int minute = time % 100;
+
   return TimeOfDay(hour: hour, minute: minute);
 }

@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/models/personal_data.dart';
+import 'package:mobile/models/recommended_buddy.dart';
 import 'phone_number.dart';
 import 'identity_card.dart';
 import 'elder_profile.dart';
@@ -20,6 +21,7 @@ class Elder {
   final PhoneNumber phoneNumber;
   final IdentityCard? identityCard;
   final ElderProfile? elderProfile;
+  final List<RecommendedBuddy>? recommendedBuddies;
 
   Elder({
     required this.firebaseUID,
@@ -33,6 +35,7 @@ class Elder {
     required this.phoneNumber,
     this.identityCard,
     this.elderProfile,
+    this.recommendedBuddies,
   });
 
   factory Elder.fromJson(Map<String, dynamic> json) => _$ElderFromJson(json);

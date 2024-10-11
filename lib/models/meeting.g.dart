@@ -17,6 +17,8 @@ Meeting _$MeetingFromJson(Map<String, dynamic> json) => Meeting(
       activity: json['activity'] as String,
       dateLastModification:
           DateTime.parse(json['dateLastModification'] as String),
+      elderRatingForBuddy: (json['elderRatingForBuddy'] as num?)?.toInt(),
+      buddyRatingForElder: (json['buddyRatingForElder'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
@@ -27,5 +29,7 @@ Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
       'isRescheduled': instance.isRescheduled,
       'activity': instance.activity,
       'dateLastModification': instance.dateLastModification.toIso8601String(),
+      'elderRatingForBuddy': instance.elderRatingForBuddy,
+      'buddyRatingForElder': instance.buddyRatingForElder,
       'location': instance.location.toJson(),
     };
