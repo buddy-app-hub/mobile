@@ -9,6 +9,7 @@ import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class NewRecommendedBuddy extends StatefulWidget {
   @override
@@ -84,7 +85,6 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
       currentBuddyIndex += 1;
     });
 
-
     if (recommendedBuddies!.length < currentBuddyIndex + 1) {
       print("No mas buddies");
       return;
@@ -131,7 +131,6 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                 context,
               )),
           SizedBox(height: 20),
-
           AnimatedSwitcher(
             duration: Duration(milliseconds: 1000),
             transitionBuilder: (Widget child, Animation<double> animation) {
@@ -141,43 +140,22 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
               );
             },
             child: Column(
-              key: ValueKey<int>(
-                  currentBuddyIndex),
+              key: ValueKey<int>(currentBuddyIndex),
               children: [
                 CarouselSlider(
                   items: _photoUrls.map((url) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(15),
                       child: url != null
-                          ? Image.network(
-                              url,
+                          ? CachedNetworkImage(
+                              imageUrl: url,
                               fit: BoxFit.cover,
                               width: MediaQuery.of(context).size.width,
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) {
-                                  return child;
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value:
-                                          loadingProgress.expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  (loadingProgress
-                                                          .expectedTotalBytes ??
-                                                      1)
-                                              : null,
-                                    ),
-                                  );
-                                }
-                              },
-                              errorBuilder: (BuildContext context,
-                                  Object exception, StackTrace? stackTrace) {
-                                return Icon(Icons.error);
-                              },
+                              placeholder: (context, url) => Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
                             )
                           : null,
                     );
