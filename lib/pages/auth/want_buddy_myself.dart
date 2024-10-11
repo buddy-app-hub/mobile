@@ -4,14 +4,40 @@ import 'package:mobile/models/identity_card.dart';
 import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/routes.dart';
-import 'package:mobile/services/api_service_base.dart';
 import 'package:mobile/services/elder_service.dart';
+import 'package:mobile/theme/theme_text_style.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/phone_number.dart';
 
+List<DropdownMenuItem<String>>? items = [
+  DropdownMenuItem(
+    value: 'Masculino',
+    child: Text('Masculino'),
+  ),
+  DropdownMenuItem(
+    value: 'Femenino',
+    child: Text('Femenino'),
+  ),
+  DropdownMenuItem(
+    value: 'No binario',
+    child: Text('No binario'),
+  ),
+  DropdownMenuItem(
+    value: 'Otro',
+    child: Text('Otro'),
+  ),
+  DropdownMenuItem(
+    value: 'Prefiero no decir',
+    child: Text('Prefiero no decir'),
+  ),
+];
+
 class WantBuddyForMyselfPage extends StatefulWidget {
-  const WantBuddyForMyselfPage({super.key});
+  const WantBuddyForMyselfPage({super.key, required this.countryCode, required this.phone});
+
+  final String phone;
+  final String countryCode;
 
   @override
   State<WantBuddyForMyselfPage> createState() => _WantBuddyForMyselfPageState();
@@ -30,8 +56,8 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController genderController = TextEditingController();
-  TextEditingController phoneNumberController = TextEditingController();
-  TextEditingController phoneCountryCodeController = TextEditingController();
+  // TextEditingController phoneNumberController = TextEditingController();
+  // TextEditingController phoneCountryCodeController = TextEditingController();
 
   Future<void> _submitForm() async {
     final ElderService elderService = ElderService();
@@ -45,8 +71,8 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
           gender: genderController.text,
         ),
         phoneNumber: PhoneNumber(
-            countryCode: phoneCountryCodeController.text,
-            number: phoneNumberController.text),
+            countryCode: widget.countryCode,
+            number: widget.phone),
         registrationDate: DateTime.now(),
         registrationMethod:
             'email', // TODO: ajustar cuando se agregue registro por Google
@@ -55,10 +81,8 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
         elderProfile: ElderProfile(),
         identityCard: IdentityCard(),
       );
-
-        elderService.createElder(context, elder);
-        Navigator.pushNamed(context, Routes.splashScreen);
-      
+      elderService.createElder(context, elder);
+      Navigator.pushNamed(context, Routes.splashScreen);
     } else {
       print("Formulario inválido");
     }
@@ -70,129 +94,162 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiero un buddy para mi'),
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.fromLTRB(20, 10, 20, 40),
         child: Form(
           key: formKey,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
-                  controller: firstNameController,
-                  decoration: InputDecoration(
-                    hintText: "Nombre",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu nombre';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: lastNameController,
-                  decoration: InputDecoration(
-                    hintText: "Apellido",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu apellido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: genderController,
-                  decoration: InputDecoration(
-                    hintText: "Género",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu género';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: phoneCountryCodeController,
-                  decoration: InputDecoration(
-                    hintText: "Prefijo Teléfono",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá el prefijo del país de tu teléfono';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: phoneNumberController,
-                  decoration: InputDecoration(
-                    hintText: "Nro Teléfono",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                    filled: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresá tu número de teléfono';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    backgroundColor: theme.colorScheme.primary,
-                  ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(8, 0, 28, 20),
                   child: Text(
-                    "Listo",
-                    style: TextStyle(
-                        color: theme.colorScheme.onPrimary, fontSize: 20),
+                    'Quiero un buddy para mi',
+                    style: TextStyle(fontSize: 24),
+                    textAlign: TextAlign.left,
                   ),
                 ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(8, 0, 8, 18),
+                  child: Text(
+                    'Complete todos los datos antes de continuar.',
+                    style: ThemeTextStyle.titleInfoSmallOutline(context),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(5, 0, 5, 18),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: firstNameController,
+                        decoration: InputDecoration(
+                          hintText: "Nombre",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                          filled: true,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Ingresá tu nombre';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: lastNameController,
+                        decoration: InputDecoration(
+                          hintText: "Apellido",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                          filled: true,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Ingresá tu apellido';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        onChanged: (value) {
+                          setState(() {
+                            genderController.text = value!;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Ingresá tu género';
+                          }
+                          return null;
+                        },
+                        items: items,
+                        decoration: InputDecoration(
+                          hintText: "Género",
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                          filled: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // const SizedBox(height: 16),
+                // TextFormField(
+                //   controller: phoneCountryCodeController,
+                //   decoration: InputDecoration(
+                //     hintText: "Prefijo Teléfono",
+                //     border: OutlineInputBorder(
+                //       borderRadius: BorderRadius.circular(18),
+                //       borderSide: BorderSide.none,
+                //     ),
+                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                //     filled: true,
+                //   ),
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Ingresá el prefijo del país de tu teléfono';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                // const SizedBox(height: 16),
+                // TextFormField(
+                //   controller: phoneNumberController,
+                //   decoration: InputDecoration(
+                //     hintText: "Nro Teléfono",
+                //     border: OutlineInputBorder(
+                //       borderRadius: BorderRadius.circular(18),
+                //       borderSide: BorderSide.none,
+                //     ),
+                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                //     filled: true,
+                //   ),
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Ingresá tu número de teléfono';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                const SizedBox(height: 20),
+                
               ],
             ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.fromLTRB(28, 20, 28, 40),
+        child: ElevatedButton(
+          onPressed: _submitForm,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            backgroundColor: theme.colorScheme.primary,
+          ),
+          child: Text(
+            "Listo",
+            style: TextStyle(
+                color: theme.colorScheme.onPrimary, fontSize: 20),
           ),
         ),
       ),

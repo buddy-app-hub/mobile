@@ -236,4 +236,22 @@ class ThemeTextStyle {
       fontWeight: FontWeight.w400,
     );
   }
+
+  static TextStyle titleSmallOutline(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.outline,
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
+      leadingDistribution: TextLeadingDistribution.even
+    );
+  }
+
+  static TextStyle titleInfoSmallOutline(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.outline,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      leadingDistribution: TextLeadingDistribution.even
+    );
+  }
 }
