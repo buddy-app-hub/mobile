@@ -5,7 +5,7 @@ import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_photos.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
-import 'package:mobile/pages/profile/settings.dart';
+import 'package:mobile/pages/profile/edit_profile/settings.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
