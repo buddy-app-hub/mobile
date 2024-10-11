@@ -117,7 +117,7 @@ class _VerifyPhoneCodePageState extends State<VerifyPhoneCodePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        // backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
         child: Padding(

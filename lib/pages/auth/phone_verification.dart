@@ -65,7 +65,7 @@ class _PhonePageState extends State<PhonePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        // backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
         child: Padding(
