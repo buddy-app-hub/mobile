@@ -56,6 +56,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     }
 
     setState(() {
+      print("Cargando fotos");
       _photosLoading = true;
     });
 
@@ -67,6 +68,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
       setState(() {
         _photoUrls = urls;
         _photosLoading = false;
+        print("Fotos cargadas");
       });
     } catch (e) {
       setState(() {
@@ -78,10 +80,13 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
 
   void _changeToNextBuddy() async {
     setState(() {
+      print("Cambiando a siguiente buddy");
       currentBuddyIndex += 1;
     });
 
-    if (recommendedBuddies!.length > currentBuddyIndex + 1) {
+
+    if (recommendedBuddies!.length < currentBuddyIndex + 1) {
+      print("No mas buddies");
       return;
     }
     _loadUserPhotos();
