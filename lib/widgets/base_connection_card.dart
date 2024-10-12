@@ -15,7 +15,6 @@ Future<List<Widget>> fetchConnectionsAsFuture(UserData userData) async {
 
 Stream<Widget> fetchConnections(UserData userData) async* {
   List<Connection> connections = await userHelper.fetchConnections(userData);
-
   for (var connection in connections) {
     yield await buildConnectionCards(connection, userData);
   }

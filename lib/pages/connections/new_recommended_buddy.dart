@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/recommended_buddy.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/connections/meetings/onboard_new_connection.dart';
 import 'package:mobile/pages/profile/profile_widgets.dart';
 import 'package:mobile/services/buddy_service.dart';
+import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
@@ -17,6 +20,8 @@ class NewRecommendedBuddy extends StatefulWidget {
 }
 
 class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
+  ConnectionService connectionService = ConnectionService();
+
   List<RecommendedBuddy>? recommendedBuddies;
   int currentBuddyIndex = 0;
   late AuthSessionProvider authProvider;
@@ -92,6 +97,26 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     _loadUserPhotos();
   }
 
+  void _createConnection(BuildContext context) async {
+    Connection newConnection = Connection(
+      elderID: authProvider.user!.uid,
+      buddyID: recommendedBuddies![currentBuddyIndex].buddy!.firebaseUID,
+      meetings: List.empty(),
+      creationDate: DateTime.now(),
+    );
+    print("Creando la conexión...");
+    print(newConnection);
+
+    await connectionService.createConnection(context, newConnection);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              OnboardNewConnectionPage(connection: newConnection, buddy: recommendedBuddies![currentBuddyIndex].buddy!)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -107,7 +132,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
       return Center(
         child: Text(
           'No hay buddies recomendados disponibles en este momento.\n\nIntentá más tarde !',
-          textAlign: TextAlign.center, // Centra cada línea de texto
+          textAlign: TextAlign.center,
           style: ThemeTextStyle.titleMediumOnPrimaryContainer(
             context,
           ),
@@ -218,7 +243,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                           SizedBox(width: 20),
                           ElevatedButton(
                             onPressed: () {
-                              // TODO: abrir modal para gestionar primer encuentro
+                              _createConnection(context);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.colorScheme.primary,
