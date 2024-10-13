@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
-import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:path/path.dart' as path;
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
 class FilesService {
@@ -132,6 +130,83 @@ class FilesService {
     }
   }
 
+  Future<void> uploadUserDocuments({
+    required String userId,
+    required Map<String, File?> images,
+    required BuildContext context,
+    List<int>? swapFromTo, 
+    required Function(String, double) onProgress,
+    required Function onComplete,
+    required Function(String) onError,
+  }) async {
+    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+
+    try {
+      for (String imageName in images.keys) {
+        if (images[imageName] != null) {
+          final imageFile = images[imageName]!; // Get the image file
+          final String fileExtension = path.extension(imageFile.path);
+          final String filePath =
+              'users/$userId/identity/$imageName$fileExtension';
+          final storageRef = _firebaseStorage.ref().child(filePath);
+
+          final uploadTask = storageRef.putFile(
+            imageFile,
+            SettableMetadata(
+                contentType: 'image/${fileExtension.replaceAll('.', '')}'),
+          );
+
+          uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+            double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+            onProgress(imageName, progress); // Use imageName for progress tracking
+          });
+
+          await uploadTask;
+        }
+      }
+      onComplete();
+
+    } catch (e) {
+      onError(e.toString());
+      print('Error al subir fotos de usuario: $e');
+    }
+  }
+  
+  Future<Map<String, String?>> getCurrentUserDocuments(BuildContext context) async {
+    Map<String, String?> photoUrls =  {
+      'front_id' : null,
+      'back_id' : null,
+      'selfie' : null,
+    };
+    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+
+    int i = 0;
+    try {
+      final storageRef = await _firebaseStorage
+        .ref()
+        .child('users/${authProvider.user!.uid}/identity')
+        .listAll();
+
+      for (var item in storageRef.items) {
+        String downloadUrl = await item.getDownloadURL();
+
+        if (item.name.contains('front')) {
+          photoUrls['front_id'] = downloadUrl;
+        } else if (item.name.contains('back')) {
+          photoUrls['back_id'] = downloadUrl;
+        } else if (item.name.contains('selfie')) {
+          photoUrls['selfie'] = downloadUrl;
+        }
+      }
+
+    } catch (e) {
+      if (e is FirebaseException && e.code != 'object-not-found') {
+        print('Error obteniendo fotos del documento para el usuario ${authProvider.user!.uid}: $e');
+      }
+    }
+    return photoUrls;
+  }
+
   Future<List<String?>> getCurrentUserPhotos(BuildContext context) async {
     List<String?> photoUrls = List.filled(6, null);
     final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
@@ -220,6 +295,21 @@ class FilesService {
     try {
       final storageRef =
           _firebaseStorage.ref().child('users/$userId/photos/$photoRemoved');
+      await storageRef.delete();
+    } catch (e) {
+      if (e is FirebaseException && e.code != 'object-not-found') {
+        print('Error eliminando foto para el usuario $userId: $e');
+      }
+    }
+
+    return;
+  }
+
+  Future<void> deleteDocumentPhoto(
+      String userId, BuildContext context, String indexPhotoToDelete) async {
+    try {
+      final storageRef =
+          _firebaseStorage.ref().child('users/$userId/photos/$indexPhotoToDelete.jpg');
       await storageRef.delete();
     } catch (e) {
       if (e is FirebaseException && e.code != 'object-not-found') {
