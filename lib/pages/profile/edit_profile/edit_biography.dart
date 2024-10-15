@@ -49,9 +49,9 @@ class _EditBiographyPageState extends State<EditBiographyPage> {
                 elderService.updateElderProfileDescription(context, updatedDescription);
               }
               Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-      );
+                context,
+                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
+              );
             },
           ),
         ],

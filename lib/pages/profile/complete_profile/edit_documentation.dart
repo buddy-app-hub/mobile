@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/navigation.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:mobile/services/files_service.dart';
@@ -117,9 +118,8 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
                 leading: Icon(Icons.delete),
                 title: Text('Eliminar'),
                 onTap: () async {
-                  Navigator.pop(context); // Cerramos el modal primero
+                  Navigator.pop(context); 
 
-                  // Si elimino una foto recien subida, la descarto
                   if (_newPhotos[index] != null) {
                     setState(() {
                       _newPhotos[index] = null;
@@ -204,7 +204,10 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
 
   Future<void> sendDocument() async {
     await _uploadDocumentsPhotos(null);
-    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Navigation(index: 2)),
+    );
   }
 
 
@@ -445,7 +448,7 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
                   }
                 },
                 child: AspectRatio(
-                  aspectRatio: 1, // Ensure the widget remains a square
+                  aspectRatio: 1,
                   child: Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.outlineVariant,
