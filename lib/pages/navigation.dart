@@ -8,14 +8,21 @@ import 'package:mobile/widgets/base_decoration.dart';
 import 'package:provider/provider.dart';
 
 class Navigation extends StatefulWidget {
-  const Navigation({super.key});
+  const Navigation({super.key, required this.index,});
 
+  final int index;
   @override
   State<Navigation> createState() => _NavigationState();
 }
 
 class _NavigationState extends State<Navigation> {
-  int _selectedIndex = 0;
+  int _selectedIndex =  0;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex =  widget.index;
+  }
 
   static List<Widget> _widgetOptions = <Widget>[
     HomePage(),

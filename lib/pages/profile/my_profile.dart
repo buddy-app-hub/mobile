@@ -59,7 +59,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
         isProfileImageUploaded = _profileImageUrl != null;
         _loadProfileCompletion();
       });
-      print('Profile image loaded, is uploaded: ${_profileImageUrl != null}');
     } catch (e) {
       setState(() {
         isProfileImageUploaded = false;
@@ -71,7 +70,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
   void _loadProfileCompletion() {
     profileCompletionCards.clear();
-    print('Profile image uploaded: $isProfileImageUploaded');
     
     if (isBuddy!) {
       profileCompletionCards.add(ProfileCompletionCard(

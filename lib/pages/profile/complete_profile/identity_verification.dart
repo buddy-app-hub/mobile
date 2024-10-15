@@ -68,7 +68,7 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
                             child: ListTile(
                               leading: Icon(tile.icon),
                               title: Text(tile.title),
-                              enabled: false,
+                              // enabled: false,
                               onTap: () => _handleTileTap(context, tile.title),
                               trailing: const Icon(Icons.chevron_right),
                             ),
@@ -117,7 +117,7 @@ class _IdentityVerificationPageState extends State<IdentityVerificationPage> {
       case 'Cargar documento de identidad':
         targetPage = EditDocumentationPage();
       case 'Cargar prueba de vida':
-        // targetPage = EditBiographyPage(isEdit: true,);
+        targetPage = EditDocumentationPage();
     }
 
     if (targetPage != null) {
