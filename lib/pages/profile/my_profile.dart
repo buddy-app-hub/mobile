@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_availability.dart';
@@ -100,7 +101,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   CircleAvatar(
                     radius: 60,
                     backgroundImage: _profileImageUrl != null
-                        ? NetworkImage(_profileImageUrl!)
+                        ? CachedNetworkImageProvider(
+                            _profileImageUrl!,
+                          )
                         : AssetImage('assets/images/default_user.jpg')
                             as ImageProvider,
                   ),

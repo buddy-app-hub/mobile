@@ -30,27 +30,29 @@ class _EditAddressPageState extends State<EditAddressPage> {
     super.initState();
     authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
 
-    Address existingAddress = authProvider.isBuddy
-          ? authProvider.userData!.buddy!.personalData.address!
-          : authProvider.userData!.elder!.personalData.address!;
+    Address? existingAddress = authProvider.isBuddy
+          ? authProvider.userData!.buddy!.personalData.address
+          : authProvider.userData!.elder!.personalData.address;
+
+    Address address = existingAddress ?? Address(streetName: "", apartmentNumber: "", city: "", state: "", postalCode: "", country: "Argentina");
 
     streetNameController = TextEditingController(
-      text: existingAddress.streetName,
+      text: address.streetName,
     );
     streetNumberController = TextEditingController(
-      text: existingAddress.streetNumber.toString(),      
+      text: address.streetNumber != null ? address.streetNumber.toString() : ""
     );
     apartmentNumberController = TextEditingController(
-        text: existingAddress.apartmentNumber,
+        text: address.apartmentNumber,
     );
     cityController = TextEditingController(
-        text: existingAddress.city,
+        text: address.city,
     );
     stateController = TextEditingController(
-        text: existingAddress.state,
+        text: address.state,
     );
     postalCodeController = TextEditingController(
-        text: existingAddress.postalCode,
+        text: address.postalCode,
     );
   }
 
