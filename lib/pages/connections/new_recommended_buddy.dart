@@ -107,7 +107,13 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     print("Creando la conexión...");
     print(newConnection);
 
-    await connectionService.createConnection(context, newConnection);
+    try {
+      await connectionService.createConnection(context, newConnection);
+      print("Conexión enviada con éxito");
+    } catch (e) {
+      print("Error al crear la conexión: $e");
+      return;
+    }
 
     Navigator.push(
       context,
