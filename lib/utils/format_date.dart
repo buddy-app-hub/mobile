@@ -73,3 +73,21 @@ String formatDateChat(DateTime date) {
     return '${messageDate.day} de ${months[messageDate.month - 1]} de ${messageDate.year}';
   }
 }
+
+String formatDateWallet(DateTime date) {
+  final todayDate = DateTime.now();
+  final today = DateTime(todayDate.year, todayDate.month, todayDate.day);
+  final messageDate = DateTime(date.year, date.month, date.day);
+  final difference = today.difference(messageDate);
+  if (today.isAtSameMomentAs(messageDate)) {
+    return 'Hoy';
+  } else if (difference.inDays == 1) {
+    return 'Ayer';
+  } else if ((difference.inDays > 1) && (difference.inDays < 7)) {
+    return weekdays[messageDate.weekday - 1];
+  } else if (today.year == messageDate.year) {
+    return '${messageDate.day} ${months[messageDate.month - 1]}';
+  } else {
+    return '${messageDate.day} ${months[messageDate.month - 1]} ${messageDate.year}';
+  }
+}

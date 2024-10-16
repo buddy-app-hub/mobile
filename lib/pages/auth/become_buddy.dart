@@ -56,6 +56,7 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
         buddyProfile: BuddyProfile(
           studentDetails: StudentDetails(),
           workerDetails: WorkerDetails(),
+          photos: List.empty(),
         ),
         identityCard: IdentityCard(),
         bankAccount: BankAccount(),
