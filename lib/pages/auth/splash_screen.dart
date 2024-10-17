@@ -10,7 +10,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthSessionProvider>(builder: (context, authProvider, _) {
       if (authProvider.isAuthenticated) {
-        return Navigation();
+        return Navigation(index: 0,);
       }
       if (authProvider.userData != null &&
           authProvider.userData!.userWithPendingSignUp) {
