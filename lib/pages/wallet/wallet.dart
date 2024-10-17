@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/price.dart';
 import 'package:mobile/models/transaction.dart';
 import 'package:mobile/models/wallet.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/services/wallet_service.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/price_helper.dart';
 import 'package:mobile/widgets/base_elevated_button.dart';
+import 'package:provider/provider.dart';
 
 class WalletPage extends StatefulWidget {
-  // String walletId;
-
-  // WalletPage({required this.walletId});
-
   @override
   State<WalletPage> createState() => _WalletPageState();
 }
@@ -31,8 +29,12 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   Future<void> _fetchWallet() async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
     final Wallet wallet =
-        await walletService.getWallet("6709a8704cd011ded7ae275b");
+        await walletService.getWallet(authProvider.userData!.buddy!.walletId!);
+
     if (wallet != null) {
       wallet.transactions.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       setState(() {
