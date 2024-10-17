@@ -3,6 +3,8 @@ import 'package:mobile/models/buddy.dart';
 import 'package:mobile/models/buddy_profile.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/interest.dart';
+import 'package:mobile/models/personal_data.dart';
+import 'package:mobile/models/recommended_buddy.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
@@ -129,5 +131,35 @@ class BuddyService {
         .toList();
 
     return connections;
+  }
+
+  Future<List<RecommendedBuddy>> getRecommendedBuddies(UserData userData) async {
+    var response = await ApiService.get<dynamic>(
+      endpoint: "/elders/${userData.elder?.firebaseUID}/buddies/recommended",
+    );
+
+    List<RecommendedBuddy> recommendedBuddies = (response as List<dynamic>)
+        .map((e) => RecommendedBuddy.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    return recommendedBuddies;
+  }
+
+  void updateBuddyPersonalData(BuildContext context, PersonalData personalData) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    try {
+      await ApiService.patch(
+        endpoint: "/buddies/${authProvider.user!.uid}/personaldata",
+        body: personalData.toJson(),
+      );
+      print("Personal data actualizada con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar la personal data: $e");
+    }
+  
   }
 }

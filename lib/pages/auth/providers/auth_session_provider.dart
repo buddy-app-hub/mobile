@@ -47,6 +47,22 @@ class AuthSessionProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> sendCode({
+    required String phone,
+    required Function(PhoneAuthCredential) verificationCompleted, 
+    required Function(FirebaseAuthException) verificationFailed,
+    required Function(String, int?) codeSent,
+    required  Function(String) codeAutoRetrievalTimeout,}) async {
+      
+    await _authService.verifyPhoneNumber(phone, verificationCompleted, verificationFailed, codeSent, codeAutoRetrievalTimeout);
+    notifyListeners();
+  }
+
+  Future<void> verifyCode(String verificationId, String smsCode) async {
+    await _authService.verifyCode(verificationId, smsCode);
+    notifyListeners();
+  }
+
   Future<void> fetchUserData() async {
     _userData = await _authService.fetchUserData();
     notifyListeners();

@@ -1,4 +1,5 @@
 import 'package:mobile/models/connection.dart';
+import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
@@ -59,6 +60,13 @@ class UserHelper {
       ? (await elderService.getElder(personID)).personalData
       : (await buddyService.getBuddy(personID)).personalData;
     return '${personalData.firstName} ${personalData.lastName}';
+  }
+
+  Future<List<custom_time.TimeOfDay>?> fetchProfileAvailability(String personID, bool isBuddy) async {
+    var personalData = isBuddy
+      ? (await elderService.getElder(personID)).elderProfile?.availability
+      : (await buddyService.getBuddy(personID)).buddyProfile?.availability;
+    return personalData;
   }
 
   Future<String> fetchSenderName(String senderID, UserData userData) async {

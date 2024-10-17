@@ -77,6 +77,29 @@ class ThemeButtonStyle {
     );
   }
 
+  static ButtonStyle primaryRoundedButtonStyle(BuildContext context) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      disabledBackgroundColor: Theme.of(context).colorScheme.primaryFixedDim,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(100),
+      ),
+      shadowColor: Theme.of(context).colorScheme.shadow,
+      elevation: 1,
+    );
+  }
+
+  static ButtonStyle disabledRoundedButtonStyle(BuildContext context) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(100),
+      ),
+      shadowColor: Theme.of(context).colorScheme.shadow,
+      elevation: 1,
+    );
+  }
+
   static ButtonStyle get none => ButtonStyle(
     backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
     elevation: MaterialStateProperty.all<double>(0),

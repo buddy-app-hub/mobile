@@ -27,15 +27,12 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
   }
 
   Future<void> _loadUserPhotos() async {
-    final authProvider =
-        Provider.of<AuthSessionProvider>(context, listen: false);
-
     setState(() {
       _isLoading = true;
     });
     try {
       final List<String?> urls =
-          await _filesService.getUserPhotos(authProvider.user!.uid, context);
+          await _filesService.getCurrentUserPhotos(context);
       setState(() {
         _storedPhotoUrls = urls;
         _isLoading = false;

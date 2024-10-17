@@ -7,7 +7,8 @@ part of 'meeting.dart';
 // **************************************************************************
 
 Meeting _$MeetingFromJson(Map<String, dynamic> json) => Meeting(
-      date: TimeOfDay.fromJson(json['date'] as Map<String, dynamic>),
+      schedule:
+          MeetingSchedule.fromJson(json['schedule'] as Map<String, dynamic>),
       location:
           MeetingLocation.fromJson(json['location'] as Map<String, dynamic>),
       isCancelled: json['isCancelled'] as bool? ?? false,
@@ -17,15 +18,25 @@ Meeting _$MeetingFromJson(Map<String, dynamic> json) => Meeting(
       activity: json['activity'] as String,
       dateLastModification:
           DateTime.parse(json['dateLastModification'] as String),
+      elderRatingForBuddy: json['elderRatingForBuddy'] == null
+          ? null
+          : Review.fromJson(
+              json['elderRatingForBuddy'] as Map<String, dynamic>),
+      buddyRatingForElder: json['buddyRatingForElder'] == null
+          ? null
+          : Review.fromJson(
+              json['buddyRatingForElder'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
-      'date': instance.date.toJson(),
       'isCancelled': instance.isCancelled,
       'isConfirmedByBuddy': instance.isConfirmedByBuddy,
       'isConfirmedByElder': instance.isConfirmedByElder,
       'isRescheduled': instance.isRescheduled,
       'activity': instance.activity,
       'dateLastModification': instance.dateLastModification.toIso8601String(),
+      'elderRatingForBuddy': instance.elderRatingForBuddy?.toJson(),
+      'buddyRatingForElder': instance.buddyRatingForElder?.toJson(),
       'location': instance.location.toJson(),
+      'schedule': instance.schedule.toJson(),
     };

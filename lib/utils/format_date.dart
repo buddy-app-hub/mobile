@@ -8,7 +8,7 @@ List<String> months = [
 ];
 
 List<String> weekdays = [
-  'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
+  'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo' //fix acentos los trae raros
 ];
 
 String formattedDate() {
@@ -18,6 +18,18 @@ String formattedDate() {
   String weekday = weekdays[now.weekday - 1];
   String month = months[now.month - 1];
   return '$weekday $day de $month';
+}
+
+String formatMeetingDate(DateTime date) {
+  return '${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}';
+}
+
+String formatMeetingDateShort(DateTime date) {
+  return 'Próximo ${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]}';
+}
+
+String formatDayOfWeek(int weekday) {
+  return weekdays[weekday - 1];
 }
 
 int timeToInt(TimeOfDay time) {
@@ -54,7 +66,7 @@ String getTimeFromTimestamp(Timestamp timestamp) {
   } else if ((difference.inDays > 1) && (difference.inDays < 7)) {
     return weekdays[messageDate.weekday - 1];
   } else {
-    return '${messageDate.day}/${months[messageDate.month - 1]}/${messageDate.year}';
+    return '${messageDate.day}/${messageDate.month}/${messageDate.year}';
   }
 }
 
@@ -90,4 +102,11 @@ String formatDateWallet(DateTime date) {
   } else {
     return '${messageDate.day} ${months[messageDate.month - 1]} ${messageDate.year}';
   }
+}
+
+TimeOfDay formatIntToTime(int time) {
+  int hour = time ~/ 100;
+  int minute = time % 100;
+
+  return TimeOfDay(hour: hour, minute: minute);
 }

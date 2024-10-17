@@ -5,14 +5,14 @@ part 'connection.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Connection {
-  final String id;
+  final String? id;
   final String elderID;
   final String buddyID;
   final DateTime creationDate;
-  final List<Meeting> meetings;
+  List<Meeting> meetings;
 
   Connection({
-    required this.id,
+    this.id,
     required this.elderID,
     required this.buddyID,
     required this.creationDate,

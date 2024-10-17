@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/profile/settings/edit_address.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 import 'package:provider/provider.dart';
@@ -93,6 +94,13 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           _buildSettingsRow(
               context, 'Mis datos personales', true, Icons.person, () => {}),
+          _buildSettingsRow(
+              context, 'Mi domicilio', true, Icons.location_on, () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditAddressPage()),
+                )
+              }),
           _buildSettingsRow(
               context, 'Cambiar contraseña', true, Icons.lock, () => {}),
           _buildSettingsRow(context, 'Supervisión familiar',

@@ -92,7 +92,7 @@ class ThemeTextStyle {
 
   static TextStyle titleSmallOnBackground(BuildContext context) {
     return TextStyle(
-      color: Theme.of(context).colorScheme.onBackground,
+      color: Theme.of(context).colorScheme.onSurface,
       fontSize: 15,
       fontWeight: FontWeight.w400,
     );
@@ -215,7 +215,15 @@ class ThemeTextStyle {
 
   static TextStyle titleMediumInverseSurface(BuildContext context) {
     return TextStyle(
-      color: Theme.of(context).colorScheme.inverseSurface,
+      color: Theme.of(context).colorScheme.onSurface,
+      fontSize: 18,
+      fontWeight: FontWeight.w300,
+    );
+  }
+
+  static TextStyle titleMediumInverseSurfaceTheme(ThemeData theme) {
+    return TextStyle(
+      color: theme.colorScheme.onSurface,
       fontSize: 18,
       fontWeight: FontWeight.w300,
     );
@@ -226,6 +234,24 @@ class ThemeTextStyle {
       color: Theme.of(context).colorScheme.onTertiaryContainer,
       fontSize: 15,
       fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle titleSmallOutline(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.outline,
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
+      leadingDistribution: TextLeadingDistribution.even
+    );
+  }
+
+  static TextStyle titleInfoSmallOutline(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.outline,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      leadingDistribution: TextLeadingDistribution.even
     );
   }
 }

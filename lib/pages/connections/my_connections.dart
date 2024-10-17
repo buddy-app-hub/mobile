@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/connections.dart';
+import 'package:mobile/pages/connections/new_connections.dart';
 import 'package:provider/provider.dart';
 
 class MyConnectionsPage extends StatefulWidget {
@@ -76,7 +77,7 @@ class _MyConnectionsPageState extends State<MyConnectionsPage>
                     children: <Widget>[
                       ConnectionsPage(),
                       if (!authProvider.isBuddy)
-                        Center(child: Text('Nuevo Buddy...')),
+                        NewConnectionsPage(),
                     ],
                   )
                 : const Center(child: CircularProgressIndicator());
