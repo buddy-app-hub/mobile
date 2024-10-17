@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:mobile/models/payment_handshake.dart';
-import 'package:mobile/pages/payment/pay_test.dart';
-import 'package:mobile/pages/payment/success.dart';
+import 'package:mobile/pages/payment/mercadopago.dart';
 import 'package:mobile/services/payment_service.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -21,84 +19,32 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _loadPreferenceUrl() async {
-    PaymentHandshake? payment =
-        await paymentService.getHandshake("123");
+    PaymentHandshake? payment = await paymentService.getHandshake("123");
 
     setState(() {
       _preferenceUrl = payment.sandboxInitPoint;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pagar'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-            onPressed: () {
-              if(context.mounted) {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => PaymentSuccessPage()));
-                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => PagoScreen(
-                //   url: _preferenceUrl,
-                // )));
-              }
-            }, 
-            child: const Text('Pagar con MercadoPago')
-          )
-        // child: TextButton(
-        //   child: const Text('Pagar con MercadoPago'),
-        //   onPressed: () => _launchURL(context),
-        // ),
-      )
-    );
-  }
-
-  void _launchURL(BuildContext context) async {
-    try {
-      await launchUrl(
-        Uri.parse(_preferenceUrl),
-        prefersDeepLink: true,
-        customTabsOptions: CustomTabsOptions(
-          colorSchemes: CustomTabsColorSchemes.defaults(
-            toolbarColor: Theme.of(context).primaryColor,
-          ),
-          shareState: CustomTabsShareState.on,
-          closeButton: CustomTabsCloseButton(
-            position: CustomTabsCloseButtonPosition.end,
-            // and newly added the button icon.
-            // icon: CustomTabsCloseButtonIcons.back,
-          ),
-          urlBarHidingEnabled: true,
-          showTitle: true,
-          instantAppsEnabled: true,
-          animations: const CustomTabsAnimations(
-            startEnter: 'slide_up',
-            startExit: 'android:anim/fade_out',
-            endEnter: 'android:anim/fade_in',
-            endExit: 'slide_down',
-          ),
-          browser: CustomTabsBrowserConfiguration(
-            fallbackCustomTabs: [
-              // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
-              'org.mozilla.firefox',
-              // ref. https://play.google.com/store/apps/details?id=com.microsoft.emmx
-              'com.microsoft.emmx',    
-            ],
-          ),
+        appBar: AppBar(
+          title: const Text('Pagar'),
         ),
-        safariVCOptions: SafariViewControllerOptions(
-          preferredBarTintColor: Theme.of(context).primaryColor,
-          preferredControlTintColor: Colors.white,
-          barCollapsingEnabled: true,
-          entersReaderIfAvailable: false,
-          dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,        
-        ),
-      );
-    } catch (e) {
-      // An exception is thrown if browser app is not installed on Android device.
-      debugPrint(e.toString());
-    }
+        body: Center(
+            child: ElevatedButton(
+                onPressed: () {
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                MercadoPagoScreen(
+                                  url: _preferenceUrl,
+                                )));
+                  }
+                },
+                child: const Text('Pagar con MercadoPago'))));
   }
 }

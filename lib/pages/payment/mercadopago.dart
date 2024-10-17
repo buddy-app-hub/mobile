@@ -4,16 +4,16 @@ import 'package:mobile/pages/payment/failure.dart';
 import 'package:mobile/pages/payment/success.dart';
 
 
-class PagoScreen extends StatefulWidget {
-  static const String routename ='PagoScreen';
+class MercadoPagoScreen extends StatefulWidget {
+  static const String routename ='MercadoPagoScreen';
   final String? url;
-  const PagoScreen({super.key, this.url});
+  const MercadoPagoScreen({super.key, this.url});
 
   @override
-  State<PagoScreen> createState() => _PagoScreenState();
+  State<MercadoPagoScreen> createState() => _MercadoPagoScreenState();
 }
 
-class _PagoScreenState extends State<PagoScreen> {
+class _MercadoPagoScreenState extends State<MercadoPagoScreen> {
   final GlobalKey webViewKey = GlobalKey();
   late InAppWebViewController webViewController;
 
@@ -27,7 +27,7 @@ class _PagoScreenState extends State<PagoScreen> {
               key: webViewKey,
               initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse("${widget.url}"))),
               onUpdateVisitedHistory: (controller, url, androidIsReload){
-                print(url);
+                // print(url);
                 if (url.toString().contains("https://backend.buddyapp.link/payments/success")) {
                   String? connectionId = url!.queryParameters['connection_id'];
                   String? paymentOrderId = url!.queryParameters['payment_id'];
