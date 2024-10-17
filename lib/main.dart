@@ -7,9 +7,12 @@ import 'package:mobile/pages/auth/signup.dart';
 import 'package:mobile/pages/auth/splash_screen.dart';
 import 'package:mobile/pages/connections/my_connections.dart';
 import 'package:mobile/pages/home.dart';
+import 'package:mobile/pages/payment/failure.dart';
+import 'package:mobile/pages/payment/pay.dart';
+import 'package:mobile/pages/payment/success.dart';
 import 'package:mobile/pages/profile/edit_profile/settings.dart';
 import 'package:mobile/pages/profile/my_profile.dart';
-// import 'package:mobile/pages/profile/view_profile.dart';
+import 'package:mobile/pages/wallet/wallet.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/auth_service.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +59,11 @@ class MyApp extends StatelessWidget {
           Routes.home: (context) => HomePage(),
           Routes.myConnections: (context) => MyConnectionsPage(),
           Routes.myProfile: (context) => MyProfilePage(),
+          Routes.payment: (context) => PaymentPage(),
+          Routes.paymentSuccess: (context) => PaymentSuccessPage(),
+          Routes.paymentFailure: (context) => PaymentFailurePage(),
           Routes.settings: (context) => SettingsPage(),
+          Routes.wallet: (context) => WalletPage(),
         },
     );
   }

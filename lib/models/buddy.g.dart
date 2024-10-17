@@ -18,6 +18,7 @@ Buddy _$BuddyFromJson(Map<String, dynamic> json) => Buddy(
       personalData:
           PersonalData.fromJson(json['personalData'] as Map<String, dynamic>),
       email: json['email'] as String,
+      walletId: json['walletId'] as String?,
       phoneNumber:
           PhoneNumber.fromJson(json['phoneNumber'] as Map<String, dynamic>),
       identityCard: json['identityCard'] == null
@@ -42,6 +43,7 @@ Map<String, dynamic> _$BuddyToJson(Buddy instance) => <String, dynamic>{
       'isIdentityValidated': instance.isIdentityValidated,
       'personalData': instance.personalData.toJson(),
       'email': instance.email,
+      'walletId': instance.walletId,
       'phoneNumber': instance.phoneNumber.toJson(),
       'identityCard': instance.identityCard?.toJson(),
       'bankAccount': instance.bankAccount?.toJson(),

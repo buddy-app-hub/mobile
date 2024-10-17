@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
 
 List<String> months = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto',
@@ -84,6 +83,24 @@ String formatDateChat(DateTime date) {
     return weekdays[messageDate.weekday - 1];
   } else {
     return '${messageDate.day} de ${months[messageDate.month - 1]} de ${messageDate.year}';
+  }
+}
+
+String formatDateWallet(DateTime date) {
+  final todayDate = DateTime.now();
+  final today = DateTime(todayDate.year, todayDate.month, todayDate.day);
+  final messageDate = DateTime(date.year, date.month, date.day);
+  final difference = today.difference(messageDate);
+  if (today.isAtSameMomentAs(messageDate)) {
+    return 'Hoy';
+  } else if (difference.inDays == 1) {
+    return 'Ayer';
+  } else if ((difference.inDays > 1) && (difference.inDays < 7)) {
+    return weekdays[messageDate.weekday - 1];
+  } else if (today.year == messageDate.year) {
+    return '${messageDate.day} ${months[messageDate.month - 1]}';
+  } else {
+    return '${messageDate.day} ${months[messageDate.month - 1]} ${messageDate.year}';
   }
 }
 

@@ -79,7 +79,7 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
         email: authProvider.user!.email!,
         onLovedOneMode: false,
         elderProfile: ElderProfile(
-          photos: List.empty()
+          photos: List.empty(),
         ),
         identityCard: IdentityCard(),
       );
