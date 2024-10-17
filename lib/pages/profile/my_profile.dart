@@ -2,12 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/payment/pay.dart';
 import 'package:mobile/pages/profile/complete_profile/identity_verification.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_availability.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_photos.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
+import 'package:mobile/pages/wallet/wallet.dart';
 import 'package:mobile/pages/profile/edit_profile/settings.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:provider/provider.dart';
@@ -372,6 +374,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
     Widget? targetPage;
 
     switch (title) {
+      case 'Pagar suscripción':
+        targetPage = PaymentPage();
+      case 'Billetera':
+        targetPage = WalletPage();
       case 'Disponibilidad horaria':
         targetPage = EditAvailabilityPage();
       case 'Biografia':
@@ -514,6 +520,14 @@ class CustomListTile {
 }
 
 List<CustomListTile> customListTiles = [
+  CustomListTile(
+    icon: Icons.payment,
+    title: "Pagar suscripción",
+  ),
+  CustomListTile(
+    icon: Icons.payment,
+    title: "Billetera",
+  ),
   CustomListTile(
     icon: Icons.schedule,
     title: "Disponibilidad horaria",

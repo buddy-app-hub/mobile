@@ -11,4 +11,8 @@ class Routes {
   static const String beBuddy = '/be-buddy';
   static const String settings = '/settings';
   static const String viewProfile = '/view-profile';
+  static const String payment = '/payments';
+  static const String paymentSuccess = '/payments/success';
+  static const String paymentFailure = '/payments/failure';
+  static const String wallet = '/wallet';
 }
