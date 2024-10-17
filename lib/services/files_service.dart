@@ -139,8 +139,6 @@ class FilesService {
     required Function onComplete,
     required Function(String) onError,
   }) async {
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
-
     try {
       for (String imageName in images.keys) {
         if (images[imageName] != null) {
@@ -180,7 +178,6 @@ class FilesService {
     };
     final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
 
-    int i = 0;
     try {
       final storageRef = await _firebaseStorage
         .ref()
@@ -295,21 +292,6 @@ class FilesService {
     try {
       final storageRef =
           _firebaseStorage.ref().child('users/$userId/photos/$photoRemoved');
-      await storageRef.delete();
-    } catch (e) {
-      if (e is FirebaseException && e.code != 'object-not-found') {
-        print('Error eliminando foto para el usuario $userId: $e');
-      }
-    }
-
-    return;
-  }
-
-  Future<void> deleteDocumentPhoto(
-      String userId, BuildContext context, String indexPhotoToDelete) async {
-    try {
-      final storageRef =
-          _firebaseStorage.ref().child('users/$userId/photos/$indexPhotoToDelete.jpg');
       await storageRef.delete();
     } catch (e) {
       if (e is FirebaseException && e.code != 'object-not-found') {

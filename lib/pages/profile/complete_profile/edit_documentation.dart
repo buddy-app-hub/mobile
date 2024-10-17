@@ -42,11 +42,10 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
       _isLoading = true;
     });
     try {
-      // Assuming the service returns a map of image names and URLs
       final Map<String, String?> urlsMap = await _filesService.getCurrentUserDocuments(context);
       
       setState(() {
-        _storedPhotoUrls = urlsMap; // Map<String, String?> instead of List<String?>
+        _storedPhotoUrls = urlsMap;
         _isLoading = false;
       });
     } catch (e) {
@@ -97,15 +96,11 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
         _storedPhotoUrls[photoType] =
             null;
       });
-      print(_newPhotos);
-      print(_storedPhotoUrls);
       _checkAllPicturesSelected(); 
     }
   }
 
   void _showPhotoOptions(String index) {
-    final authProvider =
-        Provider.of<AuthSessionProvider>(context, listen: false);
 
     showModalBottomSheet(
       context: context,
@@ -134,10 +129,7 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
                   });
 
                   try {
-                    await _filesService.deleteDocumentPhoto(
-                        authProvider.user!.uid, context, index);
                     await _loadUserDocuments();
-                    // _reorderNewPhotosAfterDelete();
                   } catch (e) {
                     print('Error al eliminar la foto: $e');
                   }
@@ -175,7 +167,6 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
         context: context,
         swapFromTo: swapFromTo,
         onProgress: (index, progress) {
-          // Optional: Handle progress updates here
         },
         onComplete: () {
           setState(() {
@@ -235,22 +226,29 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
       body: _isLoading
       ? Center(
           child:
-              CircularProgressIndicator()) // Show loading indicator if loading
+              CircularProgressIndicator())
       : Stack(
         children: [
-          PageView.builder(
-            controller: _pageController,
-            itemCount: 3,
-            onPageChanged: (index) {
-              // setState(() {
-              //   _currentPage = index;
-              // });
+          GestureDetector(
+            onHorizontalDragUpdate: (details) {
+              if (details.delta.dx < -10 && _canGoToNextPage()) {
+                _goToNextPage();
+              } else if (details.delta.dx > 10 && _canGoToPreviousPage()) {
+                _goToPreviousPage();
+              }
             },
-            itemBuilder: (context, index) {
-              return Center(
-                child: _createStepsDescription(context, theme, index),
-              );
-            },
+            child: PageView.builder(
+              controller: _pageController,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: 3,
+              onPageChanged: (index) {
+              },
+              itemBuilder: (context, index) {
+                return Center(
+                  child: _createStepsDescription(context, theme, index),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -273,6 +271,34 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
         ),
       ),
     );
+  }
+
+
+ 
+  bool _canGoToNextPage() {
+    int currentPage = _pageController.page!.toInt();
+
+    switch (currentPage) {
+      case 0:
+        return _newPhotos['front_id'] != null || _storedPhotoUrls['front_id'] != null;
+      case 1:
+        return _newPhotos['back_id'] != null || _storedPhotoUrls['back_id'] != null;
+      default:
+        return false;
+    }
+  }
+
+  bool _canGoToPreviousPage() {
+    int currentPage = _pageController.page!.toInt();
+    return currentPage > 0;
+  }
+
+  void _goToNextPage() {
+    _pageController.nextPage(duration: Duration(milliseconds: 350), curve: Curves.easeInOut);
+  }
+
+  void _goToPreviousPage() {
+    _pageController.previousPage(duration: Duration(milliseconds: 350), curve: Curves.easeInOut);
   }
 
   int _getLastNonNullIndex(Map<String, dynamic> map) {
@@ -322,13 +348,13 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
                 key: ValueKey(index),
                 onTap: () {
                   if (index == firstFreeIndex) {
-                    _pickImage('front_id');  // Handle adding a new photo
+                    _pickImage('front_id');
                   } else if (index < firstFreeIndex) {
-                    _showPhotoOptions('front_id');  // Handle showing options for existing photos
+                    _showPhotoOptions('front_id');
                   }
                 },
                 child: AspectRatio(
-                  aspectRatio: 1, // Ensure the widget remains a square
+                  aspectRatio: 1,
                   child: Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.outlineVariant,
@@ -345,7 +371,7 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
                                 )
                               : null),
                     ),
-                    child: index == firstFreeIndex
+                    child: _newPhotos['front_id'] == null && _storedPhotoUrls['front_id'] == null
                         ? Icon(Icons.add_a_photo, color: theme.colorScheme.outline)
                         : null,
                   ),
@@ -382,13 +408,13 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
                 key: ValueKey(index),
                 onTap: () {
                   if (index == firstFreeIndex) {
-                    _pickImage('back_id');  // Handle adding a new photo
+                    _pickImage('back_id');
                   } else if (index < firstFreeIndex) {
-                    _showPhotoOptions('back_id');  // Handle showing options for existing photos
+                    _showPhotoOptions('back_id');
                   }
                 },
                 child: AspectRatio(
-                  aspectRatio: 1, // Ensure the widget remains a square
+                  aspectRatio: 1,
                   child: Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.outlineVariant,
@@ -405,7 +431,7 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
                                 )
                               : null),
                     ),
-                    child: index == firstFreeIndex
+                    child: _newPhotos['back_id'] == null && _storedPhotoUrls['back_id'] == null
                         ? Icon(Icons.add_a_photo, color: theme.colorScheme.outline)
                         : null,
                   ),
@@ -465,7 +491,7 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
                                 )
                               : null),
                     ),
-                    child: index == firstFreeIndex
+                    child: _newPhotos['selfie'] == null && _storedPhotoUrls['selfie'] == null
                         ? Icon(Icons.add_a_photo, color: theme.colorScheme.outline)
                         : null,
                   ),

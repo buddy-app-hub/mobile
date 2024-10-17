@@ -48,20 +48,28 @@ class _MyProfilePageState extends State<MyProfilePage> {
       isIntroVideoUploaded = userHelper.isIntroVideoUploaded(authProvider.userData!);
       isBuddyApplicationCompleted = userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
     });
-    _loadProfileCompletion();
   }
 
   Future<void> _loadProfileImage() async {
     try {
       String? imageUrl = await _filesService.getProfileImageUrl(authProvider.user!.uid);
+      Map<String, String?> urlsMap = await _filesService.getCurrentUserDocuments(context);
+      bool isUserIdentityUploaded = true;
+      for (String key in urlsMap.keys) {
+        if (urlsMap[key] == null) {
+          isUserIdentityUploaded = false;
+        }
+      }
       setState(() {
         _profileImageUrl = imageUrl;
         isProfileImageUploaded = _profileImageUrl != null;
+        isIdentityVerified = isUserIdentityUploaded;
         _loadProfileCompletion();
       });
     } catch (e) {
       setState(() {
         isProfileImageUploaded = false;
+        isIdentityVerified = false;
         _loadProfileCompletion();
       });
       print('Error al cargar la imagen de perfil: $e');
