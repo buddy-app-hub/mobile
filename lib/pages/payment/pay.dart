@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:mobile/models/payment_handshake.dart';
+import 'package:mobile/pages/payment/pay_test.dart';
+import 'package:mobile/pages/payment/success.dart';
 import 'package:mobile/services/payment_service.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -20,10 +22,10 @@ class _PaymentPageState extends State<PaymentPage> {
 
   Future<void> _loadPreferenceUrl() async {
     PaymentHandshake? payment =
-        await paymentService.getHandshake();
+        await paymentService.getHandshake("123");
 
     setState(() {
-      _preferenceUrl = payment.initPoint;
+      _preferenceUrl = payment.sandboxInitPoint;
     });
   }
   
@@ -34,10 +36,21 @@ class _PaymentPageState extends State<PaymentPage> {
         title: const Text('Pagar'),
       ),
       body: Center(
-        child: TextButton(
-          child: const Text('Pagar con MercadoPago'),
-          onPressed: () => _launchURL(context),
-        ),
+        child: ElevatedButton(
+            onPressed: () {
+              if(context.mounted) {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => PaymentSuccessPage()));
+                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => PagoScreen(
+                //   url: _preferenceUrl,
+                // )));
+              }
+            }, 
+            child: const Text('Pagar con MercadoPago')
+          )
+        // child: TextButton(
+        //   child: const Text('Pagar con MercadoPago'),
+        //   onPressed: () => _launchURL(context),
+        // ),
       )
     );
   }

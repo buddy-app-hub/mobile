@@ -7,12 +7,14 @@ part 'payment_handshake.g.dart';
 class PaymentHandshake {
   final String id;
   final String initPoint;
+  final String sandboxInitPoint;
   final String notificationUrl;
   final PaymentBackUrls backUrls;
 
   PaymentHandshake({
     required this.id,
     required this.initPoint,
+    required this.sandboxInitPoint,
     required this.notificationUrl,
     required this.backUrls,
   });

@@ -1,10 +1,13 @@
+import 'package:mobile/models/payment.dart';
 import 'package:mobile/models/payment_handshake.dart';
 import 'package:mobile/services/payment_api_service.dart';
 
 class PaymentService {
-  Future<PaymentHandshake> getHandshake() async {
+  Future<PaymentHandshake> getHandshake(
+    String connectionId,
+    ) async {
     var response = await PaymentApiService.get(
-      endpoint: "/payments/init",
+      endpoint: "/payments/init?connection_id=$connectionId",
     );
 
     print(response);
@@ -12,7 +15,7 @@ class PaymentService {
     return PaymentHandshake.fromJson(response);
   }
 
-  Future<PaymentHandshake> create(
+  Future<Payment> create(
     String description,
     String walletId,
     String paymentOrderId,
@@ -29,6 +32,6 @@ class PaymentService {
 
     print(response);
 
-    return PaymentHandshake.fromJson(response);
+    return Payment.fromJson(response);
   }
 }
