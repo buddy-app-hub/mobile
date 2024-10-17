@@ -13,16 +13,10 @@ class ConnectionService {
   }
 
   Future<void> createConnection(BuildContext context, Connection connection) async {
-    try {
-      await ApiService.post(
-        endpoint: "/connections",
-        body: connection.toJson(),
-      );
-      print("Conexión enviada con éxito");
-
-    } catch (e) {
-      print("Error al enviar la conexión: $e");
-    }
+    await ApiService.post(
+      endpoint: "/connections",
+      body: connection.toJson(),
+    );
   }
 
   Future<void> updateConnectionMeetings(
@@ -52,7 +46,7 @@ class ConnectionService {
   Future<void> createMeetingOfConnection(
       BuildContext context, Connection connection, Meeting meeting) async {
     
-    List<Meeting> meetings = connection.meetings;
+    List<Meeting> meetings = List.from(connection.meetings);
     meetings.add(meeting);
     connection.meetings = meetings;
     try {
@@ -63,7 +57,7 @@ class ConnectionService {
       print("Conexión actualizada con éxito");
 
     } catch (e) {
-      print("Error al actualizar la conexión: $e");
+      print("Error al actualizar la conexión en create meeting: $e");
     }
   }
 }

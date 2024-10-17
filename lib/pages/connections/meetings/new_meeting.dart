@@ -3,12 +3,14 @@ import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
+import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
@@ -183,7 +185,11 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                   SnackBar(content: Text('Encuentro creado correctamente')),
                 );
                 final meeting = Meeting(
-                  date: formatDateTimeOfDay(_dateTime, _fromTime, _toTime),
+                  schedule: MeetingSchedule(
+                    date: _dateTime ?? DateTime.now(), 
+                    startHour: timeToInt(_fromTime!), 
+                    endHour: timeToInt(_toTime!)
+                  ),
                   location: MeetingLocation(
                     isEldersHome: _isElderHouseSelected, 
                     placeName: placeName, 
@@ -443,7 +449,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   }
 
   Future<void> sendNewMeeting(Meeting meeting) async {
-    final combinedMessage = 'Encuentro programado el día ${meeting.date} desde ${intToTime(meeting.date.from)} hasta ${intToTime(meeting.date.from)} en ${meeting.location.placeName}';
+    final combinedMessage = 'Encuentro programado el día ${getDayName(meeting.schedule.date)} desde ${intToTime(meeting.schedule.startHour)} hasta ${intToTime(meeting.schedule.endHour)} en ${meeting.location.placeName}';
     
     if (combinedMessage.isNotEmpty) {
       await connectionService.createMeetingOfConnection(context, widget.connection, meeting);

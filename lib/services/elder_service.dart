@@ -3,6 +3,7 @@ import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/elder_profile.dart';
 import 'package:mobile/models/interest.dart';
+import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
@@ -129,5 +130,22 @@ class ElderService {
         .toList();
 
     return connections;
+  }
+
+  void updateElderPersonalData(BuildContext context, PersonalData personalData) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+    print(personalData.toJson());
+    try {
+      await ApiService.patch(
+        endpoint: "/elders/${authProvider.user!.uid}/personaldata",
+        body: personalData.toJson(),
+      );
+      print("Personal data actualizada con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar la personal data: $e");
+    }
   }
 }

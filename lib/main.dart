@@ -7,7 +7,7 @@ import 'package:mobile/pages/auth/signup.dart';
 import 'package:mobile/pages/auth/splash_screen.dart';
 import 'package:mobile/pages/connections/my_connections.dart';
 import 'package:mobile/pages/home.dart';
-import 'package:mobile/pages/profile/settings.dart';
+import 'package:mobile/pages/profile/edit_profile/settings.dart';
 import 'package:mobile/pages/profile/my_profile.dart';
 // import 'package:mobile/pages/profile/view_profile.dart';
 import 'package:mobile/routes.dart';

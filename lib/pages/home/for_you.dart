@@ -98,22 +98,22 @@ class _ForYouPageState extends State<ForYouPage> {
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0, 18, 0, 5),
-                        child: Text(
-                          'Eventos Agendados',
-                          style: ThemeTextStyle.titleMediumInverseSurface(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      BaseCardCalendar(meetings: [],),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     Container(
+                  //       margin: EdgeInsets.fromLTRB(0, 18, 0, 5),
+                  //       child: Text(
+                  //         'Eventos Agendados',
+                  //         style: ThemeTextStyle.titleMediumInverseSurface(context),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // Column(
+                  //   children: [
+                  //     BaseCardCalendar(meetings: [],),
+                  //   ],
+                  // ),
                 ],
               ),
             ),

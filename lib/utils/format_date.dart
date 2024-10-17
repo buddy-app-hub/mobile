@@ -25,6 +25,10 @@ String formatMeetingDate(DateTime date) {
   return '${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}';
 }
 
+String formatMeetingDateShort(DateTime date) {
+  return 'Próximo ${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]}';
+}
+
 String formatDayOfWeek(int weekday) {
   return weekdays[weekday - 1];
 }
@@ -81,24 +85,6 @@ String formatDateChat(DateTime date) {
   } else {
     return '${messageDate.day} de ${months[messageDate.month - 1]} de ${messageDate.year}';
   }
-}
-
-custom_time.TimeOfDay formatDateTimeOfDay(DateTime? date, TimeOfDay?fromTime, TimeOfDay? toTime) {
-  return custom_time.TimeOfDay(
-    dayOfWeek: '${weekdays[date!.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}',
-    from: timeToInt(fromTime!),
-    to: timeToInt(toTime!),
-  );
-}
-
-
-DateTime formatTimeOfDayToDate(custom_time.TimeOfDay timeOfDay) {
-  final List<String> dateParts = timeOfDay.dayOfWeek.split(' ');
-
-  final int day = int.parse(dateParts[1]);
-  final int month = months.indexOf(dateParts[3]) + 1;
-  final int? year = int.tryParse(dateParts[5]);
-  return DateTime(year!, month, day);
 }
 
 TimeOfDay formatIntToTime(int time) {

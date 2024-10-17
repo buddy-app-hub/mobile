@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
+import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
@@ -64,9 +66,9 @@ Future<Widget> buildCards(ThemeData theme, Connection connection, UserData userD
   String personID, personName;
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
   List<Meeting> meetings = connection.meetings.where((m) =>
-        validateDate(m.date) &&
+        isDateInNextWeek(m.schedule.date) &&
         !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder).toList();
   if (meetings.isEmpty) {
     return Column();
@@ -97,9 +99,9 @@ Future<Widget> buildRescheduledMeetingCards(ThemeData theme, Connection connecti
   String personID, personName;
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
   List<Meeting> meetings = connection.meetings.where((m) =>
-        validateFutureDate(m.date) && m.isRescheduled &&
+        isDateInFuture(m.schedule.date) && m.isRescheduled &&
         !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
   if (meetings.isEmpty) {
     return Column();
@@ -133,10 +135,10 @@ Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, User
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
 
-  connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
 
   List<Meeting> meetings = connection.meetings.where((m) =>
-      validateFutureDate(m.date) && !m.isRescheduled &&
+      isDateInFuture(m.schedule.date) && !m.isRescheduled &&
       !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
 
   if (meetings.isEmpty) {
@@ -171,12 +173,12 @@ Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userDa
   return [imageUser, imageConnection];
 }
 
-String formatDate(custom_time.TimeOfDay date) {
-  return date.dayOfWeek;
+String getDayName(DateTime date) {
+  return formatDayOfWeek(date.weekday);
 }
 
-String formatTime(custom_time.TimeOfDay date) {
-  return 'De ${intToTime(date.from)} a ${intToTime(date.to)}';
+String formatTime(MeetingSchedule schedule) {
+  return 'De ${intToTime(schedule.startHour)} a ${intToTime(schedule.endHour)}';
 }
 
 String formatLocation(MeetingLocation location) {
@@ -191,8 +193,8 @@ BaseCardMeeting buildCard(bool isBuddy, String personID, String personName, Conn
     meeting: meeting,
     personID: personID,
     person: personName,
-    date: formatDate(meeting.date),
-    time: formatTime(meeting.date),
+    date: formatMeetingDateShort(meeting.schedule.date),
+    time: formatTime(meeting.schedule),
     location: formatLocation(meeting.location),
     avatars: images,
   );
@@ -206,8 +208,8 @@ BaseCardMeeting buildNextEventCard(bool isBuddy,String personID, String personNa
     meeting: meeting,
     personID: personID,
     person: personName,
-    date: formatDate(meeting.date),
-    time: formatTime(meeting.date),
+    date: formatMeetingDateShort(meeting.schedule.date),
+    time: formatTime(meeting.schedule),
     location: formatLocation(meeting.location),
     avatars: images,
   );
@@ -379,10 +381,10 @@ class BaseCardMeeting extends StatelessWidget {
                         }),
                       Spacer(),
                       Container(
-                        width: 100,
+                        width: 150,
                         height: 60,
                         alignment: Alignment.bottomRight,
-                        child: BaseAvatarStack(avatars: avatars),
+                        child: BaseAvatarStack(avatars: avatars, spacing: 50,),
                       ),
                     ],
                   ),

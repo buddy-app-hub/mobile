@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/recommended_buddy.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/connections/meetings/onboard_new_connection.dart';
 import 'package:mobile/pages/profile/profile_widgets.dart';
 import 'package:mobile/services/buddy_service.dart';
+import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class NewRecommendedBuddy extends StatefulWidget {
   @override
@@ -16,6 +20,8 @@ class NewRecommendedBuddy extends StatefulWidget {
 }
 
 class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
+  ConnectionService connectionService = ConnectionService();
+
   List<RecommendedBuddy>? recommendedBuddies;
   int currentBuddyIndex = 0;
   late AuthSessionProvider authProvider;
@@ -56,6 +62,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     }
 
     setState(() {
+      print("Cargando fotos");
       _photosLoading = true;
     });
 
@@ -67,6 +74,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
       setState(() {
         _photoUrls = urls;
         _photosLoading = false;
+        print("Fotos cargadas");
       });
     } catch (e) {
       setState(() {
@@ -78,13 +86,41 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
 
   void _changeToNextBuddy() async {
     setState(() {
+      print("Cambiando a siguiente buddy");
       currentBuddyIndex += 1;
     });
 
-    if (recommendedBuddies!.length > currentBuddyIndex + 1) {
+    if (recommendedBuddies!.length < currentBuddyIndex + 1) {
+      print("No mas buddies");
       return;
     }
     _loadUserPhotos();
+  }
+
+  void _createConnection(BuildContext context) async {
+    Connection newConnection = Connection(
+      elderID: authProvider.user!.uid,
+      buddyID: recommendedBuddies![currentBuddyIndex].buddy!.firebaseUID,
+      meetings: List.empty(),
+      creationDate: DateTime.now(),
+    );
+    print("Creando la conexión...");
+    print(newConnection);
+
+    try {
+      await connectionService.createConnection(context, newConnection);
+      print("Conexión enviada con éxito");
+    } catch (e) {
+      print("Error al crear la conexión: $e");
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              OnboardNewConnectionPage(connection: newConnection, buddy: recommendedBuddies![currentBuddyIndex].buddy!)),
+    );
   }
 
   @override
@@ -102,7 +138,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
       return Center(
         child: Text(
           'No hay buddies recomendados disponibles en este momento.\n\nIntentá más tarde !',
-          textAlign: TextAlign.center, // Centra cada línea de texto
+          textAlign: TextAlign.center,
           style: ThemeTextStyle.titleMediumOnPrimaryContainer(
             context,
           ),
@@ -126,7 +162,6 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                 context,
               )),
           SizedBox(height: 20),
-
           AnimatedSwitcher(
             duration: Duration(milliseconds: 1000),
             transitionBuilder: (Widget child, Animation<double> animation) {
@@ -136,43 +171,22 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
               );
             },
             child: Column(
-              key: ValueKey<int>(
-                  currentBuddyIndex),
+              key: ValueKey<int>(currentBuddyIndex),
               children: [
                 CarouselSlider(
                   items: _photoUrls.map((url) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(15),
                       child: url != null
-                          ? Image.network(
-                              url,
+                          ? CachedNetworkImage(
+                              imageUrl: url,
                               fit: BoxFit.cover,
                               width: MediaQuery.of(context).size.width,
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) {
-                                  return child;
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value:
-                                          loadingProgress.expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  (loadingProgress
-                                                          .expectedTotalBytes ??
-                                                      1)
-                                              : null,
-                                    ),
-                                  );
-                                }
-                              },
-                              errorBuilder: (BuildContext context,
-                                  Object exception, StackTrace? stackTrace) {
-                                return Icon(Icons.error);
-                              },
+                              placeholder: (context, url) => Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
                             )
                           : null,
                     );
@@ -235,7 +249,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                           SizedBox(width: 20),
                           ElevatedButton(
                             onPressed: () {
-                              // TODO: abrir modal para gestionar primer encuentro
+                              _createConnection(context);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.colorScheme.primary,

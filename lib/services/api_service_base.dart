@@ -62,7 +62,7 @@ class ApiService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Error al actualizar datos en el endpoint');
+      throw Exception('Error al actualizar datos en el endpoint. Response: ${response.statusCode}');
     }
   }
 

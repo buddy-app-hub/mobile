@@ -78,7 +78,9 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
             'email', // TODO: ajustar cuando se agregue registro por Google
         email: authProvider.user!.email!,
         onLovedOneMode: false,
-        elderProfile: ElderProfile(),
+        elderProfile: ElderProfile(
+          photos: List.empty()
+        ),
         identityCard: IdentityCard(),
       );
       elderService.createElder(context, elder);
