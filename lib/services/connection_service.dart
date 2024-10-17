@@ -46,7 +46,7 @@ class ConnectionService {
   Future<void> createMeetingOfConnection(
       BuildContext context, Connection connection, Meeting meeting) async {
     
-    List<Meeting> meetings = connection.meetings;
+    List<Meeting> meetings = List.from(connection.meetings);
     meetings.add(meeting);
     connection.meetings = meetings;
     try {
@@ -57,7 +57,7 @@ class ConnectionService {
       print("Conexión actualizada con éxito");
 
     } catch (e) {
-      print("Error al actualizar la conexión: $e");
+      print("Error al actualizar la conexión en create meeting: $e");
     }
   }
 }

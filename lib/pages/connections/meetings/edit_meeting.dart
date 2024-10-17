@@ -3,6 +3,7 @@ import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
+import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
@@ -10,6 +11,7 @@ import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
+import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
@@ -53,9 +55,9 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
     _fetchPersonAvailability();
     _isElderHouseController.text = 'Mi casa' ; 
     _isElderHouseSelected = widget.meeting.location.isEldersHome;
-    _dateController.text = widget.meeting.date.dayOfWeek;
-    _fromController.text = intToTime(widget.meeting.date.from);
-    _toController.text = intToTime(widget.meeting.date.to);
+    _dateController.text = formatMeetingDate(widget.meeting.schedule.date);
+    _fromController.text = intToTime(widget.meeting.schedule.startHour);
+    _toController.text = intToTime(widget.meeting.schedule.endHour);
     _placeNameController.text = widget.meeting.location.placeName;
     _streetNameController.text = widget.meeting.location.streetName;
     _streetNumberController.text = widget.meeting.location.streetNumber.toString();
@@ -63,9 +65,9 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
     _stateController.text = widget.meeting.location.state;
     _countryController.text = widget.meeting.location.country;
     _activityController.text = widget.meeting.activity;
-    _dateTime = formatTimeOfDayToDate(widget.meeting.date);
-    _fromTime = formatIntToTime(widget.meeting.date.from);
-    _toTime = formatIntToTime(widget.meeting.date.to);
+    _dateTime = widget.meeting.schedule.date;
+    _fromTime = formatIntToTime(widget.meeting.schedule.startHour);
+    _toTime = formatIntToTime(widget.meeting.schedule.endHour);
   }
 
   Future<void> _fetchPersonAvailability() async {
@@ -193,7 +195,11 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
               } else {
                 print('Meeting scheduled for: ${formatMeetingDate(_dateTime!)} from $_fromTime to $_toTime');
                 final newMeeting = Meeting(
-                  date: formatDateTimeOfDay(_dateTime, _fromTime, _toTime),
+                  schedule: MeetingSchedule(
+                    date: _dateTime ?? DateTime.now(), 
+                    startHour: timeToInt(_fromTime!), 
+                    endHour: timeToInt(_toTime!)
+                  ),
                   location: MeetingLocation(
                     isEldersHome: _isElderHouseSelected, 
                     placeName: placeName, 
@@ -425,7 +431,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
   }
 
   Future<void> editMeeting(Meeting meeting) async {
-    final combinedMessage = 'Encuentro reprogramado el día ${meeting.date} desde ${intToTime(meeting.date.from)} hasta ${intToTime(meeting.date.from)} en ${meeting.location.placeName}';
+    final combinedMessage = 'Encuentro reprogramado el día ${getDayName(meeting.schedule.date)} desde ${intToTime(meeting.schedule.startHour)} hasta ${intToTime(meeting.schedule.endHour)} en ${meeting.location.placeName}';
     
     if (combinedMessage.isNotEmpty) {
       await connectionService.updateConnectionMeetings(context, widget.connection, meeting);

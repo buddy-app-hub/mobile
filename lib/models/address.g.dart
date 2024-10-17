@@ -8,7 +8,7 @@ part of 'address.dart';
 
 Address _$AddressFromJson(Map<String, dynamic> json) => Address(
       streetName: json['streetName'] as String,
-      streetNumber: (json['streetNumber'] as num).toInt(),
+      streetNumber: (json['streetNumber'] as num?)?.toInt(),
       apartmentNumber: json['apartmentNumber'] as String,
       city: json['city'] as String,
       state: json['state'] as String,

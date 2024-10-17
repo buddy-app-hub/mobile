@@ -7,7 +7,7 @@ part of 'connection.dart';
 // **************************************************************************
 
 Connection _$ConnectionFromJson(Map<String, dynamic> json) => Connection(
-      id: json['id'] as String,
+      id: json['id'] as String?,
       elderID: json['elderID'] as String,
       buddyID: json['buddyID'] as String,
       creationDate: DateTime.parse(json['creationDate'] as String),
