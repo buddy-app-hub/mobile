@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/theme/theme_text_style.dart';
-import 'package:mobile/widgets/base_card_calendar.dart';
 import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:provider/provider.dart';
 

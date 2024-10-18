@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
-import 'package:mobile/utils/format_date.dart';
 
 String? validateEmail(String? value) {
   const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
