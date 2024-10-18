@@ -8,6 +8,7 @@ import 'package:mobile/pages/auth/splash_screen.dart';
 import 'package:mobile/pages/connections/my_connections.dart';
 import 'package:mobile/pages/home.dart';
 import 'package:mobile/pages/payment/failure.dart';
+import 'package:mobile/pages/payment/mercadopago.dart';
 import 'package:mobile/pages/payment/pay.dart';
 import 'package:mobile/pages/payment/success.dart';
 import 'package:mobile/pages/profile/edit_profile/settings.dart';
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
           Routes.home: (context) => HomePage(),
           Routes.myConnections: (context) => MyConnectionsPage(),
           Routes.myProfile: (context) => MyProfilePage(),
-          Routes.payment: (context) => PaymentPage(),
+          Routes.payment: (context) => MercadoPagoScreen(),
           Routes.paymentSuccess: (context) => PaymentSuccessPage(),
           Routes.paymentFailure: (context) => PaymentFailurePage(),
           Routes.settings: (context) => SettingsPage(),
