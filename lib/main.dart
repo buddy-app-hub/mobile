@@ -9,7 +9,6 @@ import 'package:mobile/pages/connections/my_connections.dart';
 import 'package:mobile/pages/home.dart';
 import 'package:mobile/pages/payment/failure.dart';
 import 'package:mobile/pages/payment/mercadopago.dart';
-import 'package:mobile/pages/payment/pay.dart';
 import 'package:mobile/pages/payment/success.dart';
 import 'package:mobile/pages/profile/edit_profile/settings.dart';
 import 'package:mobile/pages/profile/my_profile.dart';

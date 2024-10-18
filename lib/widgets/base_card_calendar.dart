@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/meeting.dart';
-import 'package:mobile/models/meeting_location.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 
