@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/buddy.dart';
+import 'package:mobile/models/connection.dart';
+import 'package:mobile/models/meeting.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/auth/splash_screen.dart';
+import 'package:mobile/services/buddy_service.dart';
+import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -9,9 +14,10 @@ import 'package:provider/provider.dart';
 
 class PaymentSuccessPage extends StatefulWidget {
   final String? connectionId;
+  final String? meetingId;
   final String? paymentOrderId;
 
-  const PaymentSuccessPage({super.key, this.connectionId, this.paymentOrderId});
+  const PaymentSuccessPage({super.key, this.connectionId, this.meetingId, this.paymentOrderId});
 
   @override
   State<PaymentSuccessPage> createState() => _PaymentSuccessPageState();
@@ -19,26 +25,13 @@ class PaymentSuccessPage extends StatefulWidget {
 
 class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
   final PaymentService paymentService = PaymentService();
-  late String _walletId;
+  final ConnectionService connectionService = ConnectionService();
+  final BuddyService buddyService = BuddyService();
 
   @override
   void initState() {
     super.initState();
-    _loadWalletId();
     _saveTransaction();
-  }
-
-  Future<void> _loadWalletId() async {
-    final authProvider =
-        Provider.of<AuthSessionProvider>(context, listen: false);
-
-    if (!authProvider.isAuthenticated || authProvider.isBuddy) {
-      return;
-    }
-
-    setState(() {
-      _walletId = "6709a8704cd011ded7ae275b"; // TODO: replace with connection service
-    });
   }
 
   Future<void> _saveTransaction() async {
@@ -54,12 +47,19 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
     }
 
     try {
+      Connection connection = await connectionService.getConnection(widget.connectionId!);
+      Buddy buddy = await buddyService.getBuddy(connection.buddyID);
       await paymentService.create(
           authProvider.userData!.elder!.personalData.firstName,
-          _walletId,
+          buddy.walletId!,
           widget.paymentOrderId!,
           widget.connectionId!,
         );
+      
+      Meeting meeting = connection.meetings.firstWhere((m) => m.meetingID == widget.meetingId);
+      meeting.isConfirmedByElder = true;
+      meeting.isPaymentPending = false;
+      await connectionService.updateConnectionMeetings(context, connection, meeting);
     } catch (e) {
       print(e);
     }

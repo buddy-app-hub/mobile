@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/meeting_schedule.dart';
+import 'package:mobile/models/payment_handshake.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/pages/connections/meetings/edit_meeting.dart';
+import 'package:mobile/pages/payment/mercadopago.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
@@ -21,6 +23,10 @@ import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:provider/provider.dart';
 
 UserHelper userHelper = UserHelper();
+
+bool isConfirmed(Meeting m) {
+  return m.isConfirmedByBuddy && m.isConfirmedByElder;
+}
 
 Future<List<Widget>> fetchMeetingsAsFuture(ThemeData theme, UserData userData) async {
   final stream = fetchMeetings(theme, userData);
@@ -139,7 +145,11 @@ Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, User
 
   List<Meeting> meetings = connection.meetings.where((m) =>
       isDateInFuture(m.schedule.date) && !m.isRescheduled &&
-      !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
+      !m.isCancelled && !isConfirmed(m))
+      .where((m) => !isBuddy || !m.isPaymentPending)
+      .toList();
+
+
 
   if (meetings.isEmpty) {
     return Column();
@@ -358,6 +368,18 @@ class BaseCardMeeting extends StatelessWidget {
                     children: [
                       if (isNextMeeting)
                        buildNewMeetingButton(context, isBuddy, meeting, () async {
+                          if (meeting.isPaymentPending) {
+                            final paymentService = PaymentService();
+                            PaymentHandshake? payment = await paymentService.getHandshake(connection.id!, meeting.meetingID!);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      MercadoPagoScreen(
+                                        url: payment.sandboxInitPoint,
+                                      )));
+                            return;
+                          }
                           final connectionService = ConnectionService();
                           if (isBuddy) {
                             meeting.isConfirmedByBuddy = true;

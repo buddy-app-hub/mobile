@@ -19,7 +19,7 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _loadPreferenceUrl() async {
-    PaymentHandshake? payment = await paymentService.getHandshake("123");
+    PaymentHandshake? payment = await paymentService.getHandshake("123", "123");
 
     setState(() {
       _preferenceUrl = payment.sandboxInitPoint;

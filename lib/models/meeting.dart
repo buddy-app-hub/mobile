@@ -8,10 +8,12 @@ part 'meeting.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Meeting {
+  String? meetingID;
   bool isCancelled;
   bool isConfirmedByBuddy;
   bool isConfirmedByElder;
   bool isRescheduled;
+  bool isPaymentPending;
   String activity;
   DateTime dateLastModification;
   Review? elderRatingForBuddy; // Review that Elder made to Buddy
@@ -24,12 +26,14 @@ class Meeting {
   MeetingSchedule schedule;
 
   Meeting({
+    this.meetingID,
     required this.schedule,
     required this.location,
     this.isCancelled = false,
     this.isConfirmedByBuddy = false,
     this.isConfirmedByElder = false,
     this.isRescheduled = false,
+    this.isPaymentPending = false,
     required this.activity,
     required this.dateLastModification,
     this.elderRatingForBuddy,

@@ -5,9 +5,10 @@ import 'package:mobile/services/payment_api_service.dart';
 class PaymentService {
   Future<PaymentHandshake> getHandshake(
     String connectionId,
+    String meetingId,
     ) async {
     var response = await PaymentApiService.get(
-      endpoint: "/payments/init?connection_id=$connectionId",
+      endpoint: "/payments/init?connection_id=$connectionId&meeting_id=$meetingId",
     );
 
     print(response);

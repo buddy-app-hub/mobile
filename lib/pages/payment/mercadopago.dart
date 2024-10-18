@@ -30,13 +30,15 @@ class _MercadoPagoScreenState extends State<MercadoPagoScreen> {
                 // print(url);
                 if (url.toString().contains("https://backend.buddyapp.link/payments/success")) {
                   String? connectionId = url!.queryParameters['connection_id'];
-                  String? paymentOrderId = url!.queryParameters['payment_id'];
+                  String? meetingId = url.queryParameters['meeting_id'];
+                  String? paymentOrderId = url.queryParameters['payment_id'];
                   // webViewController.goBack();
                   Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => PaymentSuccessPage(
                       connectionId: connectionId,
+                      meetingId: meetingId,
                       paymentOrderId: paymentOrderId,                      
 
                       )),
