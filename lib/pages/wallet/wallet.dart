@@ -145,7 +145,7 @@ class _WalletPageState extends State<WalletPage> {
 
                           //Container for buttons
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 32),
+                            padding: EdgeInsets.symmetric(horizontal: 24),
                             child: Row(
                               children: <Widget>[
                                 Container(
@@ -171,7 +171,7 @@ class _WalletPageState extends State<WalletPage> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 16,
+                                  width: 8,
                                 ),
                                 Container(
                                   decoration: BoxDecoration(
@@ -207,7 +207,7 @@ class _WalletPageState extends State<WalletPage> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 16,
+                                  width: 8,
                                 ),
                                 Container(
                                   decoration: BoxDecoration(
@@ -281,7 +281,7 @@ Widget _transactionCard(
     String type,
     String status) {
   return Container(
-    margin: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+    margin: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
     padding: EdgeInsets.all(16),
     decoration: BoxDecoration(
         color: Colors.white,
