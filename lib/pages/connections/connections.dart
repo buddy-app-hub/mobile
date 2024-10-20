@@ -61,34 +61,45 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
                 Container(
                   margin: EdgeInsets.fromLTRB(8, 10, 0, 20),
                   height: 120,
-                  child: Center(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: FutureBuilder<List<Widget>>(
-                          future: fetchConnectionsAsFuture(userData),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              if (snapshot.hasError) {
-                                return Text('Error fetching meetings');
-                              } else if (snapshot.data!.isEmpty) {
-                                return Text('No hay conexiones');
-                              } else {
-                                return Row(
-                                  children: snapshot.data!,
-                                );
-                              }
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      width: MediaQuery.of(context)
+                          .size
+                          .width,
+                      child: FutureBuilder<List<Widget>>(
+                        future: fetchConnectionsAsFuture(userData),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            if (snapshot.hasError) {
+                              return Text('Error fetching meetings');
+                            } else if (snapshot.data!.isEmpty) {
+                              return Text('No hay conexiones');
                             } else {
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  color: theme.colorScheme.onPrimaryContainer,
-                                ),
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .start,
+                                crossAxisAlignment: CrossAxisAlignment
+                                    .start,
+                                children: snapshot.data!,
                               );
                             }
-                          },
-                        ),
+                          } else {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .start,
+                              children: [
+                                SizedBox(width: 16,),
+                                CircularProgressIndicator(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
+                                ),
+                              ],
+                            );
+                          }
+                        },
                       ),
                     ),
                   ),
