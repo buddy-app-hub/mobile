@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/services/auth_service.dart';
 
 class PaymentApiService {
-  static const String baseUrl = "http://127.0.0.1:8000";
+  static const String baseUrl = "https://payments.buddyapp.link"; // http://127.0.0.1:8000
 
   static Future<dynamic> get<T>({
     required String endpoint,
