@@ -15,6 +15,8 @@ class Meeting {
   bool isPaymentPending;
   String activity;
   DateTime dateLastModification;
+  bool startConfirmedByBuddy;
+  bool startConfirmedByElder;
   Review? elderRatingForBuddy; // Review that Elder made to Buddy
   Review? buddyRatingForElder; // Review that Buddy made to Elder
 
@@ -35,6 +37,8 @@ class Meeting {
     this.isPaymentPending = true,
     required this.activity,
     required this.dateLastModification,
+    this.startConfirmedByBuddy = false,
+    this.startConfirmedByElder = false,
     this.elderRatingForBuddy,
     this.buddyRatingForElder,
   });
