@@ -20,8 +20,8 @@ class _ForYouPageState extends State<ForYouPage> {
 
   Future<List<List<Widget>>> fetchAllMeetings(UserData userData, ThemeData theme) async {
     return await Future.wait([
-      fetchMeetingsAsFuture(theme, userData),
-      fetchNewMeetingsAsFuture(theme, userData),
+      fetchConfirmedMeetingsAsFuture(theme, userData),
+      fetchUnconfirmedMeetingsAsFuture(theme, userData),
       fetchRescheduledMeetingsAsFuture(theme, userData),
     ]);
   }

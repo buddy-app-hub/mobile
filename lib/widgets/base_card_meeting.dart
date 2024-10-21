@@ -28,38 +28,44 @@ bool isConfirmed(Meeting m) {
   return m.isConfirmedByBuddy && m.isConfirmedByElder;
 }
 
-Future<List<Widget>> fetchMeetingsAsFuture(ThemeData theme, UserData userData) async {
-  final stream = fetchMeetings(theme, userData);
+Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
+    ThemeData theme, UserData userData) async {
+  final stream = fetchConfirmedMeetings(theme, userData);
   return stream.toList();
 }
 
-Future<List<Widget>> fetchNewMeetingsAsFuture(ThemeData theme, UserData userData) async {
-  final stream = fetchNewMeetings(theme, userData);
+Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
+    ThemeData theme, UserData userData) async {
+  final stream = fetchUnconfirmedMeetings(theme, userData);
   return stream.toList();
 }
 
-Future<List<Widget>> fetchRescheduledMeetingsAsFuture(ThemeData theme, UserData userData) async {
+Future<List<Widget>> fetchRescheduledMeetingsAsFuture(
+    ThemeData theme, UserData userData) async {
   final stream = fetchRescheduledMeetings(theme, userData);
   return stream.toList();
 }
 
-Stream<Widget> fetchMeetings(ThemeData theme, UserData userData) async* {
+Stream<Widget> fetchConfirmedMeetings(
+    ThemeData theme, UserData userData) async* {
   List<Connection> connections = await userHelper.fetchConnections(userData);
 
   for (var connection in connections) {
-    yield await buildCards(theme, connection, userData);
+    yield await buildConfirmedMeetingCards(theme, connection, userData);
   }
 }
 
-Stream<Widget> fetchNewMeetings(ThemeData theme, UserData userData) async* {
+Stream<Widget> fetchUnconfirmedMeetings(
+    ThemeData theme, UserData userData) async* {
   List<Connection> connections = await userHelper.fetchConnections(userData);
 
   for (var connection in connections) {
-    yield await buildNewMeetingCards(theme, connection, userData);
+    yield await buildUnconfirmedMeetingCards(theme, connection, userData);
   }
 }
 
-Stream<Widget> fetchRescheduledMeetings(ThemeData theme, UserData userData) async* {
+Stream<Widget> fetchRescheduledMeetings(
+    ThemeData theme, UserData userData) async* {
   List<Connection> connections = await userHelper.fetchConnections(userData);
 
   for (var connection in connections) {
@@ -67,20 +73,28 @@ Stream<Widget> fetchRescheduledMeetings(ThemeData theme, UserData userData) asyn
   }
 }
 
-Future<Widget> buildCards(ThemeData theme, Connection connection, UserData userData) async {
+// Obtiene encuentros que ocurrirán en la próxima semana, que ya estén confirmados y pagados
+Future<Widget> buildConfirmedMeetingCards(
+    ThemeData theme, Connection connection, UserData userData) async {
   bool isBuddy = userData.buddy != null;
   String personID, personName;
-  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
+  (personID, personName) =
+      await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
-  List<Meeting> meetings = connection.meetings.where((m) =>
-        isDateInNextWeek(m.schedule.date) &&
-        !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder).toList();
+  connection.meetings
+      .sort((a, b) => a.schedule.date.compareTo(b.schedule.date));
+  List<Meeting> meetings = connection.meetings
+      .where((m) =>
+          isDateInNextWeek(m.schedule.date) &&
+          !m.isCancelled &&
+          !m.isPaymentPending &&
+          isConfirmed(m))
+      .toList();
   if (meetings.isEmpty) {
     return Column();
   } else {
     Meeting meeting = meetings.first;
-    return Column( 
+    return Column(
       children: [
         Row(
           children: [
@@ -93,30 +107,39 @@ Future<Widget> buildCards(ThemeData theme, Connection connection, UserData userD
             ),
           ],
         ),
-        buildCard(isBuddy, personID, personName, connection, meeting, images),
+        buildConfirmedMeetingCard(
+            isBuddy, personID, personName, connection, meeting, images),
       ],
     );
   }
 }
 
-//TODO que devuelva todas los encuentros reprogramados
-Future<Widget> buildRescheduledMeetingCards(ThemeData theme, Connection connection, UserData userData) async {
+// Obtiene futuros encuentros que esten reprogramados y no confirmados
+Future<Widget> buildRescheduledMeetingCards(
+    ThemeData theme, Connection connection, UserData userData) async {
   bool isBuddy = userData.buddy != null;
   String personID, personName;
-  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
+  (personID, personName) =
+      await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
-  List<Meeting> meetings = connection.meetings.where((m) =>
-        isDateInFuture(m.schedule.date) && m.isRescheduled &&
-        !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
+  connection.meetings
+      .sort((a, b) => a.schedule.date.compareTo(b.schedule.date));
+  List<Meeting> meetings = connection.meetings
+      .where((m) =>
+          isDateInFuture(m.schedule.date) &&
+          m.isRescheduled &&
+          !m.isCancelled &&
+          !isConfirmed(m))
+      .toList();
   if (meetings.isEmpty) {
     return Column();
   } else {
     List<Widget> meetingCards = meetings.map((meeting) {
-      return buildNextEventCard(isBuddy, personID, personName, connection, meeting, images);
+      return buildNextEventCard(
+          isBuddy, personID, personName, connection, meeting, images);
     }).toList();
 
-    return Column( 
+    return Column(
       children: [
         Row(
           children: [
@@ -135,27 +158,33 @@ Future<Widget> buildRescheduledMeetingCards(ThemeData theme, Connection connecti
   }
 }
 
-Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, UserData userData) async {
+// Obtiene futuros encuentros que no esten confirmados ni pagados
+Future<Widget> buildUnconfirmedMeetingCards(
+    ThemeData theme, Connection connection, UserData userData) async {
   bool isBuddy = userData.buddy != null;
   String personID, personName;
-  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
+  (personID, personName) =
+      await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
 
-  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
+  connection.meetings
+      .sort((a, b) => a.schedule.date.compareTo(b.schedule.date));
 
-  List<Meeting> meetings = connection.meetings.where((m) =>
-      isDateInFuture(m.schedule.date) && !m.isRescheduled &&
-      !m.isCancelled && !isConfirmed(m))
+  List<Meeting> meetings = connection.meetings
+      .where((m) =>
+          isDateInFuture(m.schedule.date) &&
+          !m.isRescheduled &&
+          !m.isCancelled &&
+          !isConfirmed(m))
       .where((m) => !isBuddy || !m.isPaymentPending)
       .toList();
-
-
 
   if (meetings.isEmpty) {
     return Column();
   } else {
     List<Widget> meetingCards = meetings.map((meeting) {
-      return buildNextEventCard(isBuddy, personID, personName, connection, meeting, images);
+      return buildNextEventCard(
+          isBuddy, personID, personName, connection, meeting, images);
     }).toList();
 
     return Column(
@@ -177,8 +206,10 @@ Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, User
   }
 }
 
-Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userData) async {
-  String? imageUser = await userHelper.loadProfileImage(isBuddy ? userData.buddy!.firebaseUID : userData.elder!.firebaseUID);
+Future<List<String>> fetchAvatars(
+    String personID, bool isBuddy, UserData userData) async {
+  String? imageUser = await userHelper.loadProfileImage(
+      isBuddy ? userData.buddy!.firebaseUID : userData.elder!.firebaseUID);
   String? imageConnection = await userHelper.loadProfileImage(personID);
   return [imageUser, imageConnection];
 }
@@ -195,7 +226,13 @@ String formatLocation(MeetingLocation location) {
   return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
 }
 
-BaseCardMeeting buildCard(bool isBuddy, String personID, String personName, Connection connection, Meeting meeting, List<String> images) {
+BaseCardMeeting buildConfirmedMeetingCard(
+    bool isBuddy,
+    String personID,
+    String personName,
+    Connection connection,
+    Meeting meeting,
+    List<String> images) {
   return BaseCardMeeting(
     isBuddy: isBuddy,
     isNextMeeting: false,
@@ -210,7 +247,13 @@ BaseCardMeeting buildCard(bool isBuddy, String personID, String personName, Conn
   );
 }
 
-BaseCardMeeting buildNextEventCard(bool isBuddy,String personID, String personName, Connection connection, Meeting meeting, List<String> images) {
+BaseCardMeeting buildNextEventCard(
+    bool isBuddy,
+    String personID,
+    String personName,
+    Connection connection,
+    Meeting meeting,
+    List<String> images) {
   return BaseCardMeeting(
     isBuddy: isBuddy,
     isNextMeeting: true,
@@ -256,10 +299,14 @@ class BaseCardMeeting extends StatelessWidget {
     final theme = Theme.of(context);
     return Center(
       child: Card(
-        color: isNextMeeting ? theme.colorScheme.primaryFixed : theme.colorScheme.tertiaryContainer,
+        color: isNextMeeting
+            ? theme.colorScheme.primaryFixed
+            : theme.colorScheme.tertiaryContainer,
         clipBehavior: Clip.hardEdge,
         child: InkWell(
-          splashColor: isNextMeeting ? theme.colorScheme.primary : theme.colorScheme.tertiary,
+          splashColor: isNextMeeting
+              ? theme.colorScheme.primary
+              : theme.colorScheme.tertiary,
           onTap: () {
             debugPrint('Item tapped.');
           },
@@ -281,7 +328,7 @@ class BaseCardMeeting extends StatelessWidget {
     final authProvider = Provider.of<AuthSessionProvider>(context);
     final connectionService = ConnectionService();
     UserData userData = authProvider.userData!;
-    
+
     return Row(
       children: [
         Expanded(
@@ -290,6 +337,7 @@ class BaseCardMeeting extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                meeting.isRescheduled ? buildRescheduledChip(context, theme) : SizedBox.shrink(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -314,21 +362,26 @@ class BaseCardMeeting extends StatelessWidget {
                             context: context,
                             builder: (context) => AlertDialog(
                               title: Text('Cancelar encuentro'),
-                              content: Text('¿Estás seguro de que quieres cancelar el encuentro?'),
+                              content: Text(
+                                  '¿Estás seguro de que quieres cancelar el encuentro?'),
                               actions: [
                                 TextButton(
                                   child: Text('Cancelar'),
-                                  onPressed: () => Navigator.pop(context), 
+                                  onPressed: () => Navigator.pop(context),
                                 ),
                                 TextButton(
                                   child: Text('Confirmar'),
-                                  onPressed: () async{
+                                  onPressed: () async {
                                     meeting.isCancelled = true;
-                                    await connectionService.updateMeetingOfConnection(context, connection, meeting);
+                                    await connectionService
+                                        .updateMeetingOfConnection(
+                                            context, connection, meeting);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Encuentro cancelado')),
+                                      SnackBar(
+                                          content: Text('Encuentro cancelado')),
                                     );
-                                    Navigator.pushNamed(context, Routes.splashScreen);
+                                    Navigator.pushNamed(
+                                        context, Routes.splashScreen);
                                   },
                                 ),
                               ],
@@ -342,7 +395,11 @@ class BaseCardMeeting extends StatelessWidget {
                         if (value.contains('Reprogramar')) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => EditMeetingPage(isBuddy: isBuddy, connection: connection, meeting: meeting)),
+                            MaterialPageRoute(
+                                builder: (context) => EditMeetingPage(
+                                    isBuddy: isBuddy,
+                                    connection: connection,
+                                    meeting: meeting)),
                           );
                         }
                       },
@@ -367,17 +424,20 @@ class BaseCardMeeting extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       if (isNextMeeting)
-                       buildNewMeetingButton(context, isBuddy, meeting, () async {
+                        buildNewMeetingButton(context, isBuddy, meeting,
+                            () async {
                           if (meeting.isPaymentPending) {
                             final paymentService = PaymentService();
-                            PaymentHandshake? payment = await paymentService.getHandshake(connection.id!, meeting.meetingID!);
+                            PaymentHandshake? payment =
+                                await paymentService.getHandshake(
+                                    connection.id!, meeting.meetingID!);
                             Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      MercadoPagoScreen(
-                                        url: payment.sandboxInitPoint,
-                                      )));
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        MercadoPagoScreen(
+                                          url: payment.sandboxInitPoint,
+                                        )));
                             return;
                           }
                           final connectionService = ConnectionService();
@@ -386,7 +446,8 @@ class BaseCardMeeting extends StatelessWidget {
                           } else {
                             meeting.isConfirmedByElder = true;
                           }
-                          await connectionService.updateMeetingOfConnection(context, connection, meeting);
+                          await connectionService.updateMeetingOfConnection(
+                              context, connection, meeting);
                           Navigator.pushNamed(context, Routes.splashScreen);
                         }),
                       if (!isNextMeeting)
@@ -394,12 +455,14 @@ class BaseCardMeeting extends StatelessWidget {
                           final chatService = ChatService();
                           final chatRoomId = await chatService.createChatRoom(
                             person,
-                            personID, 
+                            personID,
                             userData,
                           );
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) =>  ChatScreen(chatRoomId: chatRoomId)),
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    ChatScreen(chatRoomId: chatRoomId)),
                           );
                         }),
                       Spacer(),
@@ -407,7 +470,10 @@ class BaseCardMeeting extends StatelessWidget {
                         width: 150,
                         height: 60,
                         alignment: Alignment.bottomRight,
-                        child: BaseAvatarStack(avatars: avatars, spacing: 50,),
+                        child: BaseAvatarStack(
+                          avatars: avatars,
+                          spacing: 50,
+                        ),
                       ),
                     ],
                   ),
@@ -419,4 +485,16 @@ class BaseCardMeeting extends StatelessWidget {
       ],
     );
   }
+
+  Widget buildRescheduledChip(BuildContext context, ThemeData theme) => Chip(
+        label: Text(
+          'Reprogramado',
+          style: TextStyle(
+            color: theme.colorScheme.onTertiary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.tertiary,
+        padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
+      );
 }
