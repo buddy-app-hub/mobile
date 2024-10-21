@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class BaseAvatarStack extends StatelessWidget {
@@ -22,8 +23,8 @@ class BaseAvatarStack extends StatelessWidget {
             child: CircleAvatar(
               radius: parentContainerHeight / 2,
               backgroundImage: avatarUrl.isEmpty
-                  ? AssetImage('assets/images/default_user.jpg')
-                  : NetworkImage(avatarUrl) as ImageProvider,
+                  ? const AssetImage('assets/images/default_user.jpg')
+                  : CachedNetworkImageProvider(avatarUrl) as ImageProvider,
             ),
           );
         }).toList(),
