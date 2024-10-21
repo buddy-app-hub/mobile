@@ -80,8 +80,6 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment
                                     .start,
-                                crossAxisAlignment: CrossAxisAlignment
-                                    .start,
                                 children: snapshot.data!,
                               );
                             }
