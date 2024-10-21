@@ -301,4 +301,13 @@ class FilesService {
 
     return;
   }
+
+  Future<String?> fetchConnectionProfilePic(
+      List<String> chatParticipants, String currentUserID) async {
+    String personID = chatParticipants.firstWhere((id) => id != currentUserID);
+
+    String? imageUrl = await getProfileImageUrl(personID);
+
+    return imageUrl;
+  }
 }

@@ -195,6 +195,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
               } else {
                 print('Meeting scheduled for: ${formatMeetingDate(_dateTime!)} from $_fromTime to $_toTime');
                 final newMeeting = Meeting(
+                  meetingID: widget.meeting.meetingID,
                   schedule: MeetingSchedule(
                     date: _dateTime ?? DateTime.now(), 
                     startHour: timeToInt(_fromTime!), 
@@ -209,8 +210,11 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
                     state: state, 
                     country: country), 
                   activity: activity, 
-                  dateLastModification: widget.meeting.dateLastModification,
+                  dateLastModification: DateTime.now(),
                   isRescheduled: true,
+                  isPaymentPending: widget.meeting.isPaymentPending,
+                  isConfirmedByBuddy: authProvider.isBuddy ? true : false,
+                  isConfirmedByElder: authProvider.isBuddy ? false : true,
                 );
                 await editMeeting(newMeeting);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -291,7 +295,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
                           Expanded(
                             child: TextFormField(
                               controller: _placeNameController,
-                              readOnly: _isElderHouseSelected,
+                              readOnly: _isElderHouseSelected || widget.isBuddy,
                               decoration: InputDecoration(
                                 labelText: "Nombre del lugar",
                                 hintText: "Ingrese el nombre",
@@ -312,10 +316,13 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
                                   if (value && address != null) {
                                     _isElderHouseAddress = value;
                                     _streetNameController.text = address.streetName;
-                                    _streetNumberController.text = address.streetNumber as String;
+                                    _streetNumberController.text = address.streetNumber.toString();
                                     _cityController.text = address.city;
                                     _stateController.text = address.state;
                                     _countryController.text = address.country;
+                                  }
+                                  else if (value == false) {
+                                    _isElderHouseAddress = false;
                                   }
                                 }),
                               ),
@@ -434,7 +441,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
     final combinedMessage = 'Encuentro reprogramado el día ${getDayName(meeting.schedule.date)} desde ${intToTime(meeting.schedule.startHour)} hasta ${intToTime(meeting.schedule.endHour)} en ${meeting.location.placeName}';
     
     if (combinedMessage.isNotEmpty) {
-      await connectionService.updateConnectionMeetings(context, widget.connection, meeting);
+      await connectionService.updateMeetingOfConnection(context, widget.connection, meeting);
     }
   }
 }

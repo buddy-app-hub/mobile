@@ -16,7 +16,7 @@ Meeting _$MeetingFromJson(Map<String, dynamic> json) => Meeting(
       isConfirmedByBuddy: json['isConfirmedByBuddy'] as bool? ?? false,
       isConfirmedByElder: json['isConfirmedByElder'] as bool? ?? false,
       isRescheduled: json['isRescheduled'] as bool? ?? false,
-      isPaymentPending: json['isPaymentPending'] as bool? ?? false,
+      isPaymentPending: json['isPaymentPending'] as bool? ?? true,
       activity: json['activity'] as String,
       dateLastModification:
           DateTime.parse(json['dateLastModification'] as String),

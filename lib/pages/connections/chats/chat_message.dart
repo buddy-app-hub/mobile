@@ -37,16 +37,26 @@ class ChatMessage extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.all(10),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  text,
-                  style: isUser ? ThemeTextStyle.titleSmallOnPrimary(context) : ThemeTextStyle.titleSmallOnBackground(context),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+                  child: Text(
+                    text,
+                    style: isUser
+                        ? ThemeTextStyle.titleSmallOnPrimary(context)
+                        : ThemeTextStyle.titleSmallOnBackground(context),
+                    softWrap: true,
+                    overflow: TextOverflow.clip,
+                  ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(height: 5),
                 Text(
                   getHourFromTimestamp(timestamp),
-                  style: isUser ? ThemeTextStyle.titleSmallerOnPrimary(context) : ThemeTextStyle.titleSmallerOnBackground(context),
+                  style: isUser
+                      ? ThemeTextStyle.titleSmallerOnPrimary(context)
+                      : ThemeTextStyle.titleSmallerOnBackground(context),
                 ),
               ],
             ),

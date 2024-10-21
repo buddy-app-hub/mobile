@@ -27,6 +27,7 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
   final PaymentService paymentService = PaymentService();
   final ConnectionService connectionService = ConnectionService();
   final BuddyService buddyService = BuddyService();
+  bool finishedSavingTx = false;
 
   @override
   void initState() {
@@ -59,7 +60,11 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
       Meeting meeting = connection.meetings.firstWhere((m) => m.meetingID == widget.meetingId);
       meeting.isConfirmedByElder = true;
       meeting.isPaymentPending = false;
-      await connectionService.updateConnectionMeetings(context, connection, meeting);
+      print("Aca en success");
+      await connectionService.updateMeetingOfConnection(context, connection, meeting);
+      setState(() {
+        finishedSavingTx = true;
+      });
     } catch (e) {
       print(e);
     }
@@ -74,7 +79,8 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
         title: const Text('Pago Realizado'),
       ),
       body: Center(
-        child: Column(
+        child: 
+        finishedSavingTx ? Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
@@ -95,10 +101,10 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
               margin: EdgeInsets.symmetric(horizontal: 36, vertical: 16),
               buttonStyle: ThemeButtonStyle.secondaryButtonStyle(context),
               buttonTextStyle: ThemeTextStyle.titleLargeOnPrimary(context),
-              text: 'Conectar con Buddy',
+              text: 'Volver al home',
           )
           ],
-        ),
+        ) : CircularProgressIndicator(),
       ),
     );
   }

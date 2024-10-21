@@ -324,7 +324,7 @@ class BaseCardMeeting extends StatelessWidget {
                                   child: Text('Confirmar'),
                                   onPressed: () async{
                                     meeting.isCancelled = true;
-                                    await connectionService.updateConnectionMeetings(context, connection, meeting);
+                                    await connectionService.updateMeetingOfConnection(context, connection, meeting);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('Encuentro cancelado')),
                                     );
@@ -386,7 +386,7 @@ class BaseCardMeeting extends StatelessWidget {
                           } else {
                             meeting.isConfirmedByElder = true;
                           }
-                          await connectionService.updateConnectionMeetings(context, connection, meeting);
+                          await connectionService.updateMeetingOfConnection(context, connection, meeting);
                           Navigator.pushNamed(context, Routes.splashScreen);
                         }),
                       if (!isNextMeeting)

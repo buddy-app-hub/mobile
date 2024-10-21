@@ -39,15 +39,6 @@ class _ChatsListState extends State<ChatsList> {
     setState(() {});
   }
 
-  Future<String?> _fetchConnectionProfilePic(
-      List<String> chatParticipants, String currentUserID) async {
-    String personID = chatParticipants.firstWhere((id) => id != currentUserID);
-
-    String? imageUrl = await _filesService.getProfileImageUrl(personID);
-
-    return imageUrl;
-  }
-
   @override
   Widget build(BuildContext context) {
     final authProvider =
@@ -102,7 +93,7 @@ class _ChatsListState extends State<ChatsList> {
                                   final chat = chats[index];
                                   return ListTile(
                                     leading: FutureBuilder<String?>(
-                                      future: _fetchConnectionProfilePic(
+                                      future: _filesService.fetchConnectionProfilePic(
                                           chat.participants,
                                           authProvider.user!.uid),
                                       builder: (context, snapshot) {

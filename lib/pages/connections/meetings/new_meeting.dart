@@ -4,6 +4,7 @@ import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/meeting_schedule.dart';
+import 'package:mobile/pages/auth/splash_screen.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -200,24 +201,11 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                     country: country), 
                   activity: activity, 
                   dateLastModification: DateTime.now(),
+                  isPaymentPending: true,
                 );
                 await sendNewMeeting(meeting);
-                Navigator.pop(scaffoldContext);
-                // setState(() {
-                //   _dateController.clear();
-                //   _fromController.clear();
-                //   _toController.clear();
-                //   _placeNameController.clear();
-                //   _streetNameController.clear();
-                //   _streetNumberController.clear();
-                //   _cityController.clear();
-                //   _stateController.clear();
-                //   _countryController.clear();
-                //   _activityController.clear();
-                //   _dateTime = null;
-                //   _fromTime = null;
-                //   _toTime = null;
-                // });
+                //Navigator.pop(scaffoldContext);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => SplashScreen()));
               }
             },
             icon: Icon(Icons.check),
@@ -330,7 +318,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                                     if (value && address != null) {
                                       _isElderHouseAddress = value;
                                       _streetNameController.text = address.streetName;
-                                      _streetNumberController.text = address.streetNumber as String;
+                                      _streetNumberController.text = address.streetNumber.toString();
                                       _cityController.text = address.city;
                                       _stateController.text = address.state;
                                       _countryController.text = address.country;

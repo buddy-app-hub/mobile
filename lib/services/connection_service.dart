@@ -12,52 +12,38 @@ class ConnectionService {
     return Connection.fromJson(response);
   }
 
-  Future<void> createConnection(BuildContext context, Connection connection) async {
+  Future<void> createConnection(
+      BuildContext context, Connection connection) async {
     await ApiService.post(
       endpoint: "/connections",
       body: connection.toJson(),
     );
   }
 
-  Future<void> updateConnectionMeetings(
+  Future<void> createMeetingOfConnection(
       BuildContext context, Connection connection, Meeting meeting) async {
-    
-    List<Meeting> updatedMeetings = connection.meetings.map((m) {
-      if (m.dateLastModification == meeting.dateLastModification) {
-        m = meeting;
-        m.dateLastModification = DateTime.now(); 
-      }
-      return m;
-    }).toList();
-
-    connection.meetings = updatedMeetings;
     try {
-      await ApiService.put(
-        endpoint: "/connections/${connection.id}",
-        body: connection.toJson(),
+      await ApiService.post(
+        endpoint: "/connections/${connection.id}/meetings",
+        body: meeting.toJson(),
       );
-      print("Conexión actualizada con éxito");
-
+      print("Meeting creada con éxito");
     } catch (e) {
-      print("Error al actualizar la conexión: $e");
+      print("Error al crear la meeting: $e");
     }
   }
 
-  Future<void> createMeetingOfConnection(
+    Future<void> updateMeetingOfConnection(
       BuildContext context, Connection connection, Meeting meeting) async {
-    
-    List<Meeting> meetings = List.from(connection.meetings);
-    meetings.add(meeting);
-    connection.meetings = meetings;
+      print("En updateMeetingOfConnection: ${meeting.toString()}");
     try {
       await ApiService.put(
-        endpoint: "/connections/${connection.id}",
-        body: connection.toJson(),
+        endpoint: "/connections/${connection.id}/meetings/${meeting.meetingID}",
+        body: meeting.toJson(),
       );
-      print("Conexión actualizada con éxito");
-
+      print("Meeting actualizado con éxito");
     } catch (e) {
-      print("Error al actualizar la conexión en create meeting: $e");
+      print("Error al actualizar el meeting: $e");
     }
   }
 }
