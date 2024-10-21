@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
 
 List<String> months = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto',
@@ -23,6 +22,10 @@ String formattedDate() {
 
 String formatMeetingDate(DateTime date) {
   return '${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}';
+}
+
+String formatMeetingDateShort(DateTime date) {
+  return 'Próximo ${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]}';
 }
 
 String formatDayOfWeek(int weekday) {
@@ -83,22 +86,22 @@ String formatDateChat(DateTime date) {
   }
 }
 
-custom_time.TimeOfDay formatDateTimeOfDay(DateTime? date, TimeOfDay?fromTime, TimeOfDay? toTime) {
-  return custom_time.TimeOfDay(
-    dayOfWeek: '${weekdays[date!.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}',
-    from: timeToInt(fromTime!),
-    to: timeToInt(toTime!),
-  );
-}
-
-
-DateTime formatTimeOfDayToDate(custom_time.TimeOfDay timeOfDay) {
-  final List<String> dateParts = timeOfDay.dayOfWeek.split(' ');
-
-  final int day = int.parse(dateParts[1]);
-  final int month = months.indexOf(dateParts[3]) + 1;
-  final int? year = int.tryParse(dateParts[5]);
-  return DateTime(year!, month, day);
+String formatDateWallet(DateTime date) {
+  final todayDate = DateTime.now();
+  final today = DateTime(todayDate.year, todayDate.month, todayDate.day);
+  final messageDate = DateTime(date.year, date.month, date.day);
+  final difference = today.difference(messageDate);
+  if (today.isAtSameMomentAs(messageDate)) {
+    return 'Hoy';
+  } else if (difference.inDays == 1) {
+    return 'Ayer';
+  } else if ((difference.inDays > 1) && (difference.inDays < 7)) {
+    return weekdays[messageDate.weekday - 1];
+  } else if (today.year == messageDate.year) {
+    return '${messageDate.day} ${months[messageDate.month - 1]}';
+  } else {
+    return '${messageDate.day} ${months[messageDate.month - 1]} ${messageDate.year}';
+  }
 }
 
 TimeOfDay formatIntToTime(int time) {

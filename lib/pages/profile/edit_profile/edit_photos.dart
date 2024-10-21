@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/navigation.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:mobile/services/files_service.dart';
@@ -170,7 +170,10 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             onPressed: () async {
               await _uploadPhotos(null); // Upload photos when the check button is pressed
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
+              );
             },
           ),
         ],

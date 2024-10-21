@@ -1,14 +1,21 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/payment/pay.dart';
+import 'package:mobile/pages/profile/complete_profile/identity_verification.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_availability.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_photos.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
-import 'package:mobile/pages/profile/settings.dart';
+import 'package:mobile/pages/wallet/wallet.dart';
+import 'package:mobile/pages/profile/edit_profile/settings.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+
+UserHelper userHelper = UserHelper();
 
 class MyProfilePage extends StatefulWidget {
   @override
@@ -16,48 +23,201 @@ class MyProfilePage extends StatefulWidget {
 }
 
 class _MyProfilePageState extends State<MyProfilePage> {
+  late AuthSessionProvider authProvider;
   String? _profileImageUrl;
   final FilesService _filesService = FilesService();
   final EditProfileImageBottomSheet _bottomSheet =
       EditProfileImageBottomSheet();
+  final List<ProfileCompletionCard> profileCompletionCards = [];
+  int profileCompletedProgress = 0;
+  bool? isBuddy;
+  bool? isProfileImageUploaded;
+  bool? isIdentityVerified;
+  bool? isBiographyCompleted;
+  bool? isPhotoAlbumCompleted;
+  bool? isIntroVideoUploaded;
+  bool? isBuddyApplicationCompleted;
 
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
     _loadProfileImage();
+    setState(() {
+      isBuddy = authProvider.userData!.buddy != null;
+      isIdentityVerified = userHelper.isUserIdentityVerified(authProvider.userData!);
+      isBiographyCompleted = userHelper.isUserBiographyCompleted(authProvider.userData!);
+      isPhotoAlbumCompleted = userHelper.isUserPhotoAlbumCompleted(authProvider.userData!);
+      isIntroVideoUploaded = userHelper.isIntroVideoUploaded(authProvider.userData!);
+      isBuddyApplicationCompleted = userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
+    });
   }
 
   Future<void> _loadProfileImage() async {
-    final authProvider =
-        Provider.of<AuthSessionProvider>(context, listen: false);
-
     try {
-      String? imageUrl =
-          await _filesService.getProfileImageUrl(authProvider.user!.uid);
+      String? imageUrl = await _filesService.getProfileImageUrl(authProvider.user!.uid);
+      Map<String, String?> urlsMap = await _filesService.getCurrentUserDocuments(context);
+      bool isUserIdentityUploaded = true;
+      for (String key in urlsMap.keys) {
+        if (urlsMap[key] == null) {
+          isUserIdentityUploaded = false;
+        }
+      }
       setState(() {
         _profileImageUrl = imageUrl;
+        isProfileImageUploaded = _profileImageUrl != null;
+        isIdentityVerified = isUserIdentityUploaded;
+        _loadProfileCompletion();
       });
     } catch (e) {
+      setState(() {
+        isProfileImageUploaded = false;
+        isIdentityVerified = false;
+        _loadProfileCompletion();
+      });
       print('Error al cargar la imagen de perfil: $e');
-      // TODO: manejar el error mostrando un mensaje al usuario.
     }
+  }
+
+  void _loadProfileCompletion() {
+    profileCompletionCards.clear();
+    
+    if (isBuddy!) {
+      profileCompletionCards.add(ProfileCompletionCard(
+        title: "Verificar identidad",
+        completed: isIdentityVerified!,
+        icon: Icons.verified_user_rounded,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => IdentityVerificationPage()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Enviar"),
+        )
+      ));
+      if (isBuddy!) {
+        profileCompletionCards.add(ProfileCompletionCard(
+          title: "Cargá tu foto de perfil",
+          completed: isProfileImageUploaded ?? false,
+          icon: Icons.photo_camera_rounded,
+          button: ElevatedButton(
+            onPressed: () {
+              _bottomSheet.show(context, _loadProfileImage);
+            },
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text("Cargar"),
+          )
+        ));
+      }
+      profileCompletionCards.add(ProfileCompletionCard(
+        title: "Completá tu biografía",
+        completed: isBiographyCompleted!,
+        icon: Icons.edit_document,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditBiographyPage(isEdit: false,)),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Completar"),
+        )
+      ));
+      profileCompletionCards.add(ProfileCompletionCard(
+        title: "Completá tu album de fotos",
+        completed: isPhotoAlbumCompleted!,
+        icon: Icons.photo_album,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditPhotosPage()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Cargar"),
+        )
+      ));
+      if (isBuddy!) {
+        profileCompletionCards.add(ProfileCompletionCard(
+          title: "Cargá tu video introductorio",
+          completed: isIntroVideoUploaded!,
+          icon: Icons.video_camera_back_rounded,
+          button: ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyProfilePage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text("Cargar"),
+          )
+        ));
+      }
+      if (isBuddy!) {
+        profileCompletionCards.add(ProfileCompletionCard(
+          title: "Aplicá para ser Buddy",
+          completed: isBuddyApplicationCompleted!,
+          icon: Icons.arrow_upward_rounded,
+          button: ElevatedButton(
+            onPressed: () {
+              
+            },
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text("Enviar"),
+          )
+        ));
+      }
+    }
+    setState(() {
+      profileCompletedProgress = profileCompletionCards.where((p) => p.completed).length;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authProvider = Provider.of<AuthSessionProvider>(context);
     final registrationDate = authProvider.isBuddy
         ? DateFormat('MMM yyyy')
             .format(authProvider.userData!.buddy!.registrationDate)
         : DateFormat('MMM yyyy')
             .format(authProvider.userData!.elder!.registrationDate);
 
+    final settingsToShow = authProvider.isBuddy ? customListTilesBuddy : customListTilesElder;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 0,
-        backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
         actions: [
           IconButton(
@@ -100,7 +260,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   CircleAvatar(
                     radius: 60,
                     backgroundImage: _profileImageUrl != null
-                        ? NetworkImage(_profileImageUrl!)
+                        ? CachedNetworkImageProvider(
+                            _profileImageUrl!,
+                          )
                         : AssetImage('assets/images/default_user.jpg')
                             as ImageProvider,
                   ),
@@ -160,91 +322,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
           const SizedBox(height: 25),
           QuickProfileSummary(),
           const SizedBox(height: 25),
-          Row(
-            children: const [
-              Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Text(
-                  "Completá tu perfil",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Text(
-                "(1/5)",
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: List.generate(6, (index) {
-              return Expanded(
-                child: Container(
-                  height: 7,
-                  margin: EdgeInsets.only(right: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: index == 0 ? Colors.blue : Colors.black12,
-                  ),
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 180,
-            child: ListView.separated(
-              physics: const BouncingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                final card = profileCompletionCards[index];
-                return SizedBox(
-                  width: 160,
-                  child: Card(
-                    shadowColor: Colors.black12,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Icon(
-                            card.icon,
-                            size: 30,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            card.title,
-                            textAlign: TextAlign.center,
-                          ),
-                          const Spacer(),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                            ),
-                            child: Text(card.buttonText),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) =>
-                  const Padding(padding: EdgeInsets.only(right: 5)),
-              itemCount: profileCompletionCards.length,
-            ),
-          ),
-          const SizedBox(height: 35),
+          if (profileCompletedProgress != profileCompletionCards.length)
+            _showCompletionCards(),
           ...List.generate(
-            customListTiles.length,
+            settingsToShow.length,
             (index) {
-              final tile = customListTiles[index];
+              final tile = settingsToShow[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 5),
                 child: Card(
@@ -293,18 +376,22 @@ class _MyProfilePageState extends State<MyProfilePage> {
     Widget? targetPage;
 
     switch (title) {
+      case 'Pagar suscripción':
+        targetPage = PaymentPage();
+      case 'Billetera':
+        targetPage = WalletPage();
       case 'Disponibilidad horaria':
         targetPage = EditAvailabilityPage();
       case 'Biografia':
-        targetPage = EditBiographyPage();
+        targetPage = EditBiographyPage(isEdit: true,);
       case 'Fotos':
         targetPage = EditPhotosPage();
       case 'Video introductorio':
-        targetPage = MyProfilePage(); // EditIntroVideoPage();
+        targetPage = MyProfilePage();
       case 'Intereses':
         targetPage = EditInterestsPage();
       case 'Datos de trabajo y/o estudio':
-        targetPage = MyProfilePage(); // EditWorkOrStudyPage();
+        targetPage = MyProfilePage();
     }
 
     if (targetPage != null) {
@@ -314,46 +401,116 @@ class _MyProfilePageState extends State<MyProfilePage> {
       );
     }
   }
+
+  Widget _showCompletionCards() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: 5),
+              child: Text(
+                "Completá tu perfil",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Text(
+              "($profileCompletedProgress/${profileCompletionCards.length})",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimaryFixedVariant,
+              ),
+            )
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            ...List.generate(profileCompletedProgress, (index) {
+              return Expanded(
+                child: Container(
+                  height: 7,
+                  margin: EdgeInsets.only(right: 6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+                ),
+              );
+            }),
+            ...List.generate(profileCompletionCards.length - profileCompletedProgress, (index) {
+              return Expanded(
+                child: Container(
+                  height: 7,
+                  margin: EdgeInsets.only(right: 6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Theme.of(context).colorScheme.surfaceDim,
+                  ),
+                ),
+              );
+            }),
+          ],
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 180,
+          child: ListView.separated(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final card = profileCompletionCards[index];
+              return SizedBox(
+                width: 160,
+                child: Card(
+                  shadowColor: Theme.of(context).colorScheme.surface,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      children: [
+                        Icon(
+                          card.icon,
+                          size: 30,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          card.title,
+                          textAlign: TextAlign.center,
+                        ),
+                        const Spacer(),
+                        if (!card.completed)
+                          card.button,
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+            separatorBuilder: (context, index) =>
+                const Padding(padding: EdgeInsets.only(right: 5)),
+            itemCount: profileCompletionCards.length,
+          ),
+        ),
+        const SizedBox(height: 35),
+      ],
+    );
+  }
 }
 
 class ProfileCompletionCard {
   final String title;
-  final String buttonText;
+  final bool completed;
+  final ElevatedButton button;
   final IconData icon;
   ProfileCompletionCard({
     required this.title,
-    required this.buttonText,
+    required this.completed,
+    required this.button,
     required this.icon,
   });
 }
 
-List<ProfileCompletionCard> profileCompletionCards = [
-  ProfileCompletionCard(
-    title: "Cargá tu foto de perfil",
-    icon: Icons.photo_camera,
-    buttonText: "Cargar",
-  ),
-  ProfileCompletionCard(
-    title: "Completá tu biografía",
-    icon: Icons.edit_document,
-    buttonText: "Completar",
-  ),
-  ProfileCompletionCard(
-    title: "Completá tu album de fotos",
-    icon: Icons.photo_album,
-    buttonText: "Cargar",
-  ),
-  ProfileCompletionCard(
-    title: "Cargá tu video introductorio",
-    icon: Icons.video_camera_back,
-    buttonText: "Cargar",
-  ),
-  ProfileCompletionCard(
-    title: "Aplicá para ser Buddy",
-    icon: Icons.arrow_upward,
-    buttonText: "Enviar",
-  ),
-];
 
 class CustomListTile {
   final IconData icon;
@@ -364,7 +521,11 @@ class CustomListTile {
   });
 }
 
-List<CustomListTile> customListTiles = [
+List<CustomListTile> customListTilesBuddy = [
+  CustomListTile(
+    icon: Icons.payment,
+    title: "Billetera",
+  ),
   CustomListTile(
     icon: Icons.schedule,
     title: "Disponibilidad horaria",
@@ -388,6 +549,29 @@ List<CustomListTile> customListTiles = [
   CustomListTile(
     icon: Icons.work,
     title: "Datos de trabajo y/o estudio",
+  ),
+];
+
+List<CustomListTile> customListTilesElder = [
+  CustomListTile(
+    icon: Icons.payment,
+    title: "Pagar suscripción",
+  ),
+  CustomListTile(
+    icon: Icons.schedule,
+    title: "Disponibilidad horaria",
+  ),
+  CustomListTile(
+    icon: Icons.text_snippet,
+    title: "Biografia",
+  ),
+  CustomListTile(
+    icon: Icons.photo,
+    title: "Fotos",
+  ),
+  CustomListTile(
+    icon: Icons.favorite,
+    title: "Intereses",
   ),
 ];
 

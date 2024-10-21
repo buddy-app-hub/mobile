@@ -1,82 +1,183 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/routes.dart';
+import 'package:mobile/pages/auth/become_buddy.dart';
+import 'package:mobile/pages/auth/want_buddy_loved_one.dart';
+import 'package:mobile/pages/auth/want_buddy_myself.dart';
+import 'package:mobile/theme/theme_text_style.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class ChooseUserPage extends StatelessWidget {
-  const ChooseUserPage({super.key});
+class ChooseUserPage extends StatefulWidget {
+  const ChooseUserPage({super.key, required this.countryCode, required this.phone});
 
+  final String phone;
+  final String countryCode;
   @override
+  _ChooseUserPageState createState() => _ChooseUserPageState();
+}
+class _ChooseUserPageState extends State<ChooseUserPage> {
+   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    PageController _pageController = PageController();
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: Colors.transparent,
+        title: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: SmoothPageIndicator(    
+            controller: _pageController,   
+            count:  3,    
+            effect:  WormEffect(
+              activeDotColor: theme.colorScheme.onPrimaryFixedVariant,
+              dotColor: theme.colorScheme.outlineVariant,
+            ),   
+            onDotClicked: (index){    
+            }
+          )    
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(42.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, Routes.wantBuddyForMyself);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 36),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                backgroundColor: theme.colorScheme.primary,
-              ),
-              child: Text(
-                'Quiero un buddy para mi',
-                style:
-                    TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
-              ),
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: 3,
+            onPageChanged: (index) {
+              // setState(() {
+              //   _currentPage = index;
+              // });
+            },
+            itemBuilder: (context, index) {
+              return Center(
+                child: _createUserDescription(context, theme, index)
+              );
+            },
+          ),
+          
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.fromLTRB(28, 20, 28, 40),
+        child: ElevatedButton(
+          onPressed: () {
+            _chosenUser(context, _pageController);
+          },
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 120),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
             ),
-            const SizedBox(height: 60),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, Routes.wantBuddyForLovedOne);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 30),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                backgroundColor: theme.colorScheme.primary,
-              ),
-              child: Text(
-                'Quiero un buddy\npara un ser querido',
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimary,
-                  fontSize: 20,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 60),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, Routes.beBuddy);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 42),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                backgroundColor: theme.colorScheme.primary,
-              ),
-              child: Text(
-                'Quiero ser buddy',
-                style:
-                    TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
-              ),
-            ),
-          ],
+            backgroundColor: theme.colorScheme.inversePrimary,
+          ),
+          child: Text(
+            'Elegir',
+            style:
+                TextStyle(color: theme.colorScheme.onPrimaryContainer, fontSize: 20),
+          ),
         ),
       ),
     );
+  }
+
+  _chosenUser(context, PageController controller) {
+    if (controller.page == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WantBuddyForMyselfPage(
+            countryCode: widget.countryCode,
+            phone: widget.phone,
+          ),
+        ),
+      );
+    } else if (controller.page == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WantBuddyForLovedOnePage(
+            countryCode: widget.countryCode,
+            phone: widget.phone,
+          ),
+        ),
+      );
+    } else if (controller.page == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BecomeBuddyPage(
+            countryCode: widget.countryCode,
+            phone: widget.phone,
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _createUserDescription(BuildContext context, ThemeData theme, int index) {
+    if (index == 0) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(28, 30, 28, 10),
+            child: Text(
+              'Quiero un buddy para mi',
+              style: TextStyle(fontSize: 24),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(30, 30, 30, 40),
+            child: Text(
+              'Quiero que mi ser querido sea acompañado de jóvenes con los que comparta experiencias divertidas, a fin de socializar el estar acompañado cuando yo no esté con él.',
+              style: ThemeTextStyle.titleSmallOutline(context),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      );
+    } else if (index == 1) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(28, 30, 28, 10),
+            child: Text(
+              'Quiero un buddy para un ser querido',
+              style: TextStyle(fontSize: 24),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(30, 30, 30, 40),
+            child: Text(
+              'Quiero realizar actividades y compartir experiencias con personas de otras generaciones, estableciendo amistades que van más allá de la edad.',
+              style: ThemeTextStyle.titleSmallOutline(context),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(28, 30, 28, 10),
+            child: Text(
+              'Quiero ser buddy',
+              style: TextStyle(fontSize: 24),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(30, 20, 30, 40),
+            child: Text(
+              'Quiero combatir la soledad compartiendo momentos únicos junto a adultos mayores, generando un impacto positivo y obteniendo un ingreso económico.',
+              style: ThemeTextStyle.titleSmallOutline(context),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      );
+    }
   }
 }

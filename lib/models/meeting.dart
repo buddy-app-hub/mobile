@@ -1,31 +1,38 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'time_of_day.dart';
+import 'package:mobile/models/meeting_schedule.dart';
+import 'package:mobile/models/review.dart';
 import 'meeting_location.dart';
 
 part 'meeting.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Meeting {
-  TimeOfDay date;
+  String? meetingID;
   bool isCancelled;
   bool isConfirmedByBuddy;
   bool isConfirmedByElder;
   bool isRescheduled;
+  bool isPaymentPending;
   String activity;
   DateTime dateLastModification;
-  int? elderRatingForBuddy; // Rating that Elder made to Buddy
-  int? buddyRatingForElder; // Rating that Buddy made to Elder
+  Review? elderRatingForBuddy; // Review that Elder made to Buddy
+  Review? buddyRatingForElder; // Review that Buddy made to Elder
 
   @JsonKey(name: 'location')
   MeetingLocation location;
 
+  @JsonKey(name: 'schedule')
+  MeetingSchedule schedule;
+
   Meeting({
-    required this.date,
+    this.meetingID,
+    required this.schedule,
     required this.location,
     this.isCancelled = false,
     this.isConfirmedByBuddy = false,
     this.isConfirmedByElder = false,
     this.isRescheduled = false,
+    this.isPaymentPending = true,
     required this.activity,
     required this.dateLastModification,
     this.elderRatingForBuddy,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/meeting.dart';
-import 'package:mobile/models/meeting_location.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 
@@ -20,7 +18,7 @@ class _BaseCardCalendarState extends State<BaseCardCalendar> {
   @override
   void initState() {
     super.initState();
-    _eventsFuture = fetchEvents();
+    // _eventsFuture = fetchEvents();
   }
 
   @override
@@ -85,9 +83,9 @@ class _BaseCardCalendarState extends State<BaseCardCalendar> {
               itemBuilder: (context, index) {
                 final meeting = meetings[index];
                 return ListTile(
-                  title: Text(meeting.date.dayOfWeek),
+                  title: Text(meeting.schedule.date as String),
                   subtitle: Text(meeting.activity),
-                  trailing: Text('${meeting.date.from} - ${meeting.date.to}'),
+                  trailing: Text('${meeting.schedule.startHour} - ${meeting.schedule.endHour}'),
                   leading: Icon(Icons.calendar_today_outlined),
                   leadingAndTrailingTextStyle: ThemeTextStyle.titleSmallOnTertiaryContainer(context),
                 );
@@ -99,45 +97,45 @@ class _BaseCardCalendarState extends State<BaseCardCalendar> {
     );
   }
 
-  Future<List<Meeting>> fetchEvents() async {
-    await Future.delayed(Duration(seconds: 1)); //cambiar a que se llame a la api
-    return [
-      Meeting(
-        date: custom_time.TimeOfDay(dayOfWeek: 'Lunes', from: 14, to: 15),
-        activity: 'Taller de Bordado', 
-        isCancelled: false,
-        isConfirmedByBuddy: true,
-        isConfirmedByElder: true,
-        isRescheduled: false,
-        dateLastModification: DateTime.now(),
-        location: MeetingLocation(
-          isEldersHome: false,
-          placeName: 'Taller',
-          streetName: 'Av. 9 de Julio',
-          streetNumber: 1234,
-          city: 'CABA',
-          state: 'CABA',
-          country: 'Argentina'
-        ),
-      ),
-      Meeting(
-        date: custom_time.TimeOfDay(dayOfWeek: 'Martes', from: 16, to: 17),
-        activity: 'Caminata por el parque', 
-        isCancelled: false,
-        isConfirmedByBuddy: true,
-        isConfirmedByElder: true,
-        isRescheduled: false,
-        dateLastModification: DateTime.now(),
-        location: MeetingLocation(
-          isEldersHome: false,
-          placeName: 'Parque Saavedra',
-          streetName: 'Saavedra',
-          streetNumber: 5312,
-          city: 'CABA',
-          state: 'CABA',
-          country: 'Argentina'
-        ),
-      ),
-    ];
-  }
+  // Future<List<Meeting>> fetchEvents() async {
+  //   await Future.delayed(Duration(seconds: 1)); //cambiar a que se llame a la api
+  //   return [
+  //     Meeting(
+  //       schedule: TimeOfDay(dayOfWeek: 'Lunes', from: 14, to: 15),
+  //       activity: 'Taller de Bordado', 
+  //       isCancelled: false,
+  //       isConfirmedByBuddy: true,
+  //       isConfirmedByElder: true,
+  //       isRescheduled: false,
+  //       dateLastModification: DateTime.now(),
+  //       location: MeetingLocation(
+  //         isEldersHome: false,
+  //         placeName: 'Taller',
+  //         streetName: 'Av. 9 de Julio',
+  //         streetNumber: 1234,
+  //         city: 'CABA',
+  //         state: 'CABA',
+  //         country: 'Argentina'
+  //       ),
+  //     ),
+  //     Meeting(
+  //       date: custom_time.TimeOfDay(dayOfWeek: 'Martes', from: 16, to: 17),
+  //       activity: 'Caminata por el parque', 
+  //       isCancelled: false,
+  //       isConfirmedByBuddy: true,
+  //       isConfirmedByElder: true,
+  //       isRescheduled: false,
+  //       dateLastModification: DateTime.now(),
+  //       location: MeetingLocation(
+  //         isEldersHome: false,
+  //         placeName: 'Parque Saavedra',
+  //         streetName: 'Saavedra',
+  //         streetNumber: 5312,
+  //         city: 'CABA',
+  //         state: 'CABA',
+  //         country: 'Argentina'
+  //       ),
+  //     ),
+  //   ];
+  // }
 }

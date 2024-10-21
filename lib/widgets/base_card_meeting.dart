@@ -3,14 +3,18 @@ import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
+import 'package:mobile/models/meeting_schedule.dart';
+import 'package:mobile/models/payment_handshake.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/pages/connections/meetings/edit_meeting.dart';
+import 'package:mobile/pages/payment/mercadopago.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
@@ -19,6 +23,10 @@ import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:provider/provider.dart';
 
 UserHelper userHelper = UserHelper();
+
+bool isConfirmed(Meeting m) {
+  return m.isConfirmedByBuddy && m.isConfirmedByElder;
+}
 
 Future<List<Widget>> fetchMeetingsAsFuture(ThemeData theme, UserData userData) async {
   final stream = fetchMeetings(theme, userData);
@@ -64,9 +72,9 @@ Future<Widget> buildCards(ThemeData theme, Connection connection, UserData userD
   String personID, personName;
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
   List<Meeting> meetings = connection.meetings.where((m) =>
-        validateDate(m.date) &&
+        isDateInNextWeek(m.schedule.date) &&
         !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder).toList();
   if (meetings.isEmpty) {
     return Column();
@@ -97,9 +105,9 @@ Future<Widget> buildRescheduledMeetingCards(ThemeData theme, Connection connecti
   String personID, personName;
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
   List<Meeting> meetings = connection.meetings.where((m) =>
-        validateFutureDate(m.date) && m.isRescheduled &&
+        isDateInFuture(m.schedule.date) && m.isRescheduled &&
         !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
   if (meetings.isEmpty) {
     return Column();
@@ -133,11 +141,15 @@ Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, User
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
 
-  connection.meetings.sort((a,b) => formatTimeOfDayToDate(a.date).compareTo(formatTimeOfDayToDate(b.date)));
+  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
 
   List<Meeting> meetings = connection.meetings.where((m) =>
-      validateFutureDate(m.date) && !m.isRescheduled &&
-      !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
+      isDateInFuture(m.schedule.date) && !m.isRescheduled &&
+      !m.isCancelled && !isConfirmed(m))
+      .where((m) => !isBuddy || !m.isPaymentPending)
+      .toList();
+
+
 
   if (meetings.isEmpty) {
     return Column();
@@ -171,12 +183,12 @@ Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userDa
   return [imageUser, imageConnection];
 }
 
-String formatDate(custom_time.TimeOfDay date) {
-  return date.dayOfWeek;
+String getDayName(DateTime date) {
+  return formatDayOfWeek(date.weekday);
 }
 
-String formatTime(custom_time.TimeOfDay date) {
-  return 'De ${intToTime(date.from)} a ${intToTime(date.to)}';
+String formatTime(MeetingSchedule schedule) {
+  return 'De ${intToTime(schedule.startHour)} a ${intToTime(schedule.endHour)}';
 }
 
 String formatLocation(MeetingLocation location) {
@@ -191,8 +203,8 @@ BaseCardMeeting buildCard(bool isBuddy, String personID, String personName, Conn
     meeting: meeting,
     personID: personID,
     person: personName,
-    date: formatDate(meeting.date),
-    time: formatTime(meeting.date),
+    date: formatMeetingDateShort(meeting.schedule.date),
+    time: formatTime(meeting.schedule),
     location: formatLocation(meeting.location),
     avatars: images,
   );
@@ -206,8 +218,8 @@ BaseCardMeeting buildNextEventCard(bool isBuddy,String personID, String personNa
     meeting: meeting,
     personID: personID,
     person: personName,
-    date: formatDate(meeting.date),
-    time: formatTime(meeting.date),
+    date: formatMeetingDateShort(meeting.schedule.date),
+    time: formatTime(meeting.schedule),
     location: formatLocation(meeting.location),
     avatars: images,
   );
@@ -312,7 +324,7 @@ class BaseCardMeeting extends StatelessWidget {
                                   child: Text('Confirmar'),
                                   onPressed: () async{
                                     meeting.isCancelled = true;
-                                    await connectionService.updateConnectionMeetings(context, connection, meeting);
+                                    await connectionService.updateMeetingOfConnection(context, connection, meeting);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('Encuentro cancelado')),
                                     );
@@ -356,13 +368,25 @@ class BaseCardMeeting extends StatelessWidget {
                     children: [
                       if (isNextMeeting)
                        buildNewMeetingButton(context, isBuddy, meeting, () async {
+                          if (meeting.isPaymentPending) {
+                            final paymentService = PaymentService();
+                            PaymentHandshake? payment = await paymentService.getHandshake(connection.id!, meeting.meetingID!);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      MercadoPagoScreen(
+                                        url: payment.sandboxInitPoint,
+                                      )));
+                            return;
+                          }
                           final connectionService = ConnectionService();
                           if (isBuddy) {
                             meeting.isConfirmedByBuddy = true;
                           } else {
                             meeting.isConfirmedByElder = true;
                           }
-                          await connectionService.updateConnectionMeetings(context, connection, meeting);
+                          await connectionService.updateMeetingOfConnection(context, connection, meeting);
                           Navigator.pushNamed(context, Routes.splashScreen);
                         }),
                       if (!isNextMeeting)
@@ -379,10 +403,10 @@ class BaseCardMeeting extends StatelessWidget {
                         }),
                       Spacer(),
                       Container(
-                        width: 100,
+                        width: 150,
                         height: 60,
                         alignment: Alignment.bottomRight,
-                        child: BaseAvatarStack(avatars: avatars),
+                        child: BaseAvatarStack(avatars: avatars, spacing: 50,),
                       ),
                     ],
                   ),

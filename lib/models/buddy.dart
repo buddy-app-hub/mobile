@@ -18,6 +18,7 @@ class Buddy {
   final bool isIdentityValidated;
   final PersonalData personalData;
   final String email;
+  final String? walletId;
   final PhoneNumber phoneNumber;
   final IdentityCard? identityCard;
   final BankAccount? bankAccount;
@@ -33,6 +34,7 @@ class Buddy {
     this.isIdentityValidated = false,
     required this.personalData,
     required this.email,
+    this.walletId,
     required this.phoneNumber,
     this.identityCard,
     this.bankAccount,

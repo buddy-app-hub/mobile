@@ -103,4 +103,44 @@ class UserHelper {
       return imageUrl; 
     }
   }
+
+  bool isUserIdentityVerified(UserData userData) {
+    var isIdentityValidated = userData.buddy != null
+      ? userData.buddy?.isIdentityValidated
+      : true;
+
+    return isIdentityValidated!;
+  }
+
+  bool isUserBiographyCompleted(UserData userData) {
+    var userBiography = userData.buddy != null
+      ? userData.buddy?.buddyProfile!.description
+      : userData.elder?.elderProfile!.description;
+
+    return userBiography != null;
+  }
+
+  bool isUserPhotoAlbumCompleted(UserData userData) {
+    var photoAlbum = userData.buddy != null
+      ? userData.buddy?.buddyProfile!.photos
+      : userData.elder?.elderProfile!.photos;
+
+    return photoAlbum != null && photoAlbum.isNotEmpty;
+  }
+
+  bool isIntroVideoUploaded(UserData userData) {
+    var introVideo = userData.buddy != null
+      ? userData.buddy!.isApplicationToBeBuddyUnderReview
+      : true;
+
+    return introVideo;
+  }
+
+  bool isUserBuddyApplicationCompleted(UserData userData) {
+    var applicationCompleted = userData.buddy != null
+      ? userData.buddy!.isApprovedBuddy
+      : true;
+
+    return applicationCompleted;
+  }
 }

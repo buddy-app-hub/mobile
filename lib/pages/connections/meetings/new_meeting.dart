@@ -3,12 +3,15 @@ import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
+import 'package:mobile/models/meeting_schedule.dart';
+import 'package:mobile/pages/auth/splash_screen.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
@@ -183,7 +186,11 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                   SnackBar(content: Text('Encuentro creado correctamente')),
                 );
                 final meeting = Meeting(
-                  date: formatDateTimeOfDay(_dateTime, _fromTime, _toTime),
+                  schedule: MeetingSchedule(
+                    date: _dateTime ?? DateTime.now(), 
+                    startHour: timeToInt(_fromTime!), 
+                    endHour: timeToInt(_toTime!)
+                  ),
                   location: MeetingLocation(
                     isEldersHome: _isElderHouseSelected, 
                     placeName: placeName, 
@@ -194,24 +201,11 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                     country: country), 
                   activity: activity, 
                   dateLastModification: DateTime.now(),
+                  isPaymentPending: true,
                 );
                 await sendNewMeeting(meeting);
-                Navigator.pop(scaffoldContext);
-                // setState(() {
-                //   _dateController.clear();
-                //   _fromController.clear();
-                //   _toController.clear();
-                //   _placeNameController.clear();
-                //   _streetNameController.clear();
-                //   _streetNumberController.clear();
-                //   _cityController.clear();
-                //   _stateController.clear();
-                //   _countryController.clear();
-                //   _activityController.clear();
-                //   _dateTime = null;
-                //   _fromTime = null;
-                //   _toTime = null;
-                // });
+                //Navigator.pop(scaffoldContext);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => SplashScreen()));
               }
             },
             icon: Icon(Icons.check),
@@ -324,7 +318,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                                     if (value && address != null) {
                                       _isElderHouseAddress = value;
                                       _streetNameController.text = address.streetName;
-                                      _streetNumberController.text = address.streetNumber as String;
+                                      _streetNumberController.text = address.streetNumber.toString();
                                       _cityController.text = address.city;
                                       _stateController.text = address.state;
                                       _countryController.text = address.country;
@@ -443,7 +437,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   }
 
   Future<void> sendNewMeeting(Meeting meeting) async {
-    final combinedMessage = 'Encuentro programado el día ${meeting.date} desde ${intToTime(meeting.date.from)} hasta ${intToTime(meeting.date.from)} en ${meeting.location.placeName}';
+    final combinedMessage = 'Encuentro programado el día ${getDayName(meeting.schedule.date)} desde ${intToTime(meeting.schedule.startHour)} hasta ${intToTime(meeting.schedule.endHour)} en ${meeting.location.placeName}';
     
     if (combinedMessage.isNotEmpty) {
       await connectionService.createMeetingOfConnection(context, widget.connection, meeting);

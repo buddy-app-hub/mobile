@@ -25,7 +25,9 @@ BaseElevatedButton buildNewMeetingButton(BuildContext context, bool isBuddy, Mee
   String buttonText;
   bool buttonDisabled = false;
   double buttonSize = 150;
-  if (isBuddy && meeting.isConfirmedByBuddy && !meeting.isConfirmedByElder) {
+  if (!isBuddy && meeting.isPaymentPending) {
+    buttonText = 'Pagar';
+  } else if (isBuddy && meeting.isConfirmedByBuddy && !meeting.isConfirmedByElder) {
     buttonText = 'Esperando confirmación';
     buttonDisabled = true;
   } else if (!isBuddy && !meeting.isConfirmedByBuddy && meeting.isConfirmedByElder) {

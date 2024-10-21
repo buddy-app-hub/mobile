@@ -12,7 +12,7 @@ class PersonalData {
   final DateTime? birthDate;
   final String? nationality;
   final String? maritalStatus;
-  final Address? address;
+  Address? address;
 
   PersonalData({
     required this.firstName,

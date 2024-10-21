@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
-import 'package:mobile/utils/format_date.dart';
 
 String? validateEmail(String? value) {
   const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
@@ -80,17 +78,13 @@ bool validateMeetingTimeRange(TimeOfDay? from, TimeOfDay? to) {
   return fromMilliseconds < toMilliseconds && differenceMilliseconds == 3600000;
 }
 
-bool validateDate(custom_time.TimeOfDay date) {
-  final formattedDate = formatTimeOfDayToDate(date);
-
+bool isDateInNextWeek(DateTime date) {
   final currentDate = DateTime.now();
   final nextWeekDate = currentDate.add(Duration(days: 7));
-  return formattedDate.isAfter(currentDate) && formattedDate.isBefore(nextWeekDate);
+  return date.isAfter(currentDate) && date.isBefore(nextWeekDate);
 }
 
-bool validateFutureDate(custom_time.TimeOfDay date) {
-  final formattedDate = formatTimeOfDayToDate(date);
-
+bool isDateInFuture(DateTime date) {
   final currentDate = DateTime.now();
-  return formattedDate.isAfter(currentDate);
+  return date.isAfter(currentDate);
 }
