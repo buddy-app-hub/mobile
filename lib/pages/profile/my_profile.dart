@@ -212,6 +212,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
         : DateFormat('MMM yyyy')
             .format(authProvider.userData!.elder!.registrationDate);
 
+    final settingsToShow = authProvider.isBuddy ? customListTilesBuddy : customListTilesElder;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -323,9 +325,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
           if (profileCompletedProgress != profileCompletionCards.length)
             _showCompletionCards(),
           ...List.generate(
-            customListTiles.length,
+            settingsToShow.length,
             (index) {
-              final tile = customListTiles[index];
+              final tile = settingsToShow[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 5),
                 child: Card(
@@ -519,11 +521,7 @@ class CustomListTile {
   });
 }
 
-List<CustomListTile> customListTiles = [
-  CustomListTile(
-    icon: Icons.payment,
-    title: "Pagar suscripción",
-  ),
+List<CustomListTile> customListTilesBuddy = [
   CustomListTile(
     icon: Icons.payment,
     title: "Billetera",
@@ -551,6 +549,29 @@ List<CustomListTile> customListTiles = [
   CustomListTile(
     icon: Icons.work,
     title: "Datos de trabajo y/o estudio",
+  ),
+];
+
+List<CustomListTile> customListTilesElder = [
+  CustomListTile(
+    icon: Icons.payment,
+    title: "Pagar suscripción",
+  ),
+  CustomListTile(
+    icon: Icons.schedule,
+    title: "Disponibilidad horaria",
+  ),
+  CustomListTile(
+    icon: Icons.text_snippet,
+    title: "Biografia",
+  ),
+  CustomListTile(
+    icon: Icons.photo,
+    title: "Fotos",
+  ),
+  CustomListTile(
+    icon: Icons.favorite,
+    title: "Intereses",
   ),
 ];
 
