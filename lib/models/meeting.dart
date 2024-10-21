@@ -32,7 +32,7 @@ class Meeting {
     this.isConfirmedByBuddy = false,
     this.isConfirmedByElder = false,
     this.isRescheduled = false,
-    this.isPaymentPending = false,
+    this.isPaymentPending = true,
     required this.activity,
     required this.dateLastModification,
     this.elderRatingForBuddy,
