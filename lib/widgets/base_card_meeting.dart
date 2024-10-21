@@ -394,7 +394,8 @@ class BaseCardMeeting extends StatelessWidget {
                           final chatService = ChatService();
                           final chatRoomId = await chatService.createChatRoom(
                             person,
-                            [personID], userData
+                            personID, 
+                            userData,
                           );
                           Navigator.push(
                             context,
