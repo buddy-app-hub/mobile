@@ -19,20 +19,19 @@ class ChatService {
   Future<String> createChatRoom(String name, List<String> participants, UserData userData) async {
     //TODO si el elder tendria que agregar al lovedOne
     participants.add(currentUser!.uid);
-    
-    final chatRooms = await _firestore.collection('chatRooms').where('participants', arrayContainsAny: participants).get();
+    final chatRooms = await _firestore.collection('chatRooms').where('participants', arrayContains: participants).get();
 
     if (chatRooms.docs.isEmpty) {
       String groupName = '';
 
       if (userData.buddy == null) {
         if (userData.elder!.onLovedOneMode) {
-          groupName = '$name, ${userData.elder!.personalData.firstName} y ${userData.elder!.lovedOne!.firstName} ';
+          groupName = '${userData.elder!.personalData.firstName}, ${userData.elder!.lovedOne!.firstName} y $name';
         } else {
           groupName = '${userData.elder!.personalData.firstName} y $name';
         }
       } else {
-        groupName = '${currentUser!.displayName} y $name';
+        groupName = '$name y ${userData.buddy!.personalData.firstName}';
       }
 
       final chatRoomId = _firestore.collection('chatRooms').doc().id;
