@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
@@ -20,15 +21,18 @@ Stream<Widget> fetchConnections(UserData userData) async* {
   }
 }
 
-Future<Widget> buildConnectionCards(Connection connection, UserData userData) async {
+Future<Widget> buildConnectionCards(
+    Connection connection, UserData userData) async {
   bool isBuddy = userData.buddy != null;
   String personID, personName;
-  (personID, personName) = await userHelper.fetchPersonIDAndName(connection, isBuddy);
+  (personID, personName) =
+      await userHelper.fetchPersonIDAndName(connection, isBuddy);
   String? imageUrl = await userHelper.loadProfileImage(personID);
   return buildConnectionCard(connection, personID, personName, imageUrl);
 }
 
-BaseConnectionCard buildConnectionCard(Connection connectionID, String personID, String personName, String image) {
+BaseConnectionCard buildConnectionCard(
+    Connection connectionID, String personID, String personName, String image) {
   return BaseConnectionCard(
     connection: connectionID,
     personID: personID,
@@ -59,7 +63,11 @@ class BaseConnectionCard extends StatelessWidget {
       onTap: () async {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>  ViewProfilePage(connection: connection , personID: personID, isBuddy: isBuddy)),
+          MaterialPageRoute(
+              builder: (context) => ViewProfilePage(
+                  connection: connection,
+                  personID: personID,
+                  isBuddy: isBuddy)),
         );
       },
       child: Column(
@@ -70,9 +78,8 @@ class BaseConnectionCard extends StatelessWidget {
               image: DecorationImage(
                 fit: BoxFit.cover,
                 image: image.isEmpty
-                  ? AssetImage('assets/images/default_user.jpg')
-                  : NetworkImage(image)
-                    as ImageProvider,
+                    ? const AssetImage('assets/images/default_user.jpg')
+                    : CachedNetworkImageProvider(image) as ImageProvider,
               ),
               borderRadius: BorderRadius.circular(10.0),
             ),
