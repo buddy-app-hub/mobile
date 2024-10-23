@@ -9,49 +9,72 @@ import 'package:mobile/widgets/base_card_meeting.dart';
 
 UserHelper userHelper = UserHelper();
 
+// Funcion para filtrar reuniones confirmadas
+bool confirmedMeetingFilter(Meeting m) {
+  return isDateInNextWeek(m.schedule.date) &&
+      !m.isCancelled &&
+      !m.isPaymentPending &&
+      isConfirmed(m);
+}
+
+// Funcion para filtrar reuniones no confirmadas o pendientes de pago
+bool unconfirmedMeetingFilter(Meeting m, bool isBuddy) {
+  return isDateInFuture(m.schedule.date) &&
+      !m.isCancelled &&
+      (!isConfirmed(m) || m.isPaymentPending) &&
+      (!isBuddy || !m.isPaymentPending);
+}
+
 Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
-    ThemeData theme, UserData userData, List<Connection> connections) async {
+    ThemeData theme, UserData userData, List<Connection> connections) {
+  return fetchMeetingsAsFuture(
+    theme,
+    userData,
+    connections,
+    confirmedMeetingFilter,
+    'Próximos encuentros',
+    true,
+  );
+}
+
+Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
+    ThemeData theme, UserData userData, List<Connection> connections) {
+  bool isBuddy = userData.buddy != null;
+  return fetchMeetingsAsFuture(
+    theme,
+    userData,
+    connections,
+    (m) => unconfirmedMeetingFilter(m, isBuddy),
+    'Encuentros a confirmar',
+    false,
+  );
+}
+
+Future<List<Widget>> fetchMeetingsAsFuture(
+  ThemeData theme,
+  UserData userData,
+  List<Connection> connections,
+  bool Function(Meeting) filterFunction,
+  String titleText,
+  bool isConfirmedMeeting,
+) async {
   List<Meeting> allMeetings = [];
-  String personID, personName;
   bool isBuddy = userData.buddy != null;
 
   for (var connection in connections) {
-    // Filtra las reuniones no confirmadas o pendientes de pago
-    List<Meeting> meetings = connection.meetings
-        .where((m) =>
-            isDateInNextWeek(m.schedule.date) &&
-            !m.isCancelled &&
-            !m.isPaymentPending &&
-            isConfirmed(m))
-        .toList();
+    // Filtra las reuniones basado en la funcion que se pasa como argumento
+    List<Meeting> meetings = connection.meetings.where(filterFunction).toList();
 
     meetings.forEach((meeting) => meeting.connection = connection);
 
     allMeetings.addAll(meetings);
   }
 
+  // Ordena todas las reuniones por fecha y hora
   sortMeetings(allMeetings);
 
-  List<Widget> meetingCards = [];
-
-  for (var meeting in allMeetings) {
-    (personID, personName) =
-        await userHelper.fetchPersonFullName(meeting.connection!, isBuddy);
-
-    List<String> images = await fetchAvatars(personID, isBuddy, userData);
-
-    meetingCards.add(
-      buildMeetingCard(
-        isBuddy,
-        personID,
-        personName,
-        meeting.connection!,
-        meeting,
-        images,
-        true,
-      ),
-    );
-  }
+  List<Widget> meetingCards = await buildMeetingCards(
+      allMeetings, isBuddy, userData, isConfirmedMeeting);
 
   if (meetingCards.isEmpty) {
     return [SizedBox.shrink()];
@@ -64,7 +87,7 @@ Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
         Container(
           margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
           child: Text(
-            'Próximos encuentros',
+            titleText,
             style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
           ),
         ),
@@ -74,38 +97,18 @@ Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
   ];
 }
 
-Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
-    ThemeData theme, UserData userData, List<Connection> connections) async {
-  List<Meeting> allMeetings = [];
-  String personID, personName;
-  bool isBuddy = userData.buddy != null;
+// Construye las tarjetas de reuniones
+Future<List<Widget>> buildMeetingCards(List<Meeting> meetings, bool isBuddy,
+    UserData userData, bool isConfirmedMeeting) async {
+  List<Widget> meetingWidgets = [];
 
-  for (var connection in connections) {
-    // Filtra las reuniones no confirmadas o pendientes de pago
-    List<Meeting> meetings = connection.meetings
-        .where((m) =>
-            isDateInFuture(m.schedule.date) &&
-            !m.isCancelled &&
-            (!isConfirmed(m) || m.isPaymentPending))
-        .where((m) => !isBuddy || !m.isPaymentPending)
-        .toList();
-
-    meetings.forEach((meeting) => meeting.connection = connection);
-
-    allMeetings.addAll(meetings);
-  }
-
-  sortMeetings(allMeetings);
-
-  List<Widget> meetingCards = [];
-
-  for (var meeting in allMeetings) {
-    (personID, personName) =
+  for (var meeting in meetings) {
+    var (personID, personName) =
         await userHelper.fetchPersonFullName(meeting.connection!, isBuddy);
 
     List<String> images = await fetchAvatars(personID, isBuddy, userData);
 
-    meetingCards.add(
+    meetingWidgets.add(
       buildMeetingCard(
         isBuddy,
         personID,
@@ -113,30 +116,12 @@ Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
         meeting.connection!,
         meeting,
         images,
-        false,
+        isConfirmedMeeting,
       ),
     );
   }
 
-  if (meetingCards.isEmpty) {
-    return [SizedBox.shrink()];
-  }
-
-  return [
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-          child: Text(
-            'Encuentros a confirmar',
-            style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-          ),
-        ),
-        ...meetingCards,
-      ],
-    ),
-  ];
+  return meetingWidgets;
 }
 
 Future<List<String>> fetchAvatars(
