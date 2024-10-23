@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/buddy.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/pages/connections/meetings/new_meeting.dart';
+import 'package:mobile/pages/home/for_you/your_meetings.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
-import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 

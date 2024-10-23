@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
@@ -16,184 +15,9 @@ import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
-import 'package:mobile/utils/validators.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
 import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:provider/provider.dart';
-
-UserHelper userHelper = UserHelper();
-
-bool isConfirmed(Meeting m) {
-  return m.isConfirmedByBuddy && m.isConfirmedByElder;
-}
-
-// Ordena una lista de meetings por fecha y hora de comienzo
-void sortMeetings(List<Meeting> meetings) {
-  meetings.sort((a, b) {
-    int dateComparison = a.schedule.date.compareTo(b.schedule.date);
-    if (dateComparison != 0) {
-      return dateComparison;
-    }
-    // Si las fechas son iguales, comparamos por startHour
-    return a.schedule.startHour.compareTo(b.schedule.startHour);
-  });
-}
-
-Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
-    ThemeData theme, UserData userData, List<Connection> connections) async {
-  List<Meeting> allMeetings = [];
-  String personID, personName;
-  bool isBuddy = userData.buddy != null;
-
-  for (var connection in connections) {
-    // Filtra las reuniones no confirmadas o pendientes de pago
-    List<Meeting> meetings = connection.meetings
-        .where((m) =>
-            isDateInNextWeek(m.schedule.date) &&
-            !m.isCancelled &&
-            !m.isPaymentPending &&
-            isConfirmed(m))
-        .toList();
-
-    // Agrega la conexión a cada reunión para poder usarla luego al construir la tarjeta
-    meetings.forEach((meeting) => meeting.connection = connection);
-
-    allMeetings.addAll(meetings);
-  }
-
-  // Ordena todas las reuniones por fecha y hora de comienzo
-  sortMeetings(allMeetings);
-
-  List<Widget> meetingCards = [];
-
-  // Construye las tarjetas de reuniones ordenadas
-  for (var meeting in allMeetings) {
-    (personID, personName) =
-        await userHelper.fetchPersonFullName(meeting.connection!, isBuddy);
-
-    List<String> images = await fetchAvatars(personID, isBuddy, userData);
-
-    meetingCards.add(
-      buildMeetingCard(
-        isBuddy,
-        personID,
-        personName,
-        meeting.connection!,
-        meeting,
-        images,
-        true,
-      ),
-    );
-  }
-
-  if (meetingCards.isEmpty) {
-    return [SizedBox.shrink()];
-  }
-
-  return [
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-          child: Text(
-            'Próximos encuentros',
-            style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-          ),
-        ),
-        ...meetingCards,
-      ],
-    ),
-  ];
-}
-
-Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
-    ThemeData theme, UserData userData, List<Connection> connections) async {
-  List<Meeting> allMeetings = [];
-  String personID, personName;
-  bool isBuddy = userData.buddy != null;
-
-  for (var connection in connections) {
-    // Filtra las reuniones no confirmadas o pendientes de pago
-    List<Meeting> meetings = connection.meetings
-        .where((m) =>
-            isDateInFuture(m.schedule.date) &&
-            !m.isCancelled &&
-            (!isConfirmed(m) || m.isPaymentPending))
-        .where((m) => !isBuddy || !m.isPaymentPending)
-        .toList();
-
-    // Agrega la conexión a cada reunión para poder usarla luego al construir la tarjeta
-    meetings.forEach((meeting) => meeting.connection = connection);
-
-    allMeetings.addAll(meetings);
-  }
-
-  // Ordena todas las reuniones por fecha y hora de comienzo
-  sortMeetings(allMeetings);
-
-  List<Widget> meetingCards = [];
-
-  // Construye las tarjetas de reuniones ordenadas
-  for (var meeting in allMeetings) {
-    (personID, personName) =
-        await userHelper.fetchPersonFullName(meeting.connection!, isBuddy);
-
-    List<String> images = await fetchAvatars(personID, isBuddy, userData);
-
-    meetingCards.add(
-      buildMeetingCard(
-        isBuddy,
-        personID,
-        personName,
-        meeting.connection!,
-        meeting,
-        images,
-        false,
-      ),
-    );
-  }
-
-  if (meetingCards.isEmpty) {
-    return [SizedBox.shrink()];
-  }
-
-  return [
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-          child: Text(
-            'Encuentros a confirmar',
-            style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-          ),
-        ),
-        ...meetingCards,
-      ],
-    ),
-  ];
-}
-
-Future<List<String>> fetchAvatars(
-    String personID, bool isBuddy, UserData userData) async {
-  String? imageUser = await userHelper.loadProfileImage(
-      isBuddy ? userData.buddy!.firebaseUID : userData.elder!.firebaseUID);
-  String? imageConnection = await userHelper.loadProfileImage(personID);
-  return [imageUser, imageConnection];
-}
-
-String getDayName(DateTime date) {
-  return formatDayOfWeek(date.weekday);
-}
-
-String formatTime(MeetingSchedule schedule) {
-  return 'De ${intToTime(schedule.startHour)} a ${intToTime(schedule.endHour)}';
-}
-
-String formatLocation(MeetingLocation location) {
-  return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
-}
 
 BaseCardMeeting buildMeetingCard(
     bool isBuddy,
@@ -448,4 +272,16 @@ class BaseCardMeeting extends StatelessWidget {
         backgroundColor: theme.colorScheme.tertiary,
         padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
       );
+}
+
+String getDayName(DateTime date) {
+  return formatDayOfWeek(date.weekday);
+}
+
+String formatTime(MeetingSchedule schedule) {
+  return 'De ${intToTime(schedule.startHour)} a ${intToTime(schedule.endHour)}';
+}
+
+String formatLocation(MeetingLocation location) {
+  return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
 }

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/pages/home/for_you/your_meetings.dart';
 import 'package:mobile/widgets/base_card_meeting.dart';
+import 'package:mobile/widgets/base_connection_card.dart';
 import 'package:provider/provider.dart';
+
+UserHelper userHelper = UserHelper();
 
 class ForYouPage extends StatefulWidget {
   const ForYouPage({super.key});
