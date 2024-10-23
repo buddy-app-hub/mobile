@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/home/for_you.dart';
+import 'package:mobile/pages/home/for_you/for_you.dart';
 import 'package:mobile/pages/home/social_hub.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:provider/provider.dart';
