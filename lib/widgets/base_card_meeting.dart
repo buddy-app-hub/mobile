@@ -5,7 +5,6 @@ import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/payment_handshake.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/chats/chat_screen.dart';
@@ -28,182 +27,152 @@ bool isConfirmed(Meeting m) {
   return m.isConfirmedByBuddy && m.isConfirmedByElder;
 }
 
+// Ordena una lista de meetings por fecha y hora de comienzo
+void sortMeetings(List<Meeting> meetings) {
+  meetings.sort((a, b) {
+    int dateComparison = a.schedule.date.compareTo(b.schedule.date);
+    if (dateComparison != 0) {
+      return dateComparison;
+    }
+    // Si las fechas son iguales, comparamos por startHour
+    return a.schedule.startHour.compareTo(b.schedule.startHour);
+  });
+}
+
 Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
-    ThemeData theme, UserData userData) async {
-  final stream = fetchConfirmedMeetings(theme, userData);
-  return stream.toList();
+    ThemeData theme, UserData userData, List<Connection> connections) async {
+  List<Meeting> allMeetings = [];
+  String personID, personName;
+  bool isBuddy = userData.buddy != null;
+
+  for (var connection in connections) {
+    // Filtra las reuniones no confirmadas o pendientes de pago
+    List<Meeting> meetings = connection.meetings
+        .where((m) =>
+            isDateInNextWeek(m.schedule.date) &&
+            !m.isCancelled &&
+            !m.isPaymentPending &&
+            isConfirmed(m))
+        .toList();
+
+    // Agrega la conexión a cada reunión para poder usarla luego al construir la tarjeta
+    meetings.forEach((meeting) => meeting.connection = connection);
+
+    allMeetings.addAll(meetings);
+  }
+
+  // Ordena todas las reuniones por fecha y hora de comienzo
+  sortMeetings(allMeetings);
+
+  List<Widget> meetingCards = [];
+
+  // Construye las tarjetas de reuniones ordenadas
+  for (var meeting in allMeetings) {
+    (personID, personName) =
+        await userHelper.fetchPersonFullName(meeting.connection!, isBuddy);
+
+    List<String> images = await fetchAvatars(personID, isBuddy, userData);
+
+    meetingCards.add(
+      buildMeetingCard(
+        isBuddy,
+        personID,
+        personName,
+        meeting.connection!,
+        meeting,
+        images,
+        true,
+      ),
+    );
+  }
+
+  if (meetingCards.isEmpty) {
+    return [SizedBox.shrink()];
+  }
+
+  return [
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+          child: Text(
+            'Próximos encuentros',
+            style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
+          ),
+        ),
+        ...meetingCards,
+      ],
+    ),
+  ];
 }
 
 Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
-    ThemeData theme, UserData userData) async {
-  final stream = fetchUnconfirmedMeetings(theme, userData);
-  return stream.toList();
-}
-
-Future<List<Widget>> fetchRescheduledMeetingsAsFuture(
-    ThemeData theme, UserData userData) async {
-  final stream = fetchRescheduledMeetings(theme, userData);
-  return stream.toList();
-}
-
-Stream<Widget> fetchConfirmedMeetings(
-    ThemeData theme, UserData userData) async* {
-  List<Connection> connections = await userHelper.fetchConnections(userData);
-
-  for (var connection in connections) {
-    yield await buildConfirmedMeetingCards(theme, connection, userData);
-  }
-}
-
-Stream<Widget> fetchUnconfirmedMeetings(
-    ThemeData theme, UserData userData) async* {
-  List<Connection> connections = await userHelper.fetchConnections(userData);
-
-  for (var connection in connections) {
-    yield await buildUnconfirmedMeetingCards(theme, connection, userData);
-  }
-}
-
-Stream<Widget> fetchRescheduledMeetings(
-    ThemeData theme, UserData userData) async* {
-  List<Connection> connections = await userHelper.fetchConnections(userData);
-
-  for (var connection in connections) {
-    yield await buildRescheduledMeetingCards(theme, connection, userData);
-  }
-}
-
-// Obtiene encuentros que ocurrirán en la próxima semana, que ya estén confirmados y pagados
-Future<Widget> buildConfirmedMeetingCards(
-    ThemeData theme, Connection connection, UserData userData) async {
-  bool isBuddy = userData.buddy != null;
+    ThemeData theme, UserData userData, List<Connection> connections) async {
+  List<Meeting> allMeetings = [];
   String personID, personName;
-  (personID, personName) =
-      await userHelper.fetchPersonFullName(connection, isBuddy);
-  List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings
-      .sort((a, b) => a.schedule.date.compareTo(b.schedule.date));
-  List<Meeting> meetings = connection.meetings
-      .where((m) =>
-          isDateInNextWeek(m.schedule.date) &&
-          !m.isCancelled &&
-          !m.isPaymentPending &&
-          isConfirmed(m))
-      .toList();
-  if (meetings.isEmpty) {
-    return Column();
-  } else {
-    Meeting meeting = meetings.first;
-    return Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-              child: Text(
-                'Próximos encuentros',
-                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-              ),
-            ),
-          ],
-        ),
-        buildConfirmedMeetingCard(
-            isBuddy, personID, personName, connection, meeting, images),
-      ],
+  bool isBuddy = userData.buddy != null;
+
+  for (var connection in connections) {
+    // Filtra las reuniones no confirmadas o pendientes de pago
+    List<Meeting> meetings = connection.meetings
+        .where((m) =>
+            isDateInFuture(m.schedule.date) &&
+            !m.isCancelled &&
+            (!isConfirmed(m) || m.isPaymentPending))
+        .where((m) => !isBuddy || !m.isPaymentPending)
+        .toList();
+
+    // Agrega la conexión a cada reunión para poder usarla luego al construir la tarjeta
+    meetings.forEach((meeting) => meeting.connection = connection);
+
+    allMeetings.addAll(meetings);
+  }
+
+  // Ordena todas las reuniones por fecha y hora de comienzo
+  sortMeetings(allMeetings);
+
+  List<Widget> meetingCards = [];
+
+  // Construye las tarjetas de reuniones ordenadas
+  for (var meeting in allMeetings) {
+    (personID, personName) =
+        await userHelper.fetchPersonFullName(meeting.connection!, isBuddy);
+
+    List<String> images = await fetchAvatars(personID, isBuddy, userData);
+
+    meetingCards.add(
+      buildMeetingCard(
+        isBuddy,
+        personID,
+        personName,
+        meeting.connection!,
+        meeting,
+        images,
+        false,
+      ),
     );
   }
-}
 
-// Obtiene futuros encuentros que esten reprogramados y no confirmados
-Future<Widget> buildRescheduledMeetingCards(
-    ThemeData theme, Connection connection, UserData userData) async {
-  bool isBuddy = userData.buddy != null;
-  String personID, personName;
-  (personID, personName) =
-      await userHelper.fetchPersonFullName(connection, isBuddy);
-  List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings
-      .sort((a, b) => a.schedule.date.compareTo(b.schedule.date));
-  List<Meeting> meetings = connection.meetings
-      .where((m) =>
-          isDateInFuture(m.schedule.date) &&
-          m.isRescheduled &&
-          !m.isCancelled &&
-          !isConfirmed(m))
-      .toList();
-  if (meetings.isEmpty) {
-    return Column();
-  } else {
-    List<Widget> meetingCards = meetings.map((meeting) {
-      return buildNextEventCard(
-          isBuddy, personID, personName, connection, meeting, images);
-    }).toList();
+  if (meetingCards.isEmpty) {
+    return [SizedBox.shrink()];
+  }
 
-    return Column(
+  return [
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-              child: Text(
-                'Encuentros reprogramados',
-                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-              ),
-            ),
-          ],
+        Container(
+          margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+          child: Text(
+            'Encuentros a confirmar',
+            style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
+          ),
         ),
         ...meetingCards,
       ],
-    );
-  }
-}
-
-// Obtiene futuros encuentros que no esten confirmados ni pagados
-Future<Widget> buildUnconfirmedMeetingCards(
-    ThemeData theme, Connection connection, UserData userData) async {
-  bool isBuddy = userData.buddy != null;
-  String personID, personName;
-  (personID, personName) =
-      await userHelper.fetchPersonFullName(connection, isBuddy);
-  List<String> images = await fetchAvatars(personID, isBuddy, userData);
-
-  connection.meetings
-      .sort((a, b) => a.schedule.date.compareTo(b.schedule.date));
-
-  List<Meeting> meetings = connection.meetings
-      .where((m) =>
-          isDateInFuture(m.schedule.date) &&
-          !m.isRescheduled &&
-          !m.isCancelled &&
-          !isConfirmed(m))
-      .where((m) => !isBuddy || !m.isPaymentPending)
-      .toList();
-
-  if (meetings.isEmpty) {
-    return Column();
-  } else {
-    List<Widget> meetingCards = meetings.map((meeting) {
-      return buildNextEventCard(
-          isBuddy, personID, personName, connection, meeting, images);
-    }).toList();
-
-    return Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-              child: Text(
-                'Encuentros a confirmar',
-                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-              ),
-            ),
-          ],
-        ),
-        ...meetingCards,
-      ],
-    );
-  }
+    ),
+  ];
 }
 
 Future<List<String>> fetchAvatars(
@@ -226,37 +195,17 @@ String formatLocation(MeetingLocation location) {
   return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
 }
 
-BaseCardMeeting buildConfirmedMeetingCard(
+BaseCardMeeting buildMeetingCard(
     bool isBuddy,
     String personID,
     String personName,
     Connection connection,
     Meeting meeting,
-    List<String> images) {
+    List<String> images,
+    bool isConfirmedByBoth) {
   return BaseCardMeeting(
     isBuddy: isBuddy,
-    isNextMeeting: false,
-    connection: connection,
-    meeting: meeting,
-    personID: personID,
-    person: personName,
-    date: formatMeetingDateShort(meeting.schedule.date),
-    time: formatTime(meeting.schedule),
-    location: formatLocation(meeting.location),
-    avatars: images,
-  );
-}
-
-BaseCardMeeting buildNextEventCard(
-    bool isBuddy,
-    String personID,
-    String personName,
-    Connection connection,
-    Meeting meeting,
-    List<String> images) {
-  return BaseCardMeeting(
-    isBuddy: isBuddy,
-    isNextMeeting: true,
+    isNextMeeting: isConfirmedByBoth,
     connection: connection,
     meeting: meeting,
     personID: personID,
@@ -337,7 +286,9 @@ class BaseCardMeeting extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                meeting.isRescheduled ? buildRescheduledChip(context, theme) : SizedBox.shrink(),
+                meeting.isRescheduled
+                    ? buildRescheduledChip(context, theme)
+                    : SizedBox.shrink(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

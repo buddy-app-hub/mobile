@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/widgets/base_card_meeting.dart';
@@ -19,10 +20,11 @@ class _ForYouPageState extends State<ForYouPage> {
   }
 
   Future<List<List<Widget>>> fetchAllMeetings(UserData userData, ThemeData theme) async {
+      List<Connection> connections = await userHelper.fetchConnections(userData);
+
     return await Future.wait([
-      fetchConfirmedMeetingsAsFuture(theme, userData),
-      fetchUnconfirmedMeetingsAsFuture(theme, userData),
-      fetchRescheduledMeetingsAsFuture(theme, userData),
+      fetchConfirmedMeetingsAsFuture(theme, userData, connections),
+      fetchUnconfirmedMeetingsAsFuture(theme, userData, connections),
     ]);
   }
 
@@ -48,7 +50,7 @@ class _ForYouPageState extends State<ForYouPage> {
                 } else {
                   List<Widget> meetingsWidgets = snapshot.data![0];
                   List<Widget> newMeetingsWidgets = snapshot.data![1];
-                  List<Widget> rescheduledMeetingsWidgets = snapshot.data![2];
+                  // List<Widget> rescheduledMeetingsWidgets = snapshot.data![2];
 
                   return SingleChildScrollView(
                     child: Padding(
@@ -57,7 +59,7 @@ class _ForYouPageState extends State<ForYouPage> {
                         children: [
                           Column(children: meetingsWidgets),
                           Column(children: newMeetingsWidgets),
-                          Column(children: rescheduledMeetingsWidgets),
+                          // Column(children: rescheduledMeetingsWidgets),
                         ],
                       ),
                     ),

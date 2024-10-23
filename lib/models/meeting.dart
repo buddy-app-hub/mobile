@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/review.dart';
 import 'meeting_location.dart';
@@ -19,6 +20,7 @@ class Meeting {
   bool startConfirmedByElder;
   Review? elderRatingForBuddy; // Review that Elder made to Buddy
   Review? buddyRatingForElder; // Review that Buddy made to Elder
+  Connection? connection; // No esta en el backend, es solo para manejo en el front
 
   @JsonKey(name: 'location')
   MeetingLocation location;
@@ -41,6 +43,7 @@ class Meeting {
     this.startConfirmedByElder = false,
     this.elderRatingForBuddy,
     this.buddyRatingForElder,
+    this.connection,
   });
 
   factory Meeting.fromJson(Map<String, dynamic> json) =>
