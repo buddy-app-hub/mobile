@@ -29,7 +29,7 @@ BaseCardMeeting buildMeetingCard(
     bool isConfirmedByBoth) {
   return BaseCardMeeting(
     isBuddy: isBuddy,
-    isNextMeeting: isConfirmedByBoth,
+    isConfirmedByBoth: isConfirmedByBoth,
     connection: connection,
     meeting: meeting,
     personID: personID,
@@ -43,7 +43,7 @@ BaseCardMeeting buildMeetingCard(
 
 class BaseCardMeeting extends StatelessWidget {
   final bool isBuddy;
-  final bool isNextMeeting;
+  final bool isConfirmedByBoth;
   final Connection connection;
   final Meeting meeting;
   final String personID;
@@ -56,7 +56,7 @@ class BaseCardMeeting extends StatelessWidget {
   const BaseCardMeeting({
     super.key,
     required this.isBuddy,
-    required this.isNextMeeting,
+    required this.isConfirmedByBoth,
     required this.connection,
     required this.meeting,
     required this.personID,
@@ -72,12 +72,12 @@ class BaseCardMeeting extends StatelessWidget {
     final theme = Theme.of(context);
     return Center(
       child: Card(
-        color: isNextMeeting
+        color: isConfirmedByBoth
             ? theme.colorScheme.primaryFixed
             : theme.colorScheme.tertiaryContainer,
         clipBehavior: Clip.hardEdge,
         child: InkWell(
-          splashColor: isNextMeeting
+          splashColor: isConfirmedByBoth
               ? theme.colorScheme.primary
               : theme.colorScheme.tertiary,
           onTap: () {
@@ -110,9 +110,24 @@ class BaseCardMeeting extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                meeting.isRescheduled
-                    ? buildRescheduledChip(context, theme)
-                    : SizedBox.shrink(),
+                Wrap(
+                  spacing: 4.0, // Espacio horizontal entre los chips
+                  runSpacing: 1.0, // Espacio vertical cuando se wrapee
+                  children: [
+                    meeting.isRescheduled && ! isConfirmedByBoth
+                        ? buildRescheduledChip(context, theme)
+                        : SizedBox.shrink(),
+                    isUnconfirmedByYou(meeting, authProvider.isBuddy)
+                        ? buildUnconfirmedByYouChip(context, theme)
+                        : SizedBox.shrink(),
+                    isUnconfirmedByYourConn(meeting, authProvider.isBuddy)
+                        ? buildUnconfirmedByYourConnectionChip(context, theme)
+                        : SizedBox.shrink(),
+                  ]
+                      .where((widget) => widget is! SizedBox)
+                      .toList(), // Filtrar SizedBox.shrink()
+                ),
+                SizedBox(height: 5,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -198,7 +213,7 @@ class BaseCardMeeting extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (isNextMeeting)
+                      if (!isConfirmedByBoth)
                         buildNewMeetingButton(context, isBuddy, meeting,
                             () async {
                           if (meeting.isPaymentPending) {
@@ -225,7 +240,7 @@ class BaseCardMeeting extends StatelessWidget {
                               context, connection, meeting);
                           Navigator.pushNamed(context, Routes.splashScreen);
                         }),
-                      if (!isNextMeeting)
+                      if (isConfirmedByBoth)
                         buildNextMeetingButton(context, userData, () async {
                           final chatService = ChatService();
                           final chatRoomId = await chatService.createChatRoom(
@@ -267,10 +282,43 @@ class BaseCardMeeting extends StatelessWidget {
           style: TextStyle(
             color: theme.colorScheme.onTertiary,
             fontWeight: FontWeight.bold,
+            fontSize: 12.0,
           ),
         ),
         backgroundColor: theme.colorScheme.tertiary,
-        padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
+        padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+        visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
+      );
+
+  Widget buildUnconfirmedByYouChip(BuildContext context, ThemeData theme) =>
+      Chip(
+        label: Text(
+          'A confirmar (vos)',
+          style: TextStyle(
+            color: theme.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 12.0,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.primary,
+        padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+        visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
+      );
+
+  Widget buildUnconfirmedByYourConnectionChip(
+          BuildContext context, ThemeData theme) =>
+      Chip(
+        label: Text(
+          'A confirmar (otro)',
+          style: TextStyle(
+            color: theme.colorScheme.onSecondary,
+            fontWeight: FontWeight.bold,
+            fontSize: 12.0,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.secondary,
+        padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+        visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
       );
 }
 
@@ -284,4 +332,14 @@ String formatTime(MeetingSchedule schedule) {
 
 String formatLocation(MeetingLocation location) {
   return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
+}
+
+bool isUnconfirmedByYou(Meeting m, bool isCurrUserBuddy) {
+  return (isCurrUserBuddy && m.isConfirmedByBuddy == false) ||
+      (!isCurrUserBuddy && m.isConfirmedByElder == false);
+}
+
+bool isUnconfirmedByYourConn(Meeting m, bool isCurrUserBuddy) {
+  return (isCurrUserBuddy && m.isConfirmedByElder == false) ||
+      (!isCurrUserBuddy && m.isConfirmedByBuddy == false);
 }
