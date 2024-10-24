@@ -3,7 +3,6 @@ import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/widgets/base_button.dart';
-import 'package:path/path.dart';
 
 
 BaseElevatedButton buildNextMeetingButton(BuildContext context, UserData userData, VoidCallback onPressed) {
@@ -98,8 +97,8 @@ class BaseElevatedButton extends BaseButton {
     }
 
     Widget get buildElevatedButtonWidget => Container(
-      height: this.height ?? 50,
-      width: this.width ?? double.maxFinite,
+      height: height ?? 50,
+      width: width ?? double.maxFinite,
       margin: margin,
       decoration: decoration,
       child: ElevatedButton(
