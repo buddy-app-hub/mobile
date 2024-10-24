@@ -21,20 +21,22 @@ BaseElevatedButton buildNextMeetingButton(BuildContext context, UserData userDat
   );
 }
 
-BaseElevatedButton buildNewMeetingButton(BuildContext context, bool isBuddy, Meeting meeting, VoidCallback onPressed) {
+Widget buildNewMeetingButton(BuildContext context, bool isBuddy, Meeting meeting, VoidCallback onPressed) {
   String buttonText;
   bool buttonDisabled = false;
-  double buttonSize = 150;
+  double buttonSize = 100;
   if (!isBuddy && meeting.isPaymentPending) {
     buttonText = 'Pagar';
-  } else if (isBuddy && meeting.isConfirmedByBuddy && !meeting.isConfirmedByElder) {
-    buttonText = 'Esperando confirmación';
-    buttonDisabled = true;
-  } else if (!isBuddy && !meeting.isConfirmedByBuddy && meeting.isConfirmedByElder) {
-    buttonText = 'Esperando confirmación';
-    buttonDisabled = true;
-  } else {
+  // } else if (isBuddy && meeting.isConfirmedByBuddy && !meeting.isConfirmedByElder) {
+  //   buttonText = 'Esperando confirmación de tu mayor';
+  //   buttonDisabled = true;
+  // } else if (!isBuddy && !meeting.isConfirmedByBuddy && meeting.isConfirmedByElder) {
+  //   buttonText = 'Esperando confirmación de tu Buddy';
+  //   buttonDisabled = true;
+  } else if (meeting.isConfirmedByBuddy && meeting.isConfirmedByElder) {
     buttonText = 'Confirmar';
+  } else {
+    return SizedBox.shrink();
   }
 
   return BaseElevatedButton(

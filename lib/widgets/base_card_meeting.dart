@@ -121,7 +121,7 @@ class BaseCardMeeting extends StatelessWidget {
                         ? buildUnconfirmedByYouChip(context, theme)
                         : SizedBox.shrink(),
                     isUnconfirmedByYourConn(meeting, authProvider.isBuddy)
-                        ? buildUnconfirmedByYourConnectionChip(context, theme)
+                        ? buildUnconfirmedByYourConnectionChip(context, theme, authProvider.isBuddy)
                         : SizedBox.shrink(),
                   ]
                       .where((widget) => widget is! SizedBox)
@@ -293,7 +293,7 @@ class BaseCardMeeting extends StatelessWidget {
   Widget buildUnconfirmedByYouChip(BuildContext context, ThemeData theme) =>
       Chip(
         label: Text(
-          'A confirmar (vos)',
+          'A confirmar por vos',
           style: TextStyle(
             color: theme.colorScheme.onPrimary,
             fontWeight: FontWeight.bold,
@@ -306,10 +306,10 @@ class BaseCardMeeting extends StatelessWidget {
       );
 
   Widget buildUnconfirmedByYourConnectionChip(
-          BuildContext context, ThemeData theme) =>
+          BuildContext context, ThemeData theme, bool isCurrUserBuddy) =>
       Chip(
         label: Text(
-          'A confirmar (otro)',
+          isCurrUserBuddy ? 'A confirmar por tu mayor' : 'A confirmar por tu Buddy',
           style: TextStyle(
             color: theme.colorScheme.onSecondary,
             fontWeight: FontWeight.bold,

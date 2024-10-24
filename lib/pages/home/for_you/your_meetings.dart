@@ -9,7 +9,24 @@ import 'package:mobile/widgets/base_card_meeting.dart';
 
 UserHelper userHelper = UserHelper();
 
-// Funcion para filtrar reuniones confirmadas
+// Funcion para filtrar encuentros en curso
+bool ongoingMeetingFilter(Meeting m) {
+  return isMeetingOngoing(m.schedule) &&
+      !m.isCancelled &&
+      !m.isPaymentPending &&
+      isConfirmed(m);
+}
+
+// Funcion para filtrar encuentros terminados y no calificados
+bool notReviewedMeetingFilter(Meeting m) {
+  return isMeetingEnded(m.schedule) &&
+      !m.isCancelled &&
+      !m.isPaymentPending &&
+      isConfirmed(m) &&
+      (m.buddyRatingForElder != null || m.elderRatingForBuddy != null);
+}
+
+// Funcion para filtrar encuentros confirmadas
 bool confirmedMeetingFilter(Meeting m) {
   return isDateInNextWeek(m.schedule.date) &&
       !m.isCancelled &&
@@ -17,12 +34,36 @@ bool confirmedMeetingFilter(Meeting m) {
       isConfirmed(m);
 }
 
-// Funcion para filtrar reuniones no confirmadas o pendientes de pago
+// Funcion para filtrar encuentros no confirmadas o pendientes de pago
 bool unconfirmedMeetingFilter(Meeting m, bool isBuddy) {
   return isDateInFuture(m.schedule.date) &&
       !m.isCancelled &&
       (!isConfirmed(m) || m.isPaymentPending) &&
       (!isBuddy || !m.isPaymentPending);
+}
+
+Future<List<Widget>> fetchOngoingMeetingsAsFuture(
+    ThemeData theme, UserData userData, List<Connection> connections) {
+  return fetchMeetingsAsFuture(
+    theme,
+    userData,
+    connections,
+    ongoingMeetingFilter,
+    'Encuentro en curso !',
+    true,
+  );
+}
+
+Future<List<Widget>> fetchNotReviewedMeetingsAsFuture(
+    ThemeData theme, UserData userData, List<Connection> connections) {
+  return fetchMeetingsAsFuture(
+    theme,
+    userData,
+    connections,
+    notReviewedMeetingFilter,
+    'Encuentros pendientes de calificar',
+    true,
+  );
 }
 
 Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
@@ -32,7 +73,7 @@ Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
     userData,
     connections,
     confirmedMeetingFilter,
-    'Próximos encuentros',
+    'Próximos encuentros confirmados',
     true,
   );
 }
@@ -62,7 +103,7 @@ Future<List<Widget>> fetchMeetingsAsFuture(
   bool isBuddy = userData.buddy != null;
 
   for (var connection in connections) {
-    // Filtra las reuniones basado en la funcion que se pasa como argumento
+    // Filtra las  encuentros basado en la funcion que se pasa como argumento
     List<Meeting> meetings = connection.meetings.where(filterFunction).toList();
 
     meetings.forEach((meeting) => meeting.connection = connection);
@@ -70,7 +111,7 @@ Future<List<Widget>> fetchMeetingsAsFuture(
     allMeetings.addAll(meetings);
   }
 
-  // Ordena todas las reuniones por fecha y hora
+  // Ordena todas las encuentros por fecha y hora
   sortMeetings(allMeetings);
 
   List<Widget> meetingCards = await buildMeetingCards(
@@ -97,7 +138,7 @@ Future<List<Widget>> fetchMeetingsAsFuture(
   ];
 }
 
-// Construye las tarjetas de reuniones
+// Construye las tarjetas de encuentros
 Future<List<Widget>> buildMeetingCards(List<Meeting> meetings, bool isBuddy,
     UserData userData, bool isConfirmedMeeting) async {
   List<Widget> meetingWidgets = [];
