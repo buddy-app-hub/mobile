@@ -23,7 +23,7 @@ bool notReviewedMeetingFilter(Meeting m) {
       !m.isCancelled &&
       !m.isPaymentPending &&
       isConfirmed(m) &&
-      (m.buddyRatingForElder != null || m.elderRatingForBuddy != null);
+      (m.buddyRatingForElder == null || m.elderRatingForBuddy == null);
 }
 
 // Funcion para filtrar encuentros confirmadas
