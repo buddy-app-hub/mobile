@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/meeting.dart';
+import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/widgets/ongoing_meeting_card.dart';
 import 'package:pinput/pinput.dart';
+
+final connectionService = ConnectionService();
 
 class MeetingCodeVerification extends StatefulWidget {
   final Function(String) onCompleted;
@@ -59,6 +64,20 @@ class _MeetingCodeVerificationState extends State<MeetingCodeVerification> {
   }
 }
 
-void verifyCode(String code) async {
-  print("Código ingresado: $code");
+Future<bool> verifyCode(BuildContext context, String inputCode, Meeting meeting) async {
+  String trueCode = generateCode(meeting);
+  if (inputCode == trueCode) {
+    print("El código $inputCode ingresado es válido");
+
+    meeting.startConfirmed = true;
+
+    try {
+      await connectionService.updateMeetingOfConnection(context, meeting.connection!, meeting);
+    } catch (e) {
+      print("Error actualizando comienzo de encuentro: $e");
+      return false;
+    }
+    return true;
+  }
+  return false;
 }

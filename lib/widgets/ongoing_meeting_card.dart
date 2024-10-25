@@ -354,9 +354,13 @@ void showModalStartMeetingForBuddy(BuildContext context, Meeting meeting) {
             ),
             SizedBox(height: 20.0),
             MeetingCodeVerification(
-              onCompleted: (code) {
-                verifyCode(code);
-                Navigator.pop(context);
+              onCompleted: (code) async {
+                bool meetingStarted = await verifyCode(context, code, meeting);
+                if (meetingStarted) {
+                  Navigator.pop(context);
+                } else {
+                  print("El código es incorrecto");
+                }
               },
             ),
             SizedBox(height: 20.0),
