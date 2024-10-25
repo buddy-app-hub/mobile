@@ -5,6 +5,7 @@ import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/chats/chat_screen.dart';
+import 'package:mobile/pages/home/for_you/verify_meeting_code.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
@@ -217,21 +218,23 @@ class OngoingMeetingCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 20),
-                  BaseElevatedButton(
-                    text: 'Comenzar encuentro',
-                    buttonTextStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onPressed: () {
-                      showModalStartMeeting(context, meeting);
-                    },
-                    height: 40,
-                    width: 220,
-                    buttonStyle:
-                        ThemeButtonStyle.primaryRoundedButtonStyle(context),
+                BaseElevatedButton(
+                  text: 'Comenzar encuentro',
+                  buttonTextStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
                   ),
+                  onPressed: () {
+                    userData.elder != null
+                        ? showModalStartMeetingForElder(context, meeting)
+                        : showModalStartMeetingForBuddy(context, meeting);
+                  },
+                  height: 40,
+                  width: 210,
+                  buttonStyle:
+                      ThemeButtonStyle.primaryRoundedButtonStyle(context),
+                ),
               ],
             ),
           ),
@@ -293,13 +296,13 @@ String generateCode(Meeting meeting) {
   var bytes = utf8.encode(meeting.meetingID! + meeting.connection!.id!);
   var digest = sha256.convert(bytes);
 
-  // Convertir los primeros 6 caracteres del hash en un número
+  // Convertir los primeros 6 caracteres del hash en un numero
   String code = digest.toString().substring(0, 6);
 
   return code;
 }
 
-void showModalStartMeeting(BuildContext context, Meeting meeting) {
+void showModalStartMeetingForElder(BuildContext context, Meeting meeting) {
   showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
@@ -318,7 +321,7 @@ void showModalStartMeeting(BuildContext context, Meeting meeting) {
             ),
             SizedBox(height: 20.0),
             Text(
-              generateCode(meeting), // Aquí se genera el código de 6 dígitos
+              generateCode(meeting),
               style: TextStyle(
                 fontSize: 36.0,
                 fontWeight: FontWeight.bold,
@@ -326,8 +329,69 @@ void showModalStartMeeting(BuildContext context, Meeting meeting) {
               ),
             ),
             SizedBox(height: 20.0),
-            qrCodeForMeeting(meeting), // Aquí se muestra el QR generado
+            qrCodeForMeeting(meeting),
             SizedBox(height: 10.0),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cerrar'),
+            ),
+            SizedBox(height: 10.0),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+void showModalStartMeetingForBuddy(BuildContext context, Meeting meeting) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Ingresá el código de 6 dígitos que le aparece en la app a tu mayor',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20.0),
+            MeetingCodeVerification(
+              onCompleted: (code) {
+                verifyCode(code);
+                Navigator.pop(context);
+              },
+            ),
+            SizedBox(height: 20.0),
+            Text(
+              'o',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+            BaseElevatedButton(
+              text: 'Escanear QR',
+              buttonTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              onPressed: () {},
+              height: 40,
+              width: 150,
+              buttonStyle: ThemeButtonStyle.primaryRoundedButtonStyle(context),
+            ),
+            SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context); // Cerrar modal
