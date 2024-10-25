@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
@@ -6,6 +8,7 @@ import 'package:mobile/models/user_data.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/validators.dart';
 import 'package:mobile/widgets/base_card_meeting.dart';
+import 'package:mobile/widgets/ongoing_meeting_card.dart';
 
 UserHelper userHelper = UserHelper();
 
@@ -42,9 +45,9 @@ bool unconfirmedMeetingFilter(Meeting m, bool isBuddy) {
       (!isBuddy || !m.isPaymentPending);
 }
 
-Future<List<Widget>> fetchOngoingMeetingsAsFuture(
+Future<List<Widget>> fetchOngoingMeetingAsFuture(
     ThemeData theme, UserData userData, List<Connection> connections) {
-  return fetchMeetingsAsFuture(
+  return buildOngoingMeetingAsFuture(
     theme,
     userData,
     connections,
@@ -56,7 +59,7 @@ Future<List<Widget>> fetchOngoingMeetingsAsFuture(
 
 Future<List<Widget>> fetchNotReviewedMeetingsAsFuture(
     ThemeData theme, UserData userData, List<Connection> connections) {
-  return fetchMeetingsAsFuture(
+  return buildMeetingsAsFuture(
     theme,
     userData,
     connections,
@@ -68,7 +71,7 @@ Future<List<Widget>> fetchNotReviewedMeetingsAsFuture(
 
 Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
     ThemeData theme, UserData userData, List<Connection> connections) {
-  return fetchMeetingsAsFuture(
+  return buildMeetingsAsFuture(
     theme,
     userData,
     connections,
@@ -81,7 +84,7 @@ Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
 Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
     ThemeData theme, UserData userData, List<Connection> connections) {
   bool isBuddy = userData.buddy != null;
-  return fetchMeetingsAsFuture(
+  return buildMeetingsAsFuture(
     theme,
     userData,
     connections,
@@ -91,7 +94,7 @@ Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
   );
 }
 
-Future<List<Widget>> fetchMeetingsAsFuture(
+Future<List<Widget>> buildMeetingsAsFuture(
   ThemeData theme,
   UserData userData,
   List<Connection> connections,
@@ -187,4 +190,63 @@ void sortMeetings(List<Meeting> meetings) {
     // Si las fechas son iguales, comparamos por startHour
     return a.schedule.startHour.compareTo(b.schedule.startHour);
   });
+}
+
+Future<List<Widget>> buildOngoingMeetingAsFuture(
+  ThemeData theme,
+  UserData userData,
+  List<Connection> connections,
+  bool Function(Meeting) filterFunction,
+  String titleText,
+  bool isConfirmedMeeting,
+) async {
+  List<Meeting> allMeetings = [];
+  bool isBuddy = userData.buddy != null;
+
+  for (var connection in connections) {
+    List<Meeting> meetings = connection.meetings.where(filterFunction).toList();
+
+    meetings.forEach((meeting) => meeting.connection = connection);
+
+    allMeetings.addAll(meetings);
+  }
+
+  if (allMeetings.isEmpty) {
+    return [SizedBox.shrink()];
+  }
+
+  if (allMeetings.length > 1) {
+    print("WARNING: mas de un meeting en curso. Se toma la primera");
+  }
+
+  sortMeetings(allMeetings);
+
+  Meeting currMeeting = allMeetings[0];
+
+  var (personID, personName) =
+      await userHelper.fetchPersonFullName(currMeeting.connection!, isBuddy);
+
+  List<String> images = await fetchAvatars(personID, isBuddy, userData);
+
+  return [
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+          child: Text(
+            titleText,
+            style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
+          ),
+        ),
+        buildOngoingMeetingCard(
+          personID,
+          personName,
+          currMeeting.connection!,
+          currMeeting,
+          images,
+        ),
+      ],
+    ),
+  ];
 }

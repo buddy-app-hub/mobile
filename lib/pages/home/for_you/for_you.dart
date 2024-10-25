@@ -26,7 +26,7 @@ class _ForYouPageState extends State<ForYouPage> {
       List<Connection> connections = await userHelper.fetchConnections(userData);
 
     return await Future.wait([
-      fetchOngoingMeetingsAsFuture(theme, userData, connections),
+      fetchOngoingMeetingAsFuture(theme, userData, connections),
       fetchNotReviewedMeetingsAsFuture(theme, userData, connections),
       fetchConfirmedMeetingsAsFuture(theme, userData, connections),
       fetchUnconfirmedMeetingsAsFuture(theme, userData, connections),
