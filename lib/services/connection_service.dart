@@ -35,7 +35,8 @@ class ConnectionService {
 
     Future<void> updateMeetingOfConnection(
       BuildContext context, Connection connection, Meeting meeting) async {
-      print("En updateMeetingOfConnection: ${meeting.toString()}");
+      print("En updateMeetingOfConnection: /connections/${connection.id}/meetings/${meeting.meetingID}");
+      print(meeting.toJson());
     try {
       await ApiService.put(
         endpoint: "/connections/${connection.id}/meetings/${meeting.meetingID}",

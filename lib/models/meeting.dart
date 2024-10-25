@@ -20,6 +20,8 @@ class Meeting {
   bool startConfirmedByElder;
   Review? elderRatingForBuddy; // Review that Elder made to Buddy
   Review? buddyRatingForElder; // Review that Buddy made to Elder
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
   Connection? connection; // No esta en el backend, es solo para manejo en el front
 
   @JsonKey(name: 'location')

@@ -30,9 +30,6 @@ Meeting _$MeetingFromJson(Map<String, dynamic> json) => Meeting(
           ? null
           : Review.fromJson(
               json['buddyRatingForElder'] as Map<String, dynamic>),
-      connection: json['connection'] == null
-          ? null
-          : Connection.fromJson(json['connection'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
@@ -48,7 +45,6 @@ Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
       'startConfirmedByElder': instance.startConfirmedByElder,
       'elderRatingForBuddy': instance.elderRatingForBuddy?.toJson(),
       'buddyRatingForElder': instance.buddyRatingForElder?.toJson(),
-      'connection': instance.connection?.toJson(),
       'location': instance.location.toJson(),
       'schedule': instance.schedule.toJson(),
     };

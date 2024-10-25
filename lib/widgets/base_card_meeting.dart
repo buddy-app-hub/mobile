@@ -3,16 +3,11 @@ import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/meeting_schedule.dart';
-import 'package:mobile/models/payment_handshake.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/pages/connections/meetings/edit_meeting.dart';
-import 'package:mobile/pages/payment/mercadopago.dart';
 import 'package:mobile/routes.dart';
-import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
-import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
@@ -114,20 +109,23 @@ class BaseCardMeeting extends StatelessWidget {
                   spacing: 4.0, // Espacio horizontal entre los chips
                   runSpacing: 1.0, // Espacio vertical cuando se wrapee
                   children: [
-                    meeting.isRescheduled && ! isConfirmedByBoth
+                    meeting.isRescheduled && !isConfirmedByBoth
                         ? buildRescheduledChip(context, theme)
                         : SizedBox.shrink(),
                     isUnconfirmedByYou(meeting, authProvider.isBuddy)
                         ? buildUnconfirmedByYouChip(context, theme)
                         : SizedBox.shrink(),
                     isUnconfirmedByYourConn(meeting, authProvider.isBuddy)
-                        ? buildUnconfirmedByYourConnectionChip(context, theme, authProvider.isBuddy)
+                        ? buildUnconfirmedByYourConnectionChip(
+                            context, theme, authProvider.isBuddy)
                         : SizedBox.shrink(),
                   ]
                       .where((widget) => widget is! SizedBox)
                       .toList(), // Filtrar SizedBox.shrink()
                 ),
-                SizedBox(height: 5,),
+                SizedBox(
+                  height: 5,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -213,48 +211,35 @@ class BaseCardMeeting extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (!isConfirmedByBoth)
-                        buildNewMeetingButton(context, isBuddy, meeting,
-                            () async {
-                          if (meeting.isPaymentPending) {
-                            final paymentService = PaymentService();
-                            PaymentHandshake? payment =
-                                await paymentService.getHandshake(
-                                    connection.id!, meeting.meetingID!);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        MercadoPagoScreen(
-                                          url: payment.sandboxInitPoint,
-                                        )));
-                            return;
-                          }
-                          final connectionService = ConnectionService();
-                          if (isBuddy) {
-                            meeting.isConfirmedByBuddy = true;
-                          } else {
-                            meeting.isConfirmedByElder = true;
-                          }
-                          await connectionService.updateMeetingOfConnection(
-                              context, connection, meeting);
-                          Navigator.pushNamed(context, Routes.splashScreen);
-                        }),
-                      if (isConfirmedByBoth)
-                        buildNextMeetingButton(context, userData, () async {
-                          final chatService = ChatService();
-                          final chatRoomId = await chatService.createChatRoom(
-                            person,
-                            personID,
-                            userData,
-                          );
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    ChatScreen(chatRoomId: chatRoomId)),
-                          );
-                        }),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!isBuddy && meeting.isPaymentPending)
+                            PaymentButton(
+                                meeting: meeting, connectionId: connection.id!),
+                          if (!meeting.isPaymentPending &&
+                              meeting.isConfirmedByElder)
+                            ChatButton(
+                                currentUserData: userData,
+                                connectedPersonID: personID,
+                                connectedPersonName: person),
+                          if (!meeting.isPaymentPending &&
+                              meeting.isConfirmedByElder &&
+                              ((isBuddy && !meeting.isConfirmedByBuddy) ||
+                                  (!isBuddy && !meeting.isConfirmedByElder)))
+                            SizedBox(
+                                height:
+                                    10), // Espaciado condicional solo cuando ambos botones de Chat y Confirmar estan presentes
+                          if ((isBuddy && !meeting.isConfirmedByBuddy) ||
+                              !isBuddy &&
+                                  !meeting.isConfirmedByElder &&
+                                  !meeting.isPaymentPending)
+                            ConfirmButton(
+                                isBuddy: isBuddy,
+                                connection: connection,
+                                meeting: meeting),
+                        ],
+                      ),
                       Spacer(),
                       Container(
                         width: 150,
@@ -309,7 +294,9 @@ class BaseCardMeeting extends StatelessWidget {
           BuildContext context, ThemeData theme, bool isCurrUserBuddy) =>
       Chip(
         label: Text(
-          isCurrUserBuddy ? 'A confirmar por tu mayor' : 'A confirmar por tu Buddy',
+          isCurrUserBuddy
+              ? 'A confirmar por tu mayor'
+              : 'A confirmar por tu Buddy',
           style: TextStyle(
             color: theme.colorScheme.onSecondary,
             fontWeight: FontWeight.bold,

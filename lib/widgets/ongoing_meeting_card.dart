@@ -190,20 +190,10 @@ class OngoingMeetingCard extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      buildNextMeetingButton(context, userData, () async {
-                        final chatService = ChatService();
-                        final chatRoomId = await chatService.createChatRoom(
-                          connectedPersonName,
-                          connectedPersonID,
-                          userData,
-                        );
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ChatScreen(chatRoomId: chatRoomId)),
-                        );
-                      }),
+                      ChatButton(
+                          currentUserData: userData,
+                          connectedPersonID: connectedPersonID,
+                          connectedPersonName: connectedPersonName),
                       Spacer(),
                       Container(
                         width: 150,
