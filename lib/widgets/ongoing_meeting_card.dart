@@ -8,6 +8,7 @@ import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
@@ -15,6 +16,8 @@ import 'package:mobile/widgets/base_card_meeting.dart';
 import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 OngoingMeetingCard buildOngoingMeetingCard(
   String connectedPersonID,
@@ -98,7 +101,7 @@ class OngoingMeetingCard extends StatelessWidget {
                   runSpacing: 1.0, // Espacio vertical cuando se wrapee
                   children: [
                     true
-                        ? buildRescheduledChip(context, theme)
+                        ? buildNotStartedChip(context, theme)
                         : SizedBox.shrink(),
                   ]
                       .where((widget) => widget is! SizedBox)
@@ -213,8 +216,22 @@ class OngoingMeetingCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 15),
-                qrCodeForMeeting(meeting),
+                SizedBox(height: 20),
+                  BaseElevatedButton(
+                    text: 'Comenzar encuentro',
+                    buttonTextStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onPressed: () {
+                      showModalStartMeeting(context, meeting);
+                    },
+                    height: 40,
+                    width: 220,
+                    buttonStyle:
+                        ThemeButtonStyle.primaryRoundedButtonStyle(context),
+                  ),
               ],
             ),
           ),
@@ -223,9 +240,9 @@ class OngoingMeetingCard extends StatelessWidget {
     );
   }
 
-  Widget buildRescheduledChip(BuildContext context, ThemeData theme) => Chip(
+  Widget buildNotStartedChip(BuildContext context, ThemeData theme) => Chip(
         label: Text(
-          'Reprogramado',
+          'No comenzado',
           style: TextStyle(
             color: theme.colorScheme.onTertiary,
             fontWeight: FontWeight.bold,
@@ -270,4 +287,57 @@ DateTime getMeetingEndDateTime(MeetingSchedule schedule) {
   int minutes = schedule.endHour % 100;
 
   return DateTime(date.year, date.month, date.day, hours, minutes);
+}
+
+String generateCode(Meeting meeting) {
+  var bytes = utf8.encode(meeting.meetingID! + meeting.connection!.id!);
+  var digest = sha256.convert(bytes);
+
+  // Convertir los primeros 6 caracteres del hash en un número
+  String code = digest.toString().substring(0, 6);
+
+  return code;
+}
+
+void showModalStartMeeting(BuildContext context, Meeting meeting) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Mostrá el código de 6 dígitos o el QR a tu buddy para comenzar el encuentro',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20.0),
+            Text(
+              generateCode(meeting), // Aquí se genera el código de 6 dígitos
+              style: TextStyle(
+                fontSize: 36.0,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            SizedBox(height: 20.0),
+            qrCodeForMeeting(meeting), // Aquí se muestra el QR generado
+            SizedBox(height: 10.0),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Cerrar modal
+              },
+              child: Text('Cerrar'),
+            ),
+            SizedBox(height: 10.0),
+          ],
+        ),
+      );
+    },
+  );
 }
