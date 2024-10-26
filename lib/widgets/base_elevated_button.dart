@@ -11,7 +11,6 @@ import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/widgets/base_button.dart';
-import 'package:path/path.dart';
 
 class BaseElevatedButton extends BaseButton {
   BaseElevatedButton(
