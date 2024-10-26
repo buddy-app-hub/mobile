@@ -80,7 +80,8 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
       context,
       MaterialPageRoute(
         builder: (context) => TimePlannerPage(
-          personID: widget.connection.buddyID,
+          userID: widget.isBuddy ? widget.connection.buddyID : widget.connection.elderID,
+          personID: widget.isBuddy ? widget.connection.elderID : widget.connection.buddyID,
           isBuddy: widget.isBuddy,
           meetingSchedule: selectedDay!,
         ),

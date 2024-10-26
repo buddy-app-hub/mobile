@@ -19,11 +19,12 @@ import 'package:time_planner/time_planner.dart';
 
 class TimePlannerPage extends StatefulWidget {
   // final Connection connection;
+  final String userID;
   final String personID;
   final bool isBuddy;
   final MeetingSchedule? meetingSchedule;
 
-  const TimePlannerPage({Key? key, required this.personID, required this.isBuddy, required this.meetingSchedule,}) : super(key: key);
+  const TimePlannerPage({Key? key, required this.userID, required this.personID, required this.isBuddy, required this.meetingSchedule,}) : super(key: key);
 
   @override
   _TimePlannerPageState createState() => _TimePlannerPageState();
@@ -70,6 +71,25 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
       setState(() {
         // meetingsTasks.addAll(generateMeetingTasks(context, meetings));
         meetingsTasks.addAll(generateMeetingTasks(context, meetings.where((m) {
+          final meetingDateMatches = selectedDay == null || m.schedule.date != selectedDay!.date;
+          final timeDoesNotOverlap = selectedDay == null ||
+              m.schedule.endHour <= selectedDay!.startHour ||
+              m.schedule.startHour >= selectedDay!.endHour;
+
+          return meetingDateMatches || timeDoesNotOverlap;
+        }).toList()));
+        tasks.addAll(meetingsTasks);
+      });
+    }
+    _fetchUserMeetings();
+  }
+
+  Future<void> _fetchUserMeetings() async {
+    final meetings = await userHelper.fetchMeetingCurrentWeek(widget.userID, widget.isBuddy);
+    if (meetings.isNotEmpty) {
+      setState(() {
+        // meetingsTasks.addAll(generateMeetingTasks(context, meetings));
+        meetingsTasks.addAll(generateUserMeetingTasks(context, meetings.where((m) {
           final meetingDateMatches = selectedDay == null || m.schedule.date != selectedDay!.date;
           final timeDoesNotOverlap = selectedDay == null ||
               m.schedule.endHour <= selectedDay!.startHour ||
@@ -239,6 +259,39 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
           padding: EdgeInsets.all(5),
           child: Text(
             'Encuentro programado',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onTertiaryContainer,
+              fontWeight: FontWeight.w400,
+              fontSize: 11.5,
+              leadingDistribution: TextLeadingDistribution.proportional,
+            ),
+          ),
+        ),
+      );
+    }).toList();
+
+    return tasks;
+  }
+
+  List<TimePlannerTask> generateUserMeetingTasks(BuildContext context, List<Meeting> meetings) {
+    List<TimePlannerTask> tasks = [];
+
+    tasks = meetings.map((meeting) {
+      int hour = intToTimeHour(meeting.schedule.startHour);
+      int minutes = intToTimeMinutes(meeting.schedule.startHour);
+      return TimePlannerTask(
+        color: Theme.of(context).colorScheme.tertiaryContainer, 
+        dateTime: TimePlannerDateTime(
+          day: getPlannerDay(meeting.schedule.date),
+          hour: hour, 
+          minutes: minutes,
+        ),
+        minutesDuration: 60,
+        daysDuration: 1,
+        child: Container(
+          padding: EdgeInsets.all(5),
+          child: Text(
+            'Tienes un encuentro programado',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onTertiaryContainer,
               fontWeight: FontWeight.w400,

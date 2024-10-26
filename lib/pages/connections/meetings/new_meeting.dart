@@ -64,9 +64,10 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   Future<void> _fetchNearestAvailableTime() async {
     final availability = await userHelper.fetchProfileAvailability(widget.connection.buddyID, widget.isBuddy);
     final meetings = await userHelper.fetchMeetingCurrentWeek(widget.connection.buddyID, !widget.isBuddy);
+    final meetingsElder = await userHelper.fetchMeetingCurrentWeek(widget.connection.elderID, widget.isBuddy);
 
     if (availability!.isNotEmpty) {
-      final nearestAvailableTime = findNearestAvailableMeetingSchedule(availability, meetings);
+      final nearestAvailableTime = findNearestAvailableMeetingSchedule(availability, meetings, meetingsElder);
       if (nearestAvailableTime != null) {
         final startTime = formatIntToTime(nearestAvailableTime.startHour);
         final endTime = addOneHour(startTime);
@@ -88,7 +89,8 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
       context,
       MaterialPageRoute(
         builder: (context) => TimePlannerPage(
-          personID: widget.connection.buddyID,
+          userID: widget.isBuddy ? widget.connection.buddyID : widget.connection.elderID,
+          personID: widget.isBuddy ? widget.connection.elderID : widget.connection.buddyID,
           isBuddy: widget.isBuddy,
           meetingSchedule: selectedDay!,
         ),
@@ -121,6 +123,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   MeetingSchedule? findNearestAvailableMeetingSchedule(
     List<custom_time.TimeOfDay> availability,
     List<Meeting> meetings,
+    List<Meeting> meetingsElder,
   ) {
     List<MeetingSchedule> schedules = [];
     DateTime now = DateTime.now();
@@ -140,6 +143,23 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
           DateTime slotEnd = currentDate.add(Duration(hours: slot.to ~/ 100, minutes: slot.to % 100));
 
           for (var meeting in meetings) {
+            if (meeting.schedule.date.weekday == slotStart.weekday) {
+              DateTime meetingStart = meeting.schedule.date.add(Duration(hours: meeting.schedule.startHour ~/ 100));
+              DateTime meetingEnd = meeting.schedule.date.add(Duration(hours: meeting.schedule.endHour ~/ 100));
+
+              if ((meetingStart.isBefore(slotEnd) && meetingEnd.isAfter(slotStart))) {
+                if (meetingStart.isAfter(slotStart)) {
+                  slotEnd = meetingStart;
+                } else if (meetingEnd.isBefore(slotEnd)) {
+                  slotStart = meetingEnd;
+                } else {
+                  slotStart = slotEnd;
+                }
+              }
+            }
+          }
+
+          for (var meeting in meetingsElder) {
             if (meeting.schedule.date.weekday == slotStart.weekday) {
               DateTime meetingStart = meeting.schedule.date.add(Duration(hours: meeting.schedule.startHour ~/ 100));
               DateTime meetingEnd = meeting.schedule.date.add(Duration(hours: meeting.schedule.endHour ~/ 100));
