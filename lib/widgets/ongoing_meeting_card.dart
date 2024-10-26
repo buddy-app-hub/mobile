@@ -207,24 +207,35 @@ class OngoingMeetingCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
-                BaseElevatedButton(
-                  text: 'Comenzar encuentro',
-                  buttonTextStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  onPressed: () {
-                    userData.elder != null
-                        ? showModalStartMeetingForElder(context, meeting)
-                        : showModalStartMeetingForBuddy(context, meeting);
-                  },
-                  height: 40,
-                  width: 210,
-                  buttonStyle:
-                      ThemeButtonStyle.primaryRoundedButtonStyle(context),
-                ),
+                !meeting.startConfirmed
+                    ? Column(
+                        children: [
+                          SizedBox(height: 20),
+                          BaseElevatedButton(
+                            text: 'Comenzar encuentro',
+                            buttonTextStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            onPressed: () {
+                              print(
+                                  "TESTING: podés usar este código para insertar: ${generateCode(meeting)}");
+                              userData.elder != null
+                                  ? showModalStartMeetingForElder(
+                                      context, meeting)
+                                  : showModalStartMeetingForBuddy(
+                                      context, meeting);
+                            },
+                            height: 40,
+                            width: 210,
+                            buttonStyle:
+                                ThemeButtonStyle.primaryRoundedButtonStyle(
+                                    context),
+                          )
+                        ],
+                      )
+                    : SizedBox.shrink(),
               ],
             ),
           ),
@@ -353,16 +364,7 @@ void showModalStartMeetingForBuddy(BuildContext context, Meeting meeting) {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 20.0),
-            MeetingCodeVerification(
-              onCompleted: (code) async {
-                bool meetingStarted = await verifyCode(context, code, meeting);
-                if (meetingStarted) {
-                  Navigator.pop(context);
-                } else {
-                  print("El código es incorrecto");
-                }
-              },
-            ),
+            MeetingCodeVerification(meeting: meeting),
             SizedBox(height: 20.0),
             Text(
               'o',

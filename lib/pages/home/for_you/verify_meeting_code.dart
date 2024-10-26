@@ -4,35 +4,43 @@ import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/widgets/ongoing_meeting_card.dart';
 import 'package:pinput/pinput.dart';
 
-final connectionService = ConnectionService();
-
 class MeetingCodeVerification extends StatefulWidget {
-  final Function(String) onCompleted;
+  final Meeting meeting;
 
-  MeetingCodeVerification({required this.onCompleted});
+  MeetingCodeVerification({required this.meeting});
 
   @override
-  State<MeetingCodeVerification> createState() =>
+  _MeetingCodeVerificationState createState() =>
       _MeetingCodeVerificationState();
 }
 
 class _MeetingCodeVerificationState extends State<MeetingCodeVerification> {
-  late FocusNode _pinFocusNode;
-
-  @override
-  void initState() {
-    super.initState();
-    _pinFocusNode = FocusNode();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _pinFocusNode.requestFocus();
-    });
-  }
+  String? errorMessage;
+  FocusNode _focusNode = FocusNode();
+  TextEditingController _pinController = TextEditingController();
 
   @override
   void dispose() {
-    _pinFocusNode.dispose();
+    _focusNode.dispose();
+    _pinController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleCodeSubmission(String code) async {
+    bool meetingStarted = await verifyCode(context, code, widget.meeting);
+    if (meetingStarted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Encuentro comenzado. Disfrutá!")),
+      );
+    } else {
+      setState(() {
+        errorMessage = "El código es incorrecto";
+      });
+
+      _pinController.clear();
+      _focusNode.requestFocus();
+    }
   }
 
   @override
@@ -40,31 +48,43 @@ class _MeetingCodeVerificationState extends State<MeetingCodeVerification> {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 56,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      textStyle: Theme.of(context)
-          .textTheme
-          .titleLarge!
-          .copyWith(fontWeight: FontWeight.bold, fontSize: 22),
+      textStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 20,
+        color: Colors.black,
+      ),
       decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.onSurface),
-        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
       ),
     );
 
-    final focusedPinTheme = defaultPinTheme.copyDecorationWith(
-      border: Border.all(color: Theme.of(context).colorScheme.primary),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Pinput(
+          length: 6,
+          focusNode: _focusNode,
+          controller: _pinController,
+          defaultPinTheme: defaultPinTheme,
+          onCompleted: _handleCodeSubmission,
+        ),
+        if (errorMessage != null) ...[
+          SizedBox(height: 8),
+          Text(
+            errorMessage!,
+            style: TextStyle(color: Colors.red, fontSize: 14),
+          ),
+        ],
+      ],
     );
-
-    return Pinput(
-        length: 6,
-        focusNode: _pinFocusNode,
-        defaultPinTheme: defaultPinTheme,
-        focusedPinTheme: focusedPinTheme,
-        onCompleted: widget.onCompleted);
   }
 }
 
-Future<bool> verifyCode(BuildContext context, String inputCode, Meeting meeting) async {
+Future<bool> verifyCode(
+    BuildContext context, String inputCode, Meeting meeting) async {
+  final connectionService = ConnectionService();
+
   String trueCode = generateCode(meeting);
   if (inputCode == trueCode) {
     print("El código $inputCode ingresado es válido");
@@ -72,7 +92,8 @@ Future<bool> verifyCode(BuildContext context, String inputCode, Meeting meeting)
     meeting.startConfirmed = true;
 
     try {
-      await connectionService.updateMeetingOfConnection(context, meeting.connection!, meeting);
+      await connectionService.updateMeetingOfConnection(
+          context, meeting.connection!, meeting);
     } catch (e) {
       print("Error actualizando comienzo de encuentro: $e");
       return false;
