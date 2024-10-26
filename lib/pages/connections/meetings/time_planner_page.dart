@@ -120,27 +120,7 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
       isSelectedDay = true;
 
       tasks.add(
-        TimePlannerTask(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          dateTime: plannerDateTime,
-          minutesDuration: 60,
-          daysDuration: 1,
-          onTap: () {
-            showDeleteDialog(context, plannerDateTime);
-          },
-          child: Container(
-            padding: EdgeInsets.all(5),
-            child: Text(
-              'Horario de encuentro',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-                fontWeight: FontWeight.w400,
-                fontSize: 13,
-                leadingDistribution: TextLeadingDistribution.proportional,
-              ),
-            ),
-          ),
-        ),
+        getSelectedDayTask(plannerDateTime),
       );
     });
   }
@@ -280,7 +260,7 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
       int hour = intToTimeHour(meeting.schedule.startHour);
       int minutes = intToTimeMinutes(meeting.schedule.startHour);
       return TimePlannerTask(
-        color: Theme.of(context).colorScheme.tertiaryContainer, 
+        color: Theme.of(context).colorScheme.primaryContainer, 
         dateTime: TimePlannerDateTime(
           day: getPlannerDay(meeting.schedule.date),
           hour: hour, 
@@ -293,7 +273,7 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
           child: Text(
             'Tienes un encuentro programado',
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onTertiaryContainer,
+              color: Theme.of(context).colorScheme.onPrimaryFixed,
               fontWeight: FontWeight.w400,
               fontSize: 11.5,
               leadingDistribution: TextLeadingDistribution.proportional,
@@ -358,27 +338,7 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
               );
 
               tasks.add(
-                TimePlannerTask(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  dateTime: plannerDateTime,
-                  minutesDuration: 60,
-                  daysDuration: 1,
-                  onTap: () {
-                    showDeleteDialog(context, plannerDateTime);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(5),
-                    child: Text(
-                      'Horario de encuentro',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 13,
-                        leadingDistribution: TextLeadingDistribution.proportional,
-                      ),
-                    ),
-                  ),
-                ),
+                getSelectedDayTask(plannerDateTime),
               );
             });
             isSelectedDay = true;
@@ -390,6 +350,30 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
         }
       }
     }
+  }
+
+  TimePlannerTask getSelectedDayTask(TimePlannerDateTime plannerDateTime) {
+    return TimePlannerTask(
+      color: Theme.of(context).colorScheme.primaryFixedDim,
+      dateTime: plannerDateTime,
+      minutesDuration: 60,
+      daysDuration: 1,
+      onTap: () {
+        showDeleteDialog(context, plannerDateTime);
+      },
+      child: Container(
+        padding: EdgeInsets.all(5),
+        child: Text(
+          'Horario de encuentro',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            fontWeight: FontWeight.w400,
+            fontSize: 13,
+            leadingDistribution: TextLeadingDistribution.proportional,
+          ),
+        ),
+      ),
+    );
   }
 
   bool _checkForConflicts(TimePlannerDateTime selectedDateTime) {
@@ -452,27 +436,7 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
                 );
 
                 tasks.add(
-                  TimePlannerTask(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    dateTime: plannerDateTime,
-                    minutesDuration: 60,
-                    daysDuration: 1,
-                    onTap: () {
-                      showDeleteDialog(parentContext, plannerDateTime);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(5),
-                      child: Text(
-                        'Horario de encuentro',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 13,
-                          leadingDistribution: TextLeadingDistribution.proportional,
-                        ),
-                      ),
-                    ),
-                  ),
+                  getSelectedDayTask(plannerDateTime),
                 );
                 isSelectedDay = true;
               });
