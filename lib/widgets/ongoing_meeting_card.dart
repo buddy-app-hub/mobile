@@ -4,11 +4,10 @@ import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/pages/home/for_you/verify_meeting_code.dart';
 import 'package:mobile/routes.dart';
-import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/services/websocket_service.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
@@ -39,7 +38,7 @@ OngoingMeetingCard buildOngoingMeetingCard(
   );
 }
 
-class OngoingMeetingCard extends StatelessWidget {
+class OngoingMeetingCard extends StatefulWidget {
   final String connectedPersonID;
   final String connectedPersonName;
   final Connection connection;
@@ -60,6 +59,60 @@ class OngoingMeetingCard extends StatelessWidget {
     required this.location,
     required this.avatars,
   });
+
+  @override
+  _OngoingMeetingCardState createState() => _OngoingMeetingCardState();
+}
+
+class _OngoingMeetingCardState extends State<OngoingMeetingCard> {
+  WebSocketService? _webSocketService;
+  late AuthSessionProvider authProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+
+    // Si somos mayor y el encuentro en curso no esta marcado como empezado, escuchamos notificaciones del server
+    if (authProvider.isElder && !widget.meeting.startConfirmed) {
+      print(
+          "Meeting en curso pero no marcada como empezada... Conectándose al websocket para esperar notificación");
+      _webSocketService = WebSocketService();
+
+      // Conecta al WebSocket y escucha por notificaciones
+      _webSocketService!.connect(widget.meeting.meetingID!, (message) {
+        final theme = Theme.of(context);
+
+        if (message == 'started') {
+          // Si el server nos envia que el meeting fue marcado como empezado, refresheo la página
+          print(
+              "Encuentro comenzado detectado en el mayor... Refresheando home");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Center(
+                child: Text(
+                  "Encuentro comenzado!",
+                  style: TextStyle(
+                    color: theme.colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              backgroundColor: theme.colorScheme.primaryContainer,
+            ),
+          );
+          Navigator.pushNamed(context, Routes.splashScreen);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    print("****** ejecutando dispose **********");
+    _webSocketService?.disconnect();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +154,7 @@ class OngoingMeetingCard extends StatelessWidget {
                   spacing: 4.0, // Espacio horizontal entre los chips
                   runSpacing: 1.0, // Espacio vertical cuando se wrapee
                   children: [
-                    meeting.startConfirmed
+                    widget.meeting.startConfirmed
                         ? buildStartedChip(context, theme)
                         : buildNotStartedChip(context, theme),
                   ]
@@ -116,7 +169,7 @@ class OngoingMeetingCard extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        '${meeting.activity} con $connectedPersonName',
+                        '${widget.meeting.activity} con ${widget.connectedPersonName}',
                         style: ThemeTextStyle.titleMediumOnBackground(context),
                       ),
                     ),
@@ -125,14 +178,16 @@ class OngoingMeetingCard extends StatelessWidget {
                       icon: Icon(Icons.more_vert),
                       itemBuilder: (context) => [
                         PopupMenuItem(
-                          value: 'Notificar ausencia de $connectedPersonName',
+                          value:
+                              'Notificar ausencia de ${widget.connectedPersonName}',
                           child: Text(
-                              'Notificar ausencia de $connectedPersonName'),
+                              'Notificar ausencia de ${widget.connectedPersonName}'),
                         ),
                         PopupMenuItem(
-                          value: 'Cancelar y notificar a $connectedPersonName',
+                          value:
+                              'Cancelar y notificar a ${widget.connectedPersonName}',
                           child: Text(
-                              'Cancelar y notificar a $connectedPersonName'),
+                              'Cancelar y notificar a ${widget.connectedPersonName}'),
                           onTap: () => showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -147,10 +202,10 @@ class OngoingMeetingCard extends StatelessWidget {
                                 TextButton(
                                   child: Text('Confirmar'),
                                   onPressed: () async {
-                                    meeting.isCancelled = true;
+                                    widget.meeting.isCancelled = true;
                                     await connectionService
-                                        .updateMeetingOfConnection(
-                                            context, connection, meeting);
+                                        .updateMeetingOfConnection(context,
+                                            widget.connection, widget.meeting);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                           content: Text('Encuentro cancelado')),
@@ -174,15 +229,15 @@ class OngoingMeetingCard extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  '📍 $location',
+                  '📍 ${widget.location}',
                   style: ThemeTextStyle.titleSmallOnBackground(context),
                 ),
                 Text(
-                  '🗓️ $date',
+                  '🗓️ ${widget.date}',
                   style: ThemeTextStyle.titleSmallOnBackground(context),
                 ),
                 Text(
-                  '🕓 $time',
+                  '🕓 ${widget.time}',
                   style: ThemeTextStyle.titleSmallOnBackground(context),
                 ),
                 Padding(
@@ -192,22 +247,22 @@ class OngoingMeetingCard extends StatelessWidget {
                     children: [
                       ChatButton(
                           currentUserData: userData,
-                          connectedPersonID: connectedPersonID,
-                          connectedPersonName: connectedPersonName),
+                          connectedPersonID: widget.connectedPersonID,
+                          connectedPersonName: widget.connectedPersonName),
                       Spacer(),
                       Container(
                         width: 150,
                         height: 60,
                         alignment: Alignment.bottomRight,
                         child: BaseAvatarStack(
-                          avatars: avatars,
+                          avatars: widget.avatars,
                           spacing: 50,
                         ),
                       ),
                     ],
                   ),
                 ),
-                !meeting.startConfirmed
+                !widget.meeting.startConfirmed
                     ? Column(
                         children: [
                           SizedBox(height: 20),
@@ -220,12 +275,12 @@ class OngoingMeetingCard extends StatelessWidget {
                             ),
                             onPressed: () {
                               print(
-                                  "TESTING: podés usar este código para insertar: ${generateCode(meeting)}");
+                                  "TESTING: podés usar este código para insertar: ${generateCode(widget.meeting)}");
                               userData.elder != null
                                   ? showModalStartMeetingForElder(
-                                      context, meeting)
+                                      context, widget.meeting)
                                   : showModalStartMeetingForBuddy(
-                                      context, meeting);
+                                      context, widget.meeting);
                             },
                             height: 40,
                             width: 210,
