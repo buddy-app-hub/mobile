@@ -101,9 +101,9 @@ class OngoingMeetingCard extends StatelessWidget {
                   spacing: 4.0, // Espacio horizontal entre los chips
                   runSpacing: 1.0, // Espacio vertical cuando se wrapee
                   children: [
-                    true
-                        ? buildNotStartedChip(context, theme)
-                        : SizedBox.shrink(),
+                    meeting.startConfirmed
+                        ? buildStartedChip(context, theme)
+                        : buildNotStartedChip(context, theme),
                   ]
                       .where((widget) => widget is! SizedBox)
                       .toList(), // Filtrar SizedBox.shrink()
@@ -248,12 +248,26 @@ class OngoingMeetingCard extends StatelessWidget {
         label: Text(
           'No comenzado',
           style: TextStyle(
-            color: theme.colorScheme.onTertiary,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 12.0,
           ),
         ),
-        backgroundColor: theme.colorScheme.tertiary,
+        backgroundColor: const Color.fromARGB(255, 234, 234, 170),
+        padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+        visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
+      );
+
+  Widget buildStartedChip(BuildContext context, ThemeData theme) => Chip(
+        label: Text(
+          'Comenzado',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 12.0,
+          ),
+        ),
+        backgroundColor: const Color.fromARGB(255, 170, 234, 190),
         padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
         visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
       );
