@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/meeting.dart';
+import 'package:mobile/pages/auth/splash_screen.dart';
+import 'package:mobile/pages/home/for_you/for_you.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/widgets/ongoing_meeting_card.dart';
 import 'package:pinput/pinput.dart';
@@ -27,11 +29,29 @@ class _MeetingCodeVerificationState extends State<MeetingCodeVerification> {
   }
 
   Future<void> _handleCodeSubmission(String code) async {
+    final theme = Theme.of(context);
     bool meetingStarted = await verifyCode(context, code, widget.meeting);
     if (meetingStarted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Encuentro comenzado. Disfrutá!")),
+        SnackBar(
+          content: Center(
+            child: Text(
+              "Encuentro comenzado!",
+              style: TextStyle(
+                color: theme.colorScheme.onPrimaryContainer,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          backgroundColor: theme.colorScheme.primaryContainer,
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SplashScreen(),
+        ),
       );
     } else {
       setState(() {
