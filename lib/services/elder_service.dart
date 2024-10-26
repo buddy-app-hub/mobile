@@ -120,9 +120,9 @@ class ElderService {
     }
   }
 
-  Future<List<Connection>> getConnections(UserData userData) async {
+  Future<List<Connection>> getConnections(String id) async {
     var response = await ApiService.get<dynamic>(
-      endpoint: "/connections/elders/${userData.elder?.firebaseUID}",
+      endpoint: "/connections/elders/$id",
     );
 
     List<Connection> connections = (response as List<dynamic>)

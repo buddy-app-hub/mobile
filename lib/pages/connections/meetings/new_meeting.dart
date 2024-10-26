@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
@@ -5,13 +6,16 @@ import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/pages/auth/splash_screen.dart';
+import 'package:mobile/pages/connections/meetings/time_planner_page.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/widgets/base_card_meeting.dart';
+import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
@@ -19,8 +23,9 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 class NewMeetingPage extends StatefulWidget {
   final Connection connection;
   final bool isBuddy;
+  // final MeetingSchedule? selectedDay;
 
-  const NewMeetingPage({Key? key, required this.connection, required this.isBuddy}) : super(key: key);
+  const NewMeetingPage({Key? key, required this.connection, required this.isBuddy,}) : super(key: key);
   @override
   _NewMeetingPageState createState() => _NewMeetingPageState();
 }
@@ -43,7 +48,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   UserHelper userHelper = UserHelper();
   final chatService = ChatService();
   final connectionService = ConnectionService();
-  List<custom_time.TimeOfDay> _availability = List.empty();
+  MeetingSchedule? selectedDay;
   DateTime? _dateTime;
   TimeOfDay? _fromTime;
   TimeOfDay? _toTime;
@@ -51,98 +56,124 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   @override
   void initState() {
     super.initState();
-    _fetchPersonAvailability();
+    _fetchNearestAvailableTime();
     _isElderHouseController.text = 'Mi casa'; 
     _countryController.text = 'Argentina';
   }
 
-  Future<void> _fetchPersonAvailability() async {
+  Future<void> _fetchNearestAvailableTime() async {
     final availability = await userHelper.fetchProfileAvailability(widget.connection.buddyID, widget.isBuddy);
+    final meetings = await userHelper.fetchMeetingCurrentWeek(widget.connection.buddyID, !widget.isBuddy);
+
     if (availability!.isNotEmpty) {
-      setState(() {
-        _availability = availability;
-      });
-    }
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 7)),
-      helpText: 'Seleccionar un día',
-      cancelText: 'Cancelar',
-      initialEntryMode: DatePickerEntryMode.calendarOnly,
-    );
-
-    if (picked != null) {
-      String selectedDay = formatDayOfWeek(picked.weekday);
-      bool isAvailableDay = _availability.any((a) => a.dayOfWeek.contains(selectedDay));
-
-      if (isAvailableDay) {
-        custom_time.TimeOfDay? availabilityTime = _availability.firstWhere(
-        (a) => a.dayOfWeek.contains(selectedDay),
-      );
+      final nearestAvailableTime = findNearestAvailableMeetingSchedule(availability, meetings);
+      if (nearestAvailableTime != null) {
+        final startTime = formatIntToTime(nearestAvailableTime.startHour);
+        final endTime = addOneHour(startTime);
+        selectedDay = MeetingSchedule(date: nearestAvailableTime.date, startHour: nearestAvailableTime.startHour, endHour: timeToInt(endTime));
         setState(() {
-          _dateTime = picked;
-          _dateController.text = formatMeetingDate(picked);
-          _fromTime = formatIntToTime(availabilityTime.from);
-          _fromController.text = intToTime(availabilityTime.from);
-          _toTime = formatIntToTime(availabilityTime.to);
-          _toController.text = intToTime(availabilityTime.to);
+          _dateTime = nearestAvailableTime.date;
+          _dateController.text = formatMeetingDate(nearestAvailableTime.date);
+          _fromTime = startTime;
+          _fromController.text = timeToString(startTime);
+          _toTime = endTime;
+          _toController.text = timeToString(endTime);
         });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('El día seleccionado no está disponible')),
-        );
       }
     }
   }
 
-  Future<void> _selectTime(BuildContext context, bool isFromTime) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialEntryMode: TimePickerEntryMode.inputOnly,
-      initialTime: isFromTime
-          ? (_fromTime ?? TimeOfDay.now())
-          : (_toTime ?? TimeOfDay.now()),
-      cancelText: 'Cancelar',
-      helpText: 'Ingresar una hora',
-      errorInvalidText: 'Ingresá una hora válida',
-      hourLabelText: 'Hora',
-      minuteLabelText: 'Minutos',
+  Future<void> _navigateAndUpdateSchedule(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TimePlannerPage(
+          personID: widget.connection.buddyID,
+          isBuddy: widget.isBuddy,
+          meetingSchedule: selectedDay!,
+        ),
+      ),
     );
 
-    if (picked != null && _dateTime != null) {
-      String selectedDay = formatDayOfWeek(_dateTime!.weekday);
+    if (result != null && result is MeetingSchedule) {
+      setState(() {
+        selectedDay = result;
+      });
 
-      custom_time.TimeOfDay? availabilityTime = _availability.firstWhere(
-        (a) => a.dayOfWeek.contains(selectedDay),
+      final startTime = formatIntToTime(selectedDay!.startHour);
+      final endTime = addOneHour(startTime);
+      selectedDay = MeetingSchedule(date: selectedDay!.date, startHour: selectedDay!.startHour, endHour: timeToInt(endTime));
+      setState(() {
+        _dateTime = selectedDay!.date;
+        _dateController.text = formatMeetingDate(selectedDay!.date);
+        _fromTime = startTime;
+        _fromController.text = timeToString(startTime);
+        _toTime = endTime;
+        _toController.text = timeToString(endTime);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('El horario del encuentro ha sido actualizado a ${formatMeetingDate(selectedDay!.date)} con éxito.')),
       );
+    }
+  }
 
-      if (availabilityTime != null) {
-        int selectedTime = picked.hour * 100 + picked.minute;
-        int fromTime = availabilityTime.from;
-        int toTime = availabilityTime.to;
+  MeetingSchedule? findNearestAvailableMeetingSchedule(
+    List<custom_time.TimeOfDay> availability,
+    List<Meeting> meetings,
+  ) {
+    List<MeetingSchedule> schedules = [];
+    DateTime now = DateTime.now();
+    Set<String> availableDays = availability.map((a) => a.dayOfWeek).toSet();
 
-        if (selectedTime >= fromTime && selectedTime <= toTime) {
-          setState(() {
-            if (isFromTime) {
-              _fromTime = picked;
-              _fromController.text = picked.format(context);
-            } else {
-              _toTime = picked;
-              _toController.text = picked.format(context);
+    DateTime fixedStartOfDay = DateTime(now.year, now.month, now.day);
+
+    for (int i = 0; i < 7; i++) {
+      DateTime currentDate = fixedStartOfDay.add(Duration(days: i));
+      String day = weekdays[currentDate.weekday - 1];
+
+      if (availableDays.contains(day)) {
+        var daySlots = availability.where((a) => a.dayOfWeek == day).toList();
+
+        for (var slot in daySlots) {
+          DateTime slotStart = currentDate.add(Duration(hours: slot.from ~/ 100, minutes: slot.from % 100));
+          DateTime slotEnd = currentDate.add(Duration(hours: slot.to ~/ 100, minutes: slot.to % 100));
+
+          for (var meeting in meetings) {
+            if (meeting.schedule.date.weekday == slotStart.weekday) {
+              DateTime meetingStart = meeting.schedule.date.add(Duration(hours: meeting.schedule.startHour ~/ 100));
+              DateTime meetingEnd = meeting.schedule.date.add(Duration(hours: meeting.schedule.endHour ~/ 100));
+
+              if ((meetingStart.isBefore(slotEnd) && meetingEnd.isAfter(slotStart))) {
+                if (meetingStart.isAfter(slotStart)) {
+                  slotEnd = meetingStart;
+                } else if (meetingEnd.isBefore(slotEnd)) {
+                  slotStart = meetingEnd;
+                } else {
+                  slotStart = slotEnd;
+                }
+              }
             }
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('La hora seleccionada no está disponible')),
-          );
+          }
+
+          if (slotStart.isBefore(slotEnd)) {
+            schedules.add(MeetingSchedule(
+              date: slotStart,
+              startHour: slotStart.hour * 100 + slotStart.minute,
+              endHour: slotEnd.hour * 100 + slotEnd.minute,
+            ));
+          }
         }
       }
     }
+
+    List<MeetingSchedule> oneHourSchedules = schedules
+        .where((schedule) => schedule.endHour - schedule.startHour >= 100)
+        .toList();
+    
+    oneHourSchedules.sort((a, b) => a.date.compareTo(b.date));
+
+    return oneHourSchedules.isNotEmpty ? oneHourSchedules.first : null;
   }
 
   @override
@@ -230,11 +261,11 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                             readOnly: true,
                             decoration: InputDecoration(
                               labelText: "Día",
-                              hintText: "Ingrese un día",
+                              hintText: "Seleccione un día",
                               hintStyle: ThemeTextStyle.titleSmallOnSecondary(context),
                               suffixIcon: Icon(Icons.calendar_month, size: 24),
                             ),
-                            onTap: () => _selectDate(context),
+                            // onTap: () => _selectDate(context),
                           ),
                         ),
                         const SizedBox(width: 15.0),
@@ -249,19 +280,19 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                             readOnly: true,
                             decoration: InputDecoration(
                               labelText: "Inicio",
-                              hintText: "Ingrese una hora",
+                              hintText: "Seleccione una hora",
                               hintStyle: ThemeTextStyle.titleSmallOnSecondary(context),
                               suffixIcon: Icon(Icons.access_time, size: 24),
                             ),
-                            onTap: () {
-                              if (_dateTime != null) {
-                                _selectTime(context, true);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Por favor selecciona un día primero')),
-                                );
-                              }
-                            },
+                            // onTap: () {
+                            //   if (_dateTime != null) {
+                            //     _selectTime(context, true);
+                            //   } else {
+                            //     ScaffoldMessenger.of(context).showSnackBar(
+                            //       SnackBar(content: Text('Por favor selecciona un día primero')),
+                            //     );
+                            //   }
+                            // },
                           ),
                         ),
                         const SizedBox(width: 15.0),
@@ -271,23 +302,40 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                             readOnly: true,
                             decoration: InputDecoration(
                               labelText: "Fin",
-                              hintText: "Ingrese una hora",
+                              hintText: "Seleccione una hora",
                               hintStyle: ThemeTextStyle.titleSmallOnSecondary(context),
                               suffixIcon: Icon(Icons.access_time, size: 24),
                             ),
-                            onTap: () {
-                              if (_dateTime != null) {
-                                _selectTime(context, false);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Por favor selecciona un día primero')),
-                                );
-                              }
-                            },
+                            // onTap: () {
+                            //   if (_dateTime != null) {
+                            //     _selectTime(context, false);
+                            //   } else {
+                            //     ScaffoldMessenger.of(context).showSnackBar(
+                            //       SnackBar(content: Text('Por favor selecciona un día primero')),
+                            //     );
+                            //   }
+                            // },
                           ),
                         ),
                         const SizedBox(width: 15.0),
                       ],
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(18, 20, 18, 20),
+                      child: Center(
+                        child: BaseElevatedButton(
+                          text: 'Ver otros horarios',
+                          buttonTextStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          buttonStyle: ThemeButtonStyle.primaryContainerRoundedButtonStyle(context),
+                          onPressed: () => _navigateAndUpdateSchedule(context),
+                          height: 40,
+                          width: 200,
+                        ),
+                      ),
                     ),
                     // determinar si ya con poner mi casa alcanza para que no ponga nada mas con respecto al lugar
                     Column(
@@ -314,14 +362,19 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                                   onChanged: (value) => setState(() {
                                     final address = authProvider.userData?.elder!.personalData.address;
                                     _isElderHouseSelected = value!;
+                                    _isElderHouseAddress = value;
                                     _placeNameController.text = value ? 'Casa de ${authProvider.userData?.elder!.personalData.firstName}' : '';
                                     if (value && address != null) {
-                                      _isElderHouseAddress = value;
                                       _streetNameController.text = address.streetName;
                                       _streetNumberController.text = address.streetNumber.toString();
                                       _cityController.text = address.city;
                                       _stateController.text = address.state;
                                       _countryController.text = address.country;
+                                    } else {
+                                      _streetNameController.text = '';
+                                      _streetNumberController.text = '';
+                                      _cityController.text = '';
+                                      _stateController.text = '';
                                     }
                                   }),
                                 ),

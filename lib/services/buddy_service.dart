@@ -121,9 +121,9 @@ class BuddyService {
     }
   }
 
-  Future<List<Connection>> getConnections(UserData userData) async {
+  Future<List<Connection>> getConnections(String id) async {
     var response = await ApiService.get<dynamic>(
-      endpoint: "/connections/buddies/${userData.buddy?.firebaseUID}",
+      endpoint: "/connections/buddies/$id",
     );
 
     List<Connection> connections = (response as List<dynamic>)
