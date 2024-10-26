@@ -37,7 +37,7 @@ class UserHelper {
     List<Meeting> meeting = connections.expand((connection) => connection.meetings)
       .where((meeting) {
         final meetingDate = meeting.schedule.date;
-        return meetingDate.isAfter(now) && meetingDate.isBefore(weekFromNow);
+        return meetingDate.isAfter(now.subtract(Duration(days: 1))) && meetingDate.isBefore(weekFromNow);
       })
       .toList();
 

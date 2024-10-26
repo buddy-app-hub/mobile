@@ -316,6 +316,12 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
             content: Text('Solo se permiten cargar horas que terminen en minuto 00 o 30.\nPor favor, verifica que el horario ingresado cumpla con esta condición.'),
           ),
         );
+      } else if (pickedTime != null && isSameDay(pickedDate, DateTime.now()) && isBefore(pickedTime, TimeOfDay.now())) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No puedes seleccionar un horario anterior al actual porque hoy es el día seleccionado.\nElige un horario en el futuro.',),
+          ),
+        );
       } else if (pickedTime != null) {
         final plannerDateTime = TimePlannerDateTime(
           day: getPlannerDay(pickedDate),
