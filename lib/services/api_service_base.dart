@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile/services/auth_service.dart';
+import 'package:mobile/utils/definitions.dart';
 
 class ApiService {
-  static const String baseUrl = "http://127.0.0.1:8086"; //"http://backend.buddyapp.link"; // http://127.0.0.1:8086
-
   static Future<dynamic> get<T>({
     required String endpoint,
     Map<String, dynamic>? params,
@@ -17,7 +16,7 @@ class ApiService {
         'Content-Type': 'application/json',
       };
 
-      final uri = Uri.parse('$baseUrl$endpoint');
+      final uri = Uri.parse('$BACKEND_URL$endpoint');
       final response = await http.get(uri.replace(queryParameters: params), headers: headers);
 
       if (response.statusCode == 200) {
@@ -44,7 +43,7 @@ class ApiService {
         'Content-Type': 'application/json',
       };
 
-      final uri = Uri.parse('$baseUrl$endpoint');
+      final uri = Uri.parse('$BACKEND_URL$endpoint');
       final response = await http.post(uri, headers: headers, body: jsonEncode(body));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -71,7 +70,7 @@ class ApiService {
         'Content-Type': 'application/json',
       };
 
-      final uri = Uri.parse('$baseUrl$endpoint');
+      final uri = Uri.parse('$BACKEND_URL$endpoint');
       final response = await http.patch(uri, headers: headers, body: jsonEncode(body));
 
       if (response.statusCode == 200) {
@@ -98,7 +97,7 @@ class ApiService {
         'Content-Type': 'application/json',
       };
 
-      final uri = Uri.parse('$baseUrl$endpoint');
+      final uri = Uri.parse('$BACKEND_URL$endpoint');
       final response = await http.put(uri, headers: headers, body: jsonEncode(body));
 
       if (response.statusCode == 200) {
@@ -124,7 +123,7 @@ class ApiService {
         'Content-Type': 'application/json',
       };
 
-      final uri = Uri.parse('$baseUrl$endpoint');
+      final uri = Uri.parse('$BACKEND_URL$endpoint');
       final response = await http.delete(uri, headers: headers);
 
       if (response.statusCode == 200 || response.statusCode == 204) {

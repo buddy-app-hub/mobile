@@ -26,6 +26,8 @@ class _ForYouPageState extends State<ForYouPage> {
       List<Connection> connections = await userHelper.fetchConnections(userData);
 
     return await Future.wait([
+      fetchOngoingMeetingAsFuture(theme, userData, connections),
+      fetchNotReviewedMeetingsAsFuture(theme, userData, connections),
       fetchConfirmedMeetingsAsFuture(theme, userData, connections),
       fetchUnconfirmedMeetingsAsFuture(theme, userData, connections),
     ]);
@@ -51,18 +53,20 @@ class _ForYouPageState extends State<ForYouPage> {
                 if (snapshot.hasError) {
                   return Center(child: Text('Error fetching meetings'));
                 } else {
-                  List<Widget> meetingsWidgets = snapshot.data![0];
-                  List<Widget> newMeetingsWidgets = snapshot.data![1];
-                  // List<Widget> rescheduledMeetingsWidgets = snapshot.data![2];
+                  List<Widget> ongoingMeetingsWidgets = snapshot.data![0];
+                  List<Widget> notReviewedMeetingsWidgets = snapshot.data![1];
+                  List<Widget> confirmedMeetingsWidgets = snapshot.data![2];
+                  List<Widget> unconfirmedMeetingsWidgets = snapshot.data![3];
 
                   return SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
                       child: Column(
                         children: [
-                          Column(children: meetingsWidgets),
-                          Column(children: newMeetingsWidgets),
-                          // Column(children: rescheduledMeetingsWidgets),
+                          Column(children: ongoingMeetingsWidgets),
+                          Column(children: notReviewedMeetingsWidgets),
+                          Column(children: confirmedMeetingsWidgets),
+                          Column(children: unconfirmedMeetingsWidgets),
                         ],
                       ),
                     ),

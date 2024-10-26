@@ -16,10 +16,11 @@ class Meeting {
   bool isPaymentPending;
   String activity;
   DateTime dateLastModification;
-  bool startConfirmedByBuddy;
-  bool startConfirmedByElder;
+  bool startConfirmed;
   Review? elderRatingForBuddy; // Review that Elder made to Buddy
   Review? buddyRatingForElder; // Review that Buddy made to Elder
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
   Connection? connection; // No esta en el backend, es solo para manejo en el front
 
   @JsonKey(name: 'location')
@@ -39,8 +40,7 @@ class Meeting {
     this.isPaymentPending = true,
     required this.activity,
     required this.dateLastModification,
-    this.startConfirmedByBuddy = false,
-    this.startConfirmedByElder = false,
+    this.startConfirmed = false,
     this.elderRatingForBuddy,
     this.buddyRatingForElder,
     this.connection,
