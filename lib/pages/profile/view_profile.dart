@@ -29,6 +29,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
   String perseonName = '';
   ElderService elderService = ElderService();
   BuddyService buddyService = BuddyService();
+  double global_rating = 4.4;
   String description = '';
   List<Interest> interest = List.empty();
   List<custom_time.TimeOfDay> availability = List.empty();
@@ -71,6 +72,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
           description = profile.elderProfile!.description!;
           interest = profile.elderProfile!.interests!;
           availability = profile.elderProfile!.availability!;
+          global_rating = profile.elderProfile!.globalRating!;
         });
       } else {
         setState(() {
@@ -85,6 +87,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
         description = profile.buddyProfile!.description!;
         interest = profile.buddyProfile!.interests!;
         availability = profile.buddyProfile!.availability!;
+        global_rating = profile.buddyProfile!.globalRating!;
       });
     }
   }
@@ -121,7 +124,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
         body: Stack(
           children: [
             Center(
-              child: ProfileWidgets.buildProfileData(context, theme, _profileImageUrl, perseonName, widget.isBuddy),
+              child: ProfileWidgets.buildProfileData(context, theme, _profileImageUrl, perseonName, global_rating, widget.isBuddy),
             ),
             SingleChildScrollView(
               child: Container(

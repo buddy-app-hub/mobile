@@ -126,7 +126,7 @@ class ThemeTextStyle {
 
   static TextStyle titleMediumOnBackground(BuildContext context) {
     return TextStyle(
-      color: Theme.of(context).colorScheme.onBackground,
+      color: Theme.of(context).colorScheme.onSurface,
       fontSize: 18,
       fontWeight: FontWeight.w400,
     );
@@ -171,7 +171,7 @@ class ThemeTextStyle {
       fontSize: 16,
       height: 1.3,
       letterSpacing: 0.1,
-      color: Theme.of(context).colorScheme.onBackground,
+      color: Theme.of(context).colorScheme.onSurface,
     );
   }
 

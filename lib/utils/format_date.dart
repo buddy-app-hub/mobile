@@ -151,6 +151,12 @@ bool isBefore(TimeOfDay t1, TimeOfDay t2) {
   return t1.hour < t2.hour || (t1.hour == t2.hour && t1.minute < t2.minute);
 }
 
+bool isSameDay(DateTime d1, DateTime d2) {
+  return d1.year == d2.year &&
+         d1.month == d2.month &&
+         d1.day == d2.day;
+}
+
 List<TimePlannerTitle> generateWeekPlanner() {
   DateTime now = DateTime.now();
 

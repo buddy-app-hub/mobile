@@ -20,6 +20,7 @@ class _ForYouPageState extends State<ForYouPage> {
 
   Future<List<List<Widget>>> fetchAllMeetings(UserData userData, ThemeData theme) async {
     return await Future.wait([
+      fetchPendingReviewMeetingsAsFuture(theme, userData),
       fetchMeetingsAsFuture(theme, userData),
       fetchNewMeetingsAsFuture(theme, userData),
       fetchRescheduledMeetingsAsFuture(theme, userData),
@@ -46,15 +47,17 @@ class _ForYouPageState extends State<ForYouPage> {
                 if (snapshot.hasError) {
                   return Center(child: Text('Error fetching meetings'));
                 } else {
-                  List<Widget> meetingsWidgets = snapshot.data![0];
-                  List<Widget> newMeetingsWidgets = snapshot.data![1];
-                  List<Widget> rescheduledMeetingsWidgets = snapshot.data![2];
+                  List<Widget> pendingReviewMeetingsWidgets = snapshot.data![0];
+                  List<Widget> meetingsWidgets = snapshot.data![1];
+                  List<Widget> newMeetingsWidgets = snapshot.data![2];
+                  List<Widget> rescheduledMeetingsWidgets = snapshot.data![3];
 
                   return SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
                       child: Column(
                         children: [
+                          Column(children: pendingReviewMeetingsWidgets),
                           Column(children: meetingsWidgets),
                           Column(children: newMeetingsWidgets),
                           Column(children: rescheduledMeetingsWidgets),

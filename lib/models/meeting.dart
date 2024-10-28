@@ -15,8 +15,8 @@ class Meeting {
   bool isPaymentPending;
   String activity;
   DateTime dateLastModification;
-  Review? elderRatingForBuddy; // Review that Elder made to Buddy
-  Review? buddyRatingForElder; // Review that Buddy made to Elder
+  Review? elderReviewForBuddy; // Review that Elder made to Buddy
+  Review? buddyReviewForElder; // Review that Buddy made to Elder
 
   @JsonKey(name: 'location')
   MeetingLocation location;
@@ -35,8 +35,8 @@ class Meeting {
     this.isPaymentPending = true,
     required this.activity,
     required this.dateLastModification,
-    this.elderRatingForBuddy,
-    this.buddyRatingForElder,
+    this.elderReviewForBuddy,
+    this.buddyReviewForElder,
   });
 
   factory Meeting.fromJson(Map<String, dynamic> json) =>

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
@@ -11,10 +12,12 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/pages/connections/meetings/edit_meeting.dart';
 import 'package:mobile/pages/payment/mercadopago.dart';
+import 'package:mobile/pages/profile/review/add_review.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/services/payment_service.dart';
+import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
@@ -26,6 +29,11 @@ UserHelper userHelper = UserHelper();
 
 bool isConfirmed(Meeting m) {
   return m.isConfirmedByBuddy && m.isConfirmedByElder;
+}
+
+Future<List<Widget>> fetchPendingReviewMeetingsAsFuture(ThemeData theme, UserData userData) async {
+  final stream = fetchPendingReviewMeetings(theme, userData);
+  return stream.toList();
 }
 
 Future<List<Widget>> fetchMeetingsAsFuture(ThemeData theme, UserData userData) async {
@@ -43,6 +51,14 @@ Future<List<Widget>> fetchRescheduledMeetingsAsFuture(ThemeData theme, UserData 
   return stream.toList();
 }
 
+Stream<Widget> fetchPendingReviewMeetings(ThemeData theme, UserData userData) async* {
+  List<Connection> connections = await userHelper.fetchConnections(userData);
+
+  for (var connection in connections) {
+    yield await buildPendingReviewAlerts(theme, connection, userData);
+  }
+}
+
 Stream<Widget> fetchMeetings(ThemeData theme, UserData userData) async* {
   List<Connection> connections = await userHelper.fetchConnections(userData);
 
@@ -53,7 +69,6 @@ Stream<Widget> fetchMeetings(ThemeData theme, UserData userData) async* {
 
 Stream<Widget> fetchNewMeetings(ThemeData theme, UserData userData) async* {
   List<Connection> connections = await userHelper.fetchConnections(userData);
-
   for (var connection in connections) {
     yield await buildNewMeetingCards(theme, connection, userData);
   }
@@ -64,6 +79,47 @@ Stream<Widget> fetchRescheduledMeetings(ThemeData theme, UserData userData) asyn
 
   for (var connection in connections) {
     yield await buildRescheduledMeetingCards(theme, connection, userData);
+  }
+}
+
+Future<Widget> buildPendingReviewAlerts(ThemeData theme, Connection connection, UserData userData) async {
+  bool isBuddy = userData.buddy != null;
+  String personID, personName;
+  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
+  String image = await fetchAvatar(personID, isBuddy);
+  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
+
+  List<Meeting> meetings = List.empty();
+  if (isBuddy) {
+    meetings = connection.meetings.where((m) =>
+        isDateInPast(m.schedule) && !m.isPaymentPending && m.buddyReviewForElder == null &&
+        !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder).toList();
+  } else {
+    meetings = connection.meetings.where((m) =>
+        isDateInPast(m.schedule) && !m.isPaymentPending && m.elderReviewForBuddy == null &&
+        !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder).toList();
+  }
+
+  if (meetings.isEmpty) {
+    return Column();
+  } else {
+    Meeting meeting = meetings.first;
+    return Column( 
+      children: [
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
+              child: Text(
+                'Opiniones pendientes',
+                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
+              ),
+            ),
+          ],
+        ),
+        buildPendingReviewCard(isBuddy, personID, personName, connection, meeting, image),
+      ],
+    );
   }
 }
 
@@ -140,7 +196,7 @@ Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, User
   String personID, personName;
   (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
   List<String> images = await fetchAvatars(personID, isBuddy, userData);
-
+  
   connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
 
   List<Meeting> meetings = connection.meetings.where((m) =>
@@ -183,6 +239,11 @@ Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userDa
   return [imageUser, imageConnection];
 }
 
+Future<String> fetchAvatar(String personID, bool isBuddy) async {
+  String? imageConnection = await userHelper.loadProfileImage(personID);
+  return  imageConnection;
+}
+
 String getDayName(DateTime date) {
   return formatDayOfWeek(date.weekday);
 }
@@ -222,6 +283,20 @@ BaseCardMeeting buildNextEventCard(bool isBuddy,String personID, String personNa
     time: formatTime(meeting.schedule),
     location: formatLocation(meeting.location),
     avatars: images,
+  );
+}
+
+BaseAlertCartMeeting buildPendingReviewCard(bool isBuddy, String personID, String personName, Connection connection, Meeting meeting, String image) {
+  return BaseAlertCartMeeting(
+    isBuddy: isBuddy,
+    connection: connection,
+    meeting: meeting,
+    personID: personID,
+    person: personName,
+    date: formatMeetingDateShort(meeting.schedule.date),
+    time: formatTime(meeting.schedule),
+    location: formatLocation(meeting.location),
+    avatar: image,
   );
 }
 
@@ -413,6 +488,104 @@ class BaseCardMeeting extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class BaseAlertCartMeeting extends StatelessWidget {
+  final bool isBuddy;
+  final Connection connection;
+  final Meeting meeting;
+  final String personID;
+  final String person;
+  final String date;
+  final String time;
+  final String location;
+  final String avatar;
+
+  const BaseAlertCartMeeting({
+    super.key,
+    required this.isBuddy,
+    required this.connection,
+    required this.meeting,
+    required this.personID,
+    required this.person,
+    required this.date,
+    required this.time,
+    required this.location,
+    required this.avatar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      margin: EdgeInsets.only(right: 5),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: theme.colorScheme.tertiary,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        color: theme.colorScheme.tertiaryContainer.withOpacity(0.5),
+      ),
+      padding: EdgeInsets.all(12),
+      child: _buildConnectionInfo(context, theme),
+    );
+  }
+
+  Widget _buildConnectionInfo(BuildContext context, ThemeData theme) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 26,
+          backgroundImage: avatar.isEmpty
+              ? AssetImage('assets/images/default_user.jpg')
+              : CachedNetworkImageProvider(avatar) as ImageProvider,
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Opina sobre ${meeting.activity.toLowerCase()} con $person',
+                style: ThemeTextStyle.itemLargeOnBackground(context),
+                overflow: TextOverflow.clip,
+              ),
+              // SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: BaseElevatedButton(
+                    text: 'Opinar',
+                    buttonTextStyle: TextStyle(
+                      color: theme.colorScheme.onTertiaryContainer,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    buttonStyle: ThemeButtonStyle.tertiaryFixedRoundedButtonStyle(context),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddReviewPage(
+                          isBuddy: isBuddy,
+                          connection: connection,
+                          meeting: meeting,
+                          personID: personID,
+                          personName: person,
+                        ),
+                      ),
+                    ),
+                    height: 36,
+                    width: 100,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],

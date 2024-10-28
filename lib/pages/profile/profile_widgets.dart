@@ -8,7 +8,7 @@ import 'package:mobile/widgets/base_decoration.dart';
 
 class ProfileWidgets {
   static Widget buildProfileData(BuildContext context, ThemeData theme,
-      String profileImageUrl, String personName, bool isBuddy) {
+      String profileImageUrl, String personName, double global_rating, bool isBuddy) {
     return Column(
       children: [
         CircleAvatar(
@@ -38,7 +38,7 @@ class ProfileWidgets {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ProfileWidgets.buildRowLocationReviewProfile(
-                        context, isBuddy, 'Buenos Aires', '4.4', '41'),
+                        context, isBuddy, 'Buenos Aires', global_rating.toString(), '41'),
                   ],
                 ),
               ),

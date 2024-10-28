@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/meeting_schedule.dart';
+import 'package:mobile/utils/format_date.dart';
 
 String? validateEmail(String? value) {
   const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
@@ -87,4 +89,12 @@ bool isDateInNextWeek(DateTime date) {
 bool isDateInFuture(DateTime date) {
   final currentDate = DateTime.now();
   return date.isAfter(currentDate);
+}
+
+bool isDateInPast(MeetingSchedule meetingSchedule) {
+  DateTime date = meetingSchedule.date;
+  TimeOfDay endTime = formatIntToTime(meetingSchedule.endHour);
+  final currentDate = DateTime.now();
+  final currentTime = TimeOfDay(hour: currentDate.hour, minute: currentDate.minute);
+  return (date.isBefore(currentDate) || (isSameDay(date, currentDate) && isAfter(currentTime, endTime)));
 }
