@@ -26,6 +26,10 @@ String formatMeetingDate(DateTime date) {
   return '${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]} del ${date.year}';
 }
 
+String getMeetingDate(DateTime date) {
+  return '${date.day}/${date.month}/${date.year}';
+}
+
 String formatMeetingDateShort(DateTime date) {
   return 'Próximo ${weekdays[date.weekday - 1]} ${date.day} de ${months[date.month - 1]}';
 }

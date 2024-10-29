@@ -28,8 +28,6 @@ class TimePlannerPage extends StatefulWidget {
 
   @override
   _TimePlannerPageState createState() => _TimePlannerPageState();
-
-
 }
 
 class _TimePlannerPageState extends State<TimePlannerPage> {
@@ -42,17 +40,17 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.meetingSchedule != null) {
+      setState(() {
+        selectedDay = widget.meetingSchedule;
+        isSelectedDay = true;
+      });
+    } else {
+      selectedDay = null;
+      isSelectedDay = false;
+    }
     _fetchPersonAvailability();
-    setState(() {
-      selectedDay = widget.meetingSchedule;
-    });
   }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   _setSelectedDay();
-  // }
 
   Future<void> _fetchPersonAvailability() async {
     final availability = await userHelper.fetchProfileAvailability(widget.personID, widget.isBuddy);
@@ -61,6 +59,10 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
         availabilityTasks.addAll(generateUnavailabilityTasks(context, availability));
         tasks.addAll(availabilityTasks);
       });
+    } else {
+      setState(() {
+        tasks.addAll(generateUnavailabilityTasks(context, List.empty()));
+      });
     }
     _fetchPersonMeetings();
   }
@@ -68,18 +70,23 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
   Future<void> _fetchPersonMeetings() async {
     final meetings = await userHelper.fetchMeetingCurrentWeek(widget.personID, !widget.isBuddy);
     if (meetings.isNotEmpty) {
-      setState(() {
-        // meetingsTasks.addAll(generateMeetingTasks(context, meetings));
-        meetingsTasks.addAll(generateMeetingTasks(context, meetings.where((m) {
-          final meetingDateMatches = selectedDay == null || m.schedule.date != selectedDay!.date;
-          final timeDoesNotOverlap = selectedDay == null ||
-              m.schedule.endHour <= selectedDay!.startHour ||
-              m.schedule.startHour >= selectedDay!.endHour;
+      if (isSelectedDay) {
+        setState(() {
+            meetingsTasks.addAll(generateMeetingTasks(context, meetings.where((m) {
+              final meetingDateMatches = selectedDay == null || m.schedule.date != selectedDay!.date;
+              final timeDoesNotOverlap = selectedDay == null ||
+                  m.schedule.endHour <= selectedDay!.startHour ||
+                  m.schedule.startHour >= selectedDay!.endHour;
 
-          return meetingDateMatches || timeDoesNotOverlap;
-        }).toList()));
-        tasks.addAll(meetingsTasks);
-      });
+              return meetingDateMatches || timeDoesNotOverlap;
+            }).toList()));
+            tasks.addAll(meetingsTasks);
+          });
+      } else {
+        setState(() {
+          meetingsTasks.addAll(generateMeetingTasks(context, meetings));
+        });
+      }
     }
     _fetchUserMeetings();
   }
@@ -87,20 +94,26 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
   Future<void> _fetchUserMeetings() async {
     final meetings = await userHelper.fetchMeetingCurrentWeek(widget.userID, widget.isBuddy);
     if (meetings.isNotEmpty) {
+      if (isSelectedDay) {
       setState(() {
-        // meetingsTasks.addAll(generateMeetingTasks(context, meetings));
-        meetingsTasks.addAll(generateUserMeetingTasks(context, meetings.where((m) {
-          final meetingDateMatches = selectedDay == null || m.schedule.date != selectedDay!.date;
-          final timeDoesNotOverlap = selectedDay == null ||
-              m.schedule.endHour <= selectedDay!.startHour ||
-              m.schedule.startHour >= selectedDay!.endHour;
+          meetingsTasks.addAll(generateUserMeetingTasks(context, meetings.where((m) {
+            final meetingDateMatches = selectedDay == null || m.schedule.date != selectedDay!.date;
+            final timeDoesNotOverlap = selectedDay == null ||
+                m.schedule.endHour <= selectedDay!.startHour ||
+                m.schedule.startHour >= selectedDay!.endHour;
 
-          return meetingDateMatches || timeDoesNotOverlap;
-        }).toList()));
-        tasks.addAll(meetingsTasks);
-      });
+            return meetingDateMatches || timeDoesNotOverlap;
+          }).toList()));
+          tasks.addAll(meetingsTasks);
+        });
+        _setSelectedDay();
+      } else {
+        setState(() {
+          meetingsTasks.addAll(generateMeetingTasks(context, meetings));
+        });
+      }
+      
     }
-    _setSelectedDay();
   }
 
   Future<void> _setSelectedDay() async {
@@ -135,16 +148,17 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
       DateTime currentDate = now.add(Duration(days: i));
       String day = weekdays[currentDate.weekday - 1 ];
 
+      //Si no tiene disponibilidad creo una task de todo el día
       if (!availableDays.contains(day)) {
         tasks.add(
           TimePlannerTask(
             color: Theme.of(context).colorScheme.secondaryFixedDim.withOpacity(0.5), 
             dateTime: TimePlannerDateTime(
               day: i,
-              hour: 7, 
+              hour: 6, 
               minutes: 0,
             ),
-            minutesDuration: 960,
+            minutesDuration: 1080,
             daysDuration: 1,
             child: Container(
               padding: EdgeInsets.all(5),
@@ -162,8 +176,8 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
         );
       } else {
         var daySlots = availability.where((a) => a.dayOfWeek == day).toList();
-        int startHour = 7;
-        int endHour = 23; 
+        int startHour = 6;
+        int endHour = 24; 
 
         if (daySlots.isNotEmpty && daySlots.first.from > startHour * 100) {
           tasks.add(
@@ -190,6 +204,35 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
             ),
           );
         }
+
+        for (int j = 0; j < daySlots.length - 1; j++) {
+          if (daySlots[j].to < daySlots[j + 1].from) {
+            tasks.add(
+              TimePlannerTask(
+                color: Theme.of(context).colorScheme.secondaryFixedDim.withOpacity(0.5),
+                dateTime: TimePlannerDateTime(
+                  day: i,
+                  hour: daySlots[j].to ~/ 100,
+                  minutes: daySlots[j].to % 100,
+                ),
+                minutesDuration: (daySlots[j + 1].from ~/ 100 - daySlots[j].to ~/ 100) * 60 - daySlots[j].to % 100,
+                daysDuration: 1,
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  child: Text(
+                    'No disponible entre ${intToTime(daySlots[j].to)} y ${intToTime(daySlots[j + 1].from)}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondaryFixedVariant,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+
         if (daySlots.isNotEmpty && daySlots.last.to < endHour * 100) {
           tasks.add(
             TimePlannerTask(
@@ -199,7 +242,7 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
                 hour: daySlots.last.to ~/ 100,
                 minutes: daySlots.last.to % 100,
               ),
-              minutesDuration: ((endHour - (daySlots.last.to ~/ 100)) * 60) - daySlots.last.to % 100,
+              minutesDuration: (endHour * 60 - (daySlots.last.to ~/ 100) * 60 - (daySlots.last.to % 100)),
               daysDuration: 1,
               child: Container(
                 padding: EdgeInsets.all(5),
@@ -486,28 +529,28 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
   void _confirmSelection() {
     if (selectedDay == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a schedule.')),
+        const SnackBar(content: Text('Por favor, seleccione un horario.')),
       );
     } else {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Confirm selection'),
-          content: Text('Are you sure you want to schedule the meeting on ${formatMeetingDate(selectedDay!.date)}?'),
+          title: Text('Confirmar selección'),
+          content: Text('¿Estás seguro de que deseas agendar el encuentro para el ${formatMeetingDate(selectedDay!.date)}?'),
           actions: [
             TextButton(
-              child: Text('Cancel'),
+              child: Text('Cancelar'),
               onPressed: () => Navigator.pop(context),
             ),
             TextButton(
-              child: Text('Confirm'),
+              child: Text('Confirmar'),
               onPressed: () {
-                Navigator.pop(context); // Close the dialog
-                Navigator.pop(context, selectedDay); // Pass selectedDay back to NewMeetingPage
+                Navigator.pop(context);
+                Navigator.pop(context, selectedDay);
               },
             ),
           ],
-        ),
+        )
       );
     }
   }
@@ -526,41 +569,14 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
           IconButton(
             icon: Icon(Icons.check),
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-            onPressed: !isSelectedDay ?
-            () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Por favor, seleccione un horario.')),
-              );
-            } :
-            () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text('Confirmar selección'),
-                  content: Text('¿Estás seguro de que deseas agendar el encuentro para el ${formatMeetingDate(selectedDay!.date)}?'),
-                  actions: [
-                    TextButton(
-                      child: Text('Cancelar'),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    TextButton(
-                      child: Text('Confirmar'),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pop(context, selectedDay);
-                      },
-                    ),
-                  ],
-                )
-              );
-            },
+            onPressed: _confirmSelection,
           ),
         ],
       ),
       body: Center(
         child: TimePlanner(
-          startHour: 7,
-          endHour: 22,
+          startHour: 6,
+          endHour: 23,
           use24HourFormat: true,
           setTimeOnAxis: false,
           style: TimePlannerStyle(

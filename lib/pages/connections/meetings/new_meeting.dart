@@ -52,6 +52,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   DateTime? _dateTime;
   TimeOfDay? _fromTime;
   TimeOfDay? _toTime;
+  String encuentroCercano = '';
 
   @override
   void initState() {
@@ -71,8 +72,9 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
       if (nearestAvailableTime != null) {
         final startTime = formatIntToTime(nearestAvailableTime.startHour);
         final endTime = addOneHour(startTime);
-        selectedDay = MeetingSchedule(date: nearestAvailableTime.date, startHour: nearestAvailableTime.startHour, endHour: timeToInt(endTime));
         setState(() {
+          selectedDay = MeetingSchedule(date: nearestAvailableTime.date, startHour: nearestAvailableTime.startHour, endHour: timeToInt(endTime));
+          encuentroCercano = 'Próximo encuentro más cercano.';
           _dateTime = nearestAvailableTime.date;
           _dateController.text = formatMeetingDate(nearestAvailableTime.date);
           _fromTime = startTime;
@@ -80,7 +82,16 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
           _toTime = endTime;
           _toController.text = timeToString(endTime);
         });
-      }
+      } 
+    } 
+    if (selectedDay == null) {
+      setState(() {
+        selectedDay = null;
+        encuentroCercano = 'No hay encuentros próximos disponibles.';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No hay encuentros próximos en el calendario para esta semana. Revisa el calendario para ver si hay otras opciones disponibles.',), backgroundColor: Theme.of(context).colorScheme.error,),
+      );
     }
   }
 
@@ -92,7 +103,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
           userID: widget.isBuddy ? widget.connection.buddyID : widget.connection.elderID,
           personID: widget.isBuddy ? widget.connection.elderID : widget.connection.buddyID,
           isBuddy: widget.isBuddy,
-          meetingSchedule: selectedDay!,
+          meetingSchedule: selectedDay,
         ),
       ),
     );
@@ -192,7 +203,6 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
         .toList();
     
     oneHourSchedules.sort((a, b) => a.date.compareTo(b.date));
-
     return oneHourSchedules.isNotEmpty ? oneHourSchedules.first : null;
   }
 
@@ -272,6 +282,14 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                 margin: EdgeInsets.fromLTRB(0, 0, 0, 40),
                 child: Column(
                   children: [
+                    Container(
+                      padding: EdgeInsets.fromLTRB(8, 0, 28, 20),
+                      child: Text(
+                        encuentroCercano,
+                        style: (selectedDay == null) ?  TextStyle(fontSize: 14, color: theme.colorScheme.error) : TextStyle(fontSize: 14, color: theme.colorScheme.primary),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
                     Row(
                       children: [
                         const SizedBox(width: 15.0),
@@ -304,15 +322,6 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                               hintStyle: ThemeTextStyle.titleSmallOnSecondary(context),
                               suffixIcon: Icon(Icons.access_time, size: 24),
                             ),
-                            // onTap: () {
-                            //   if (_dateTime != null) {
-                            //     _selectTime(context, true);
-                            //   } else {
-                            //     ScaffoldMessenger.of(context).showSnackBar(
-                            //       SnackBar(content: Text('Por favor selecciona un día primero')),
-                            //     );
-                            //   }
-                            // },
                           ),
                         ),
                         const SizedBox(width: 15.0),
@@ -326,15 +335,6 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                               hintStyle: ThemeTextStyle.titleSmallOnSecondary(context),
                               suffixIcon: Icon(Icons.access_time, size: 24),
                             ),
-                            // onTap: () {
-                            //   if (_dateTime != null) {
-                            //     _selectTime(context, false);
-                            //   } else {
-                            //     ScaffoldMessenger.of(context).showSnackBar(
-                            //       SnackBar(content: Text('Por favor selecciona un día primero')),
-                            //     );
-                            //   }
-                            // },
                           ),
                         ),
                         const SizedBox(width: 15.0),
@@ -514,7 +514,6 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
     
     if (combinedMessage.isNotEmpty) {
       await connectionService.createMeetingOfConnection(context, widget.connection, meeting);
-      // await chatService.sendMessageNewMeeting(widget.chatRoomID, combinedMessage);
     }
   }
 }
