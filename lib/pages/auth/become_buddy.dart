@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/models/bank_account.dart';
 import 'package:mobile/models/buddy.dart';
 import 'package:mobile/models/buddy_profile.dart';
@@ -18,11 +19,13 @@ List<DropdownMenuItem<String>>? items = [
   DropdownMenuItem(value: 'Femenino', child: Text('Femenino')),
   DropdownMenuItem(value: 'No binario', child: Text('No binario')),
   DropdownMenuItem(value: 'Otro', child: Text('Otro')),
-  DropdownMenuItem(value: 'Prefiero no decir', child: Text('Prefiero no decir')),
+  DropdownMenuItem(
+      value: 'Prefiero no decir', child: Text('Prefiero no decir')),
 ];
 
 class BecomeBuddyPage extends StatefulWidget {
-  const BecomeBuddyPage({super.key, required this.countryCode, required this.phone});
+  const BecomeBuddyPage(
+      {super.key, required this.countryCode, required this.phone});
 
   final String phone;
   final String countryCode;
@@ -56,10 +59,10 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
           firstName: firstNameController.text,
           lastName: lastNameController.text,
           gender: genderController.text,
+          birthDate: DateFormat('dd/MM/yyyy').parse(dateController.text),
         ),
-        phoneNumber: PhoneNumber(
-            countryCode: widget.countryCode,
-            number: widget.phone),
+        phoneNumber:
+            PhoneNumber(countryCode: widget.countryCode, number: widget.phone),
         registrationDate: DateTime.now(),
         registrationMethod: 'email',
         email: authProvider.user!.email!,
@@ -87,7 +90,8 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
     );
     if (pickedDate != null) {
       setState(() {
-        dateController.text = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+        dateController.text =
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
       });
     }
   }
@@ -140,7 +144,9 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                           fillColor: theme.colorScheme.primary.withOpacity(0.1),
                           filled: true,
                         ),
-                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu nombre' : null,
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Ingresá tu nombre'
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -154,16 +160,22 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                           fillColor: theme.colorScheme.primary.withOpacity(0.1),
                           filled: true,
                         ),
-                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu apellido' : null,
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Ingresá tu apellido'
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        onChanged: (value) => setState(() => genderController.text = value!),
-                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu género' : null,
+                        onChanged: (value) =>
+                            setState(() => genderController.text = value!),
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Ingresá tu género'
+                            : null,
                         items: items,
                         decoration: InputDecoration(
                           hintText: "Género",
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 15),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide.none,
@@ -187,7 +199,9 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                           fillColor: theme.colorScheme.primary.withOpacity(0.1),
                           filled: true,
                         ),
-                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu fecha de nacimiento' : null,
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Ingresá tu fecha de nacimiento'
+                            : null,
                       ),
                     ],
                   ),

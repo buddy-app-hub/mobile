@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/elder_profile.dart';
 import 'package:mobile/models/identity_card.dart';
@@ -12,26 +13,11 @@ import 'package:mobile/theme/theme_text_style.dart';
 import 'package:provider/provider.dart';
 
 List<DropdownMenuItem<String>>? items = [
-  DropdownMenuItem(
-    value: 'Masculino',
-    child: Text('Masculino'),
-  ),
-  DropdownMenuItem(
-    value: 'Femenino',
-    child: Text('Femenino'),
-  ),
-  DropdownMenuItem(
-    value: 'No binario',
-    child: Text('No binario'),
-  ),
-  DropdownMenuItem(
-    value: 'Otro',
-    child: Text('Otro'),
-  ),
-  DropdownMenuItem(
-    value: 'Prefiero no decir',
-    child: Text('Prefiero no decir'),
-  ),
+  DropdownMenuItem(value: 'Masculino', child: Text('Masculino')),
+  DropdownMenuItem(value: 'Femenino', child: Text('Femenino')),
+  DropdownMenuItem(value: 'No binario', child: Text('No binario')),
+  DropdownMenuItem(value: 'Otro', child: Text('Otro')),
+  DropdownMenuItem(value: 'Prefiero no decir', child: Text('Prefiero no decir')),
 ];
 
 class WantBuddyForLovedOnePage extends StatefulWidget {
@@ -59,14 +45,13 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController genderController = TextEditingController();
-  // TextEditingController phoneNumberController = TextEditingController();
-  // TextEditingController phoneCountryCodeController = TextEditingController();
   TextEditingController relationshipToElderController = TextEditingController();
 
   // Elder data
   TextEditingController elderFirstNameController = TextEditingController();
   TextEditingController elderLastNameController = TextEditingController();
   TextEditingController elderGenderController = TextEditingController();
+  TextEditingController elderDateController = TextEditingController();
 
   Future<void> _submitForm() async {
     final ElderService elderService = ElderService();
@@ -78,13 +63,14 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
           firstName: elderFirstNameController.text,
           lastName: elderLastNameController.text,
           gender: elderGenderController.text,
+          birthDate: DateFormat('dd/MM/yyyy').parse(elderDateController.text),
         ),
         phoneNumber: PhoneNumber(
             countryCode: widget.countryCode,
             number: widget.phone),
         registrationDate: DateTime.now(),
         registrationMethod:
-            'email', // TODO: ajustar cuando se agregue registro por Google
+            'email',
         email: authProvider.user!.email!,
         onLovedOneMode: true,
         lovedOne: LovedOne(
@@ -104,6 +90,21 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
       Navigator.pushNamed(context, Routes.splashScreen);
     } else {
       print("Formulario inválido");
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        elderDateController.text =
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      });
     }
   }
 
@@ -237,50 +238,11 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                     ],
                   ),
                 ),
-                // const SizedBox(height: 16),
-                // TextFormField(
-                //   controller: phoneCountryCodeController,
-                //   decoration: InputDecoration(
-                //     hintText: "Prefijo Teléfono",
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(18),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                //     filled: true,
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Ingresá el prefijo del país de tu teléfono';
-                //     }
-                //     return null;
-                //   },
-                // ),
-                // const SizedBox(height: 16),
-                // TextFormField(
-                //   controller: phoneNumberController,
-                //   decoration: InputDecoration(
-                //     hintText: "Nro Teléfono",
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(18),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                //     filled: true,
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Ingresá tu número de teléfono';
-                //     }
-                //     return null;
-                //   },
-                // ),
-                
                 const SizedBox(height: 10),
                 Container(
                   padding: EdgeInsets.fromLTRB(8, 10, 8, 8),
                   child: Text(
-                    'Datos de tu ser querido',
+                    'Datos de tu ser querido (adulto mayor)',
                     style: TextStyle(fontSize: 14),
                     textAlign: TextAlign.left,
                   ),
@@ -351,7 +313,23 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                           filled: true,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: elderDateController,
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                        decoration: InputDecoration(
+                          hintText: "Fecha de nacimiento",
+                          suffixIcon: Icon(Icons.calendar_today),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                          filled: true,
+                        ),
+                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu fecha de nacimiento' : null,
+                      ),
                     ],
                   ),
                 ),
