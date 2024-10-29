@@ -1,5 +1,6 @@
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
+import 'package:mobile/models/review.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/services/buddy_service.dart';
@@ -42,6 +43,29 @@ class UserHelper {
       .toList();
 
     return meeting;
+  }
+
+  Future<Map<Meeting, Review>> fetchReviews(String id, bool isBuddy) async {
+    List<Connection> connections;
+    if (isBuddy) {
+      connections = await buddyService.getConnections(id);
+    } else {
+      connections = await elderService.getConnections(id);
+    }
+    print(isBuddy);
+    Map<Meeting, Review> reviews = {
+      for (var connection in connections)
+        for (var meeting in connection.meetings)
+          if (isBuddy && meeting.elderReviewForBuddy != null)
+            meeting: meeting.elderReviewForBuddy!
+          else if (!isBuddy && meeting.buddyReviewForElder != null)
+            meeting: meeting.buddyReviewForElder!
+    };
+    
+    return Map.fromEntries(
+      reviews.entries.toList()
+        ..sort((a, b) => b.value.rating.compareTo(a.value.rating))
+    );
   }
 
   Future<Object> fetchPersonProfile(String personID, bool isBuddy) async {
