@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/utils/format_date.dart';
+import 'package:mobile/models/meeting_schedule.dart';
 
 String? validateEmail(String? value) {
   const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
@@ -97,4 +98,58 @@ bool isDateInPast(MeetingSchedule meetingSchedule) {
   final currentDate = DateTime.now();
   final currentTime = TimeOfDay(hour: currentDate.hour, minute: currentDate.minute);
   return (date.isBefore(currentDate) || (isSameDay(date, currentDate) && isAfter(currentTime, endTime)));
+}
+
+bool isMeetingOngoing(MeetingSchedule schedule) {
+  final currentDate = DateTime.now();
+
+  // Verifica si el encuentro es hoy
+  if (currentDate.year == schedule.date.year &&
+      currentDate.month == schedule.date.month &&
+      currentDate.day == schedule.date.day) {
+    
+    int startHour = schedule.startHour ~/ 100;
+    int startMinute = schedule.startHour % 100;
+    int endHour = schedule.endHour ~/ 100;
+    int endMinute = schedule.endHour % 100;
+    
+    DateTime startTime = DateTime(currentDate.year, currentDate.month, currentDate.day, startHour, startMinute);
+    DateTime endTime = DateTime(currentDate.year, currentDate.month, currentDate.day, endHour, endMinute);
+
+    return currentDate.isAfter(startTime) && currentDate.isBefore(endTime);
+  }
+
+  return false;
+}
+
+bool isMeetingEnded(MeetingSchedule schedule) {
+  final currentDate = DateTime.now();
+
+  // Comparamos las fechas solamente (sin horas)
+  if (currentDate.year > schedule.date.year ||
+      (currentDate.year == schedule.date.year &&
+       currentDate.month > schedule.date.month) ||
+      (currentDate.year == schedule.date.year &&
+       currentDate.month == schedule.date.month &&
+       currentDate.day > schedule.date.day)) {
+    return true;
+  }
+
+  // Si es el mismo día que el encuentro, comparamos las horas
+  if (currentDate.year == schedule.date.year &&
+      currentDate.month == schedule.date.month &&
+      currentDate.day == schedule.date.day) {
+
+    int endHour = schedule.endHour ~/ 100;
+    int endMinute = schedule.endHour % 100;
+
+    DateTime endTime = DateTime(currentDate.year, currentDate.month, currentDate.day, endHour, endMinute);
+
+    // Si la hora actual es despues de la hora de finalización
+    if (currentDate.isAfter(endTime)) {
+      return true;
+    }
+  }
+
+  return false;
 }

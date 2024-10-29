@@ -20,6 +20,7 @@ Meeting _$MeetingFromJson(Map<String, dynamic> json) => Meeting(
       activity: json['activity'] as String,
       dateLastModification:
           DateTime.parse(json['dateLastModification'] as String),
+      startConfirmed: json['startConfirmed'] as bool? ?? false,
       elderReviewForBuddy: json['elderReviewForBuddy'] == null
           ? null
           : Review.fromJson(
@@ -39,6 +40,7 @@ Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
       'isPaymentPending': instance.isPaymentPending,
       'activity': instance.activity,
       'dateLastModification': instance.dateLastModification.toIso8601String(),
+      'startConfirmed': instance.startConfirmed,
       'elderReviewForBuddy': instance.elderReviewForBuddy?.toJson(),
       'buddyReviewForElder': instance.buddyReviewForElder?.toJson(),
       'location': instance.location.toJson(),

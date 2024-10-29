@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/review.dart';
 import 'meeting_location.dart';
@@ -15,8 +16,12 @@ class Meeting {
   bool isPaymentPending;
   String activity;
   DateTime dateLastModification;
+  bool startConfirmed;
   Review? elderReviewForBuddy; // Review that Elder made to Buddy
   Review? buddyReviewForElder; // Review that Buddy made to Elder
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  Connection? connection; // No esta en el backend, es solo para manejo en el front
 
   @JsonKey(name: 'location')
   MeetingLocation location;
@@ -35,8 +40,10 @@ class Meeting {
     this.isPaymentPending = true,
     required this.activity,
     required this.dateLastModification,
+    this.startConfirmed = false,
     this.elderReviewForBuddy,
     this.buddyReviewForElder,
+    this.connection,
   });
 
   factory Meeting.fromJson(Map<String, dynamic> json) =>

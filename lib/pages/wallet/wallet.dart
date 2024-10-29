@@ -104,6 +104,7 @@ class _WalletPageState extends State<WalletPage> {
                               ThemeButtonStyle.primaryButtonStyle(context),
                           buttonTextStyle:
                               ThemeTextStyle.titleLargeOnPrimary(context),
+                          onPressed: () => showWithdrawBottomSheet(context),
                         ))
                   ],
                 ),
@@ -269,6 +270,96 @@ class _WalletPageState extends State<WalletPage> {
           ),
         ));
   }
+
+  Future<void> showWithdrawBottomSheet(BuildContext context) {
+    return showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 300,
+          child: Center(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: getBottomSheetWidgets(),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List<Widget> getBottomSheetWidgets() {
+    if (balance.amount <= 0) {
+      return <Widget>[
+        const Text(
+          'No tienes saldo disponible para retirar',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
+        ),
+      ];
+    }
+
+    bool pendingWithdrawal(Tx tx) =>
+        tx.type == 'withdraw' && tx.status == 'pending';
+
+    if (transactions.any(pendingWithdrawal)) {
+      return <Widget>[
+        const Text(
+          'Ya tienes un retiro en proceso',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
+        ),
+        const Text(
+          'Normalmente tiene una demora de 48 a 96 horas hábiles',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+        ),
+      ];
+    }
+    return <Widget>[
+      const Text(
+        'Solicitar el retiro de dinero',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
+      ),
+      const Text(
+        'Depositaremos en el CBU que nos proporcionaste el saldo disponible que tengas hasta la fecha.',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+      ),
+      const SizedBox(
+        height: 24,
+      ),
+      const Text(
+        'Normalmente tiene una demora de 48 a 96 horas hábiles',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
+      ),
+      BaseElevatedButton(
+        text: "Solicitar retiro",
+        buttonStyle: ThemeButtonStyle.primaryButtonStyle(context),
+        buttonTextStyle: ThemeTextStyle.titleLargeOnPrimary(context),
+        onPressed: _withdraw,
+      ),
+    ];
+  }
+
+  Future<void> _withdraw() async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+    try {
+      await walletService.withdraw(
+          authProvider.userData!.buddy!.walletId!, balance);
+      await _fetchWallet();
+      Navigator.pop(context);
+    } catch (e) {
+      print(e);
+    }
+  }
 }
 
 Widget _transactionCard(
@@ -360,7 +451,8 @@ List<Widget> _buildTransactionList(
         getTxSubtitleColor(tx.status),
         getWalletPrice(getPrice(tx.amount, tx.currencyId), tx.type),
         formatDateWallet(tx.createdAt),
-        tx.type, tx.status));
+        tx.type,
+        tx.status));
   }
   return transactionCards;
 }

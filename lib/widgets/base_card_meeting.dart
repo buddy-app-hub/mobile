@@ -1,280 +1,35 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/meeting_schedule.dart';
-import 'package:mobile/models/payment_handshake.dart';
-import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/connections/chats/chat_screen.dart';
 import 'package:mobile/pages/connections/meetings/edit_meeting.dart';
 import 'package:mobile/pages/payment/mercadopago.dart';
 import 'package:mobile/pages/profile/review/add_review.dart';
 import 'package:mobile/routes.dart';
-import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
-import 'package:mobile/utils/validators.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
 import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:provider/provider.dart';
 
-UserHelper userHelper = UserHelper();
-
-bool isConfirmed(Meeting m) {
-  return m.isConfirmedByBuddy && m.isConfirmedByElder;
-}
-
-Future<List<Widget>> fetchPendingReviewMeetingsAsFuture(ThemeData theme, UserData userData) async {
-  final stream = fetchPendingReviewMeetings(theme, userData);
-  return stream.toList();
-}
-
-Future<List<Widget>> fetchMeetingsAsFuture(ThemeData theme, UserData userData) async {
-  final stream = fetchMeetings(theme, userData);
-  return stream.toList();
-}
-
-Future<List<Widget>> fetchNewMeetingsAsFuture(ThemeData theme, UserData userData) async {
-  final stream = fetchNewMeetings(theme, userData);
-  return stream.toList();
-}
-
-Future<List<Widget>> fetchRescheduledMeetingsAsFuture(ThemeData theme, UserData userData) async {
-  final stream = fetchRescheduledMeetings(theme, userData);
-  return stream.toList();
-}
-
-Stream<Widget> fetchPendingReviewMeetings(ThemeData theme, UserData userData) async* {
-  List<Connection> connections = await userHelper.fetchConnections(userData);
-
-  for (var connection in connections) {
-    yield await buildPendingReviewAlerts(theme, connection, userData);
-  }
-}
-
-Stream<Widget> fetchMeetings(ThemeData theme, UserData userData) async* {
-  List<Connection> connections = await userHelper.fetchConnections(userData);
-
-  for (var connection in connections) {
-    yield await buildCards(theme, connection, userData);
-  }
-}
-
-Stream<Widget> fetchNewMeetings(ThemeData theme, UserData userData) async* {
-  List<Connection> connections = await userHelper.fetchConnections(userData);
-  for (var connection in connections) {
-    yield await buildNewMeetingCards(theme, connection, userData);
-  }
-}
-
-Stream<Widget> fetchRescheduledMeetings(ThemeData theme, UserData userData) async* {
-  List<Connection> connections = await userHelper.fetchConnections(userData);
-
-  for (var connection in connections) {
-    yield await buildRescheduledMeetingCards(theme, connection, userData);
-  }
-}
-
-Future<Widget> buildPendingReviewAlerts(ThemeData theme, Connection connection, UserData userData) async {
-  bool isBuddy = userData.buddy != null;
-  String personID, personName;
-  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
-  String image = await fetchAvatar(personID, isBuddy);
-  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
-
-  List<Meeting> meetings = List.empty();
-  if (isBuddy) {
-    meetings = connection.meetings.where((m) =>
-        isDateInPast(m.schedule) && !m.isPaymentPending && m.buddyReviewForElder == null &&
-        !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder).toList();
-  } else {
-    meetings = connection.meetings.where((m) =>
-        isDateInPast(m.schedule) && !m.isPaymentPending && m.elderReviewForBuddy == null &&
-        !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder).toList();
-  }
-
-  if (meetings.isEmpty) {
-    return Column();
-  } else {
-    Meeting meeting = meetings.first;
-    return Column( 
-      children: [
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-              child: Text(
-                'Opiniones pendientes',
-                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-              ),
-            ),
-          ],
-        ),
-        buildPendingReviewCard(isBuddy, personID, personName, connection, meeting, image),
-      ],
-    );
-  }
-}
-
-Future<Widget> buildCards(ThemeData theme, Connection connection, UserData userData) async {
-  bool isBuddy = userData.buddy != null;
-  String personID, personName;
-  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
-  List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
-  List<Meeting> meetings = connection.meetings.where((m) =>
-        isDateInNextWeek(m.schedule.date) &&
-        !m.isCancelled && m.isConfirmedByBuddy && m.isConfirmedByElder).toList();
-  if (meetings.isEmpty) {
-    return Column();
-  } else {
-    Meeting meeting = meetings.first;
-    return Column( 
-      children: [
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-              child: Text(
-                'Próximos encuentros',
-                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-              ),
-            ),
-          ],
-        ),
-        buildCard(isBuddy, personID, personName, connection, meeting, images),
-      ],
-    );
-  }
-}
-
-//TODO que devuelva todas los encuentros reprogramados
-Future<Widget> buildRescheduledMeetingCards(ThemeData theme, Connection connection, UserData userData) async {
-  bool isBuddy = userData.buddy != null;
-  String personID, personName;
-  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
-  List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
-  List<Meeting> meetings = connection.meetings.where((m) =>
-        isDateInFuture(m.schedule.date) && m.isRescheduled &&
-        !m.isCancelled && (!m.isConfirmedByBuddy || !m.isConfirmedByElder)).toList();
-  if (meetings.isEmpty) {
-    return Column();
-  } else {
-    List<Widget> meetingCards = meetings.map((meeting) {
-      return buildNextEventCard(isBuddy, personID, personName, connection, meeting, images);
-    }).toList();
-
-    return Column( 
-      children: [
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-              child: Text(
-                'Encuentros reprogramados',
-                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-              ),
-            ),
-          ],
-        ),
-        ...meetingCards,
-      ],
-    );
-  }
-}
-
-Future<Widget> buildNewMeetingCards(ThemeData theme, Connection connection, UserData userData) async {
-  bool isBuddy = userData.buddy != null;
-  String personID, personName;
-  (personID,personName) = await userHelper.fetchPersonFullName(connection, isBuddy);
-  List<String> images = await fetchAvatars(personID, isBuddy, userData);
-  
-  connection.meetings.sort((a,b) => a.schedule.date.compareTo(b.schedule.date));
-
-  List<Meeting> meetings = connection.meetings.where((m) =>
-      isDateInFuture(m.schedule.date) && !m.isRescheduled &&
-      !m.isCancelled && !isConfirmed(m))
-      .where((m) => !isBuddy || !m.isPaymentPending)
-      .toList();
-
-
-
-  if (meetings.isEmpty) {
-    return Column();
-  } else {
-    List<Widget> meetingCards = meetings.map((meeting) {
-      return buildNextEventCard(isBuddy, personID, personName, connection, meeting, images);
-    }).toList();
-
-    return Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 10, 0, 5),
-              child: Text(
-                'Encuentros a confirmar',
-                style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
-              ),
-            ),
-          ],
-        ),
-        ...meetingCards,
-      ],
-    );
-  }
-}
-
-Future<List<String>> fetchAvatars(String personID, bool isBuddy, UserData userData) async {
-  String? imageUser = await userHelper.loadProfileImage(isBuddy ? userData.buddy!.firebaseUID : userData.elder!.firebaseUID);
-  String? imageConnection = await userHelper.loadProfileImage(personID);
-  return [imageUser, imageConnection];
-}
-
-Future<String> fetchAvatar(String personID, bool isBuddy) async {
-  String? imageConnection = await userHelper.loadProfileImage(personID);
-  return  imageConnection;
-}
-
-String getDayName(DateTime date) {
-  return formatDayOfWeek(date.weekday);
-}
-
-String formatTime(MeetingSchedule schedule) {
-  return 'De ${intToTime(schedule.startHour)} a ${intToTime(schedule.endHour)}';
-}
-
-String formatLocation(MeetingLocation location) {
-  return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
-}
-
-BaseCardMeeting buildCard(bool isBuddy, String personID, String personName, Connection connection, Meeting meeting, List<String> images) {
+BaseCardMeeting buildMeetingCard(
+    bool isBuddy,
+    String personID,
+    String personName,
+    Connection connection,
+    Meeting meeting,
+    List<String> images,
+    bool isConfirmedByBoth) {
   return BaseCardMeeting(
     isBuddy: isBuddy,
-    isNextMeeting: false,
-    connection: connection,
-    meeting: meeting,
-    personID: personID,
-    person: personName,
-    date: formatMeetingDateShort(meeting.schedule.date),
-    time: formatTime(meeting.schedule),
-    location: formatLocation(meeting.location),
-    avatars: images,
-  );
-}
-
-BaseCardMeeting buildNextEventCard(bool isBuddy,String personID, String personName, Connection connection, Meeting meeting, List<String> images) {
-  return BaseCardMeeting(
-    isBuddy: isBuddy,
-    isNextMeeting: true,
+    isConfirmedByBoth: isConfirmedByBoth,
     connection: connection,
     meeting: meeting,
     personID: personID,
@@ -302,7 +57,7 @@ BaseAlertCartMeeting buildPendingReviewCard(bool isBuddy, String personID, Strin
 
 class BaseCardMeeting extends StatelessWidget {
   final bool isBuddy;
-  final bool isNextMeeting;
+  final bool isConfirmedByBoth;
   final Connection connection;
   final Meeting meeting;
   final String personID;
@@ -315,7 +70,7 @@ class BaseCardMeeting extends StatelessWidget {
   const BaseCardMeeting({
     super.key,
     required this.isBuddy,
-    required this.isNextMeeting,
+    required this.isConfirmedByBoth,
     required this.connection,
     required this.meeting,
     required this.personID,
@@ -331,10 +86,14 @@ class BaseCardMeeting extends StatelessWidget {
     final theme = Theme.of(context);
     return Center(
       child: Card(
-        color: isNextMeeting ? theme.colorScheme.primaryFixed : theme.colorScheme.tertiaryContainer,
+        color: isConfirmedByBoth
+            ? theme.colorScheme.primaryFixed
+            : theme.colorScheme.tertiaryContainer,
         clipBehavior: Clip.hardEdge,
         child: InkWell(
-          splashColor: isNextMeeting ? theme.colorScheme.primary : theme.colorScheme.tertiary,
+          splashColor: isConfirmedByBoth
+              ? theme.colorScheme.primary
+              : theme.colorScheme.tertiary,
           onTap: () {
             debugPrint('Item tapped.');
           },
@@ -356,7 +115,7 @@ class BaseCardMeeting extends StatelessWidget {
     final authProvider = Provider.of<AuthSessionProvider>(context);
     final connectionService = ConnectionService();
     UserData userData = authProvider.userData!;
-    
+
     return Row(
       children: [
         Expanded(
@@ -365,6 +124,27 @@ class BaseCardMeeting extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Wrap(
+                  spacing: 4.0, // Espacio horizontal entre los chips
+                  runSpacing: 1.0, // Espacio vertical cuando se wrapee
+                  children: [
+                    meeting.isRescheduled && !isConfirmedByBoth
+                        ? buildRescheduledChip(context, theme)
+                        : SizedBox.shrink(),
+                    isUnconfirmedByYou(meeting, authProvider.isBuddy)
+                        ? buildUnconfirmedByYouChip(context, theme)
+                        : SizedBox.shrink(),
+                    isUnconfirmedByYourConn(meeting, authProvider.isBuddy)
+                        ? buildUnconfirmedByYourConnectionChip(
+                            context, theme, authProvider.isBuddy)
+                        : SizedBox.shrink(),
+                  ]
+                      .where((widget) => widget is! SizedBox)
+                      .toList(), // Filtrar SizedBox.shrink()
+                ),
+                SizedBox(
+                  height: 5,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -389,21 +169,26 @@ class BaseCardMeeting extends StatelessWidget {
                             context: context,
                             builder: (context) => AlertDialog(
                               title: Text('Cancelar encuentro'),
-                              content: Text('¿Estás seguro de que quieres cancelar el encuentro?'),
+                              content: Text(
+                                  '¿Estás seguro de que quieres cancelar el encuentro?'),
                               actions: [
                                 TextButton(
                                   child: Text('Cancelar'),
-                                  onPressed: () => Navigator.pop(context), 
+                                  onPressed: () => Navigator.pop(context),
                                 ),
                                 TextButton(
                                   child: Text('Confirmar'),
-                                  onPressed: () async{
+                                  onPressed: () async {
                                     meeting.isCancelled = true;
-                                    await connectionService.updateMeetingOfConnection(context, connection, meeting);
+                                    await connectionService
+                                        .updateMeetingOfConnection(
+                                            context, connection, meeting);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Encuentro cancelado')),
+                                      SnackBar(
+                                          content: Text('Encuentro cancelado')),
                                     );
-                                    Navigator.pushNamed(context, Routes.splashScreen);
+                                    Navigator.pushNamed(
+                                        context, Routes.splashScreen);
                                   },
                                 ),
                               ],
@@ -417,7 +202,11 @@ class BaseCardMeeting extends StatelessWidget {
                         if (value.contains('Reprogramar')) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => EditMeetingPage(isBuddy: isBuddy, connection: connection, meeting: meeting)),
+                            MaterialPageRoute(
+                                builder: (context) => EditMeetingPage(
+                                    isBuddy: isBuddy,
+                                    connection: connection,
+                                    meeting: meeting)),
                           );
                         }
                       },
@@ -441,47 +230,44 @@ class BaseCardMeeting extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (isNextMeeting)
-                       buildNewMeetingButton(context, isBuddy, meeting, () async {
-                          if (meeting.isPaymentPending) {
-                            final paymentService = PaymentService();
-                            PaymentHandshake? payment = await paymentService.getHandshake(connection.id!, meeting.meetingID!);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      MercadoPagoScreen(
-                                        url: payment.sandboxInitPoint,
-                                      )));
-                            return;
-                          }
-                          final connectionService = ConnectionService();
-                          if (isBuddy) {
-                            meeting.isConfirmedByBuddy = true;
-                          } else {
-                            meeting.isConfirmedByElder = true;
-                          }
-                          await connectionService.updateMeetingOfConnection(context, connection, meeting);
-                          Navigator.pushNamed(context, Routes.splashScreen);
-                        }),
-                      if (!isNextMeeting)
-                        buildNextMeetingButton(context, userData, () async {
-                          final chatService = ChatService();
-                          final chatRoomId = await chatService.createChatRoom(
-                            person,
-                            [personID], userData
-                          );
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>  ChatScreen(chatRoomId: chatRoomId)),
-                          );
-                        }),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!isBuddy && meeting.isPaymentPending)
+                            PaymentButton(
+                                meeting: meeting, connectionId: connection.id!),
+                          if (!meeting.isPaymentPending &&
+                              meeting.isConfirmedByElder)
+                            ChatButton(
+                                currentUserData: userData,
+                                connectedPersonID: personID,
+                                connectedPersonName: person),
+                          if (!meeting.isPaymentPending &&
+                              meeting.isConfirmedByElder &&
+                              ((isBuddy && !meeting.isConfirmedByBuddy) ||
+                                  (!isBuddy && !meeting.isConfirmedByElder)))
+                            SizedBox(
+                                height:
+                                    10), // Espaciado condicional solo cuando ambos botones de Chat y Confirmar estan presentes
+                          if ((isBuddy && !meeting.isConfirmedByBuddy) ||
+                              !isBuddy &&
+                                  !meeting.isConfirmedByElder &&
+                                  !meeting.isPaymentPending)
+                            ConfirmButton(
+                                isBuddy: isBuddy,
+                                connection: connection,
+                                meeting: meeting),
+                        ],
+                      ),
                       Spacer(),
                       Container(
                         width: 150,
                         height: 60,
                         alignment: Alignment.bottomRight,
-                        child: BaseAvatarStack(avatars: avatars, spacing: 50,),
+                        child: BaseAvatarStack(
+                          avatars: avatars,
+                          spacing: 50,
+                        ),
                       ),
                     ],
                   ),
@@ -493,6 +279,75 @@ class BaseCardMeeting extends StatelessWidget {
       ],
     );
   }
+
+  Widget buildRescheduledChip(BuildContext context, ThemeData theme) => Chip(
+        label: Text(
+          'Reprogramado',
+          style: TextStyle(
+            color: theme.colorScheme.onTertiary,
+            fontWeight: FontWeight.bold,
+            fontSize: 12.0,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.tertiary,
+        padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+        visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
+      );
+
+  Widget buildUnconfirmedByYouChip(BuildContext context, ThemeData theme) =>
+      Chip(
+        label: Text(
+          'A confirmar por vos',
+          style: TextStyle(
+            color: theme.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 12.0,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.primary,
+        padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+        visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
+      );
+
+  Widget buildUnconfirmedByYourConnectionChip(
+          BuildContext context, ThemeData theme, bool isCurrUserBuddy) =>
+      Chip(
+        label: Text(
+          isCurrUserBuddy
+              ? 'A confirmar por tu mayor'
+              : 'A confirmar por tu Buddy',
+          style: TextStyle(
+            color: theme.colorScheme.onSecondary,
+            fontWeight: FontWeight.bold,
+            fontSize: 12.0,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.secondary,
+        padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+        visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
+      );
+}
+
+String getDayName(DateTime date) {
+  return formatDayOfWeek(date.weekday);
+}
+
+String formatTime(MeetingSchedule schedule) {
+  return 'De ${intToTime(schedule.startHour)} a ${intToTime(schedule.endHour)}';
+}
+
+String formatLocation(MeetingLocation location) {
+  return '${location.placeName} - ${location.streetName} ${location.streetNumber}, ${location.city}';
+}
+
+bool isUnconfirmedByYou(Meeting m, bool isCurrUserBuddy) {
+  return (isCurrUserBuddy && m.isConfirmedByBuddy == false) ||
+      (!isCurrUserBuddy && m.isConfirmedByElder == false);
+}
+
+bool isUnconfirmedByYourConn(Meeting m, bool isCurrUserBuddy) {
+  return (isCurrUserBuddy && m.isConfirmedByElder == false) ||
+      (!isCurrUserBuddy && m.isConfirmedByBuddy == false);
 }
 
 class BaseAlertCartMeeting extends StatelessWidget {
