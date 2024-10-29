@@ -14,26 +14,11 @@ import 'package:mobile/theme/theme_text_style.dart';
 import 'package:provider/provider.dart';
 
 List<DropdownMenuItem<String>>? items = [
-  DropdownMenuItem(
-    value: 'Masculino',
-    child: Text('Masculino'),
-  ),
-  DropdownMenuItem(
-    value: 'Femenino',
-    child: Text('Femenino'),
-  ),
-  DropdownMenuItem(
-    value: 'No binario',
-    child: Text('No binario'),
-  ),
-  DropdownMenuItem(
-    value: 'Otro',
-    child: Text('Otro'),
-  ),
-  DropdownMenuItem(
-    value: 'Prefiero no decir',
-    child: Text('Prefiero no decir'),
-  ),
+  DropdownMenuItem(value: 'Masculino', child: Text('Masculino')),
+  DropdownMenuItem(value: 'Femenino', child: Text('Femenino')),
+  DropdownMenuItem(value: 'No binario', child: Text('No binario')),
+  DropdownMenuItem(value: 'Otro', child: Text('Otro')),
+  DropdownMenuItem(value: 'Prefiero no decir', child: Text('Prefiero no decir')),
 ];
 
 class BecomeBuddyPage extends StatefulWidget {
@@ -48,6 +33,12 @@ class BecomeBuddyPage extends StatefulWidget {
 
 class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
   late AuthSessionProvider authProvider;
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+  TextEditingController genderController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
 
   @override
   void initState() {
@@ -55,17 +46,9 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
     authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
   }
 
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  TextEditingController firstNameController = TextEditingController();
-  TextEditingController lastNameController = TextEditingController();
-  TextEditingController genderController = TextEditingController();
-  // TextEditingController phoneNumberController = TextEditingController();
-  // TextEditingController phoneCountryCodeController = TextEditingController();
-
   Future<void> _submitForm() async {
-    final BuddyService buddyService = BuddyService(); 
+    final BuddyService buddyService = BuddyService();
 
-    print(authProvider.user!.uid);
     if (formKey.currentState!.validate()) {
       Buddy buddy = Buddy(
         firebaseUID: authProvider.user!.uid,
@@ -78,8 +61,7 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
             countryCode: widget.countryCode,
             number: widget.phone),
         registrationDate: DateTime.now(),
-        registrationMethod:
-            'email', // TODO: ajustar cuando se agregue registro por Google
+        registrationMethod: 'email',
         email: authProvider.user!.email!,
         buddyProfile: BuddyProfile(
           studentDetails: StudentDetails(),
@@ -93,6 +75,20 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
       Navigator.pushNamed(context, Routes.splashScreen);
     } else {
       print("Formulario inválido");
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        dateController.text = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      });
     }
   }
 
@@ -144,12 +140,7 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                           fillColor: theme.colorScheme.primary.withOpacity(0.1),
                           filled: true,
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Ingresá tu nombre';
-                          }
-                          return null;
-                        },
+                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu nombre' : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -163,26 +154,12 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                           fillColor: theme.colorScheme.primary.withOpacity(0.1),
                           filled: true,
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Ingresá tu apellido';
-                          }
-                          return null;
-                        },
+                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu apellido' : null,
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        onChanged: (value) {
-                          setState(() {
-                            genderController.text = value!;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Ingresá tu género';
-                          }
-                          return null;
-                        },
+                        onChanged: (value) => setState(() => genderController.text = value!),
+                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu género' : null,
                         items: items,
                         decoration: InputDecoration(
                           hintText: "Género",
@@ -195,52 +172,27 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
                           filled: true,
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: dateController,
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                        decoration: InputDecoration(
+                          hintText: "Fecha de nacimiento",
+                          suffixIcon: Icon(Icons.calendar_today),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                          filled: true,
+                        ),
+                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu fecha de nacimiento' : null,
+                      ),
                     ],
                   ),
                 ),
-                // const SizedBox(height: 16),
-                // TextFormField(
-                //   controller: phoneCountryCodeController,
-                //   decoration: InputDecoration(
-                //     hintText: "Prefijo Teléfono",
-                //     prefixText: "+54",
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(18),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                //     filled: true,
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Ingresá el prefijo del país de tu teléfono';
-                //     }
-                //     return null;
-                //   },
-                // ),
-                // const SizedBox(height: 16),
-                // TextFormField(
-                //   controller: phoneNumberController,
-                //   keyboardType: TextInputType.phone,
-                //   decoration: InputDecoration(
-                //     hintText: "Número de Teléfono",
-                //     prefixText: "+54 ",
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(18),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                //     filled: true,
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Ingresá tu número de teléfono';
-                //     }
-                //     return null;
-                //   },
-                // ),
                 const SizedBox(height: 20),
-                
               ],
             ),
           ),
@@ -259,8 +211,7 @@ class _BecomeBuddyPageState extends State<BecomeBuddyPage> {
           ),
           child: Text(
             "Listo",
-            style: TextStyle(
-                color: theme.colorScheme.onPrimary, fontSize: 20),
+            style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
           ),
         ),
       ),
