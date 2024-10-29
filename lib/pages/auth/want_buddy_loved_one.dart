@@ -56,7 +56,6 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
   // Loved one data
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-  TextEditingController genderController = TextEditingController();
   TextEditingController relationshipToElderController = TextEditingController();
 
   // Elder data
@@ -203,38 +202,12 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                       DropdownButtonFormField<String>(
                         onChanged: (value) {
                           setState(() {
-                            genderController.text = value!;
+                            relationshipToElderController.text = value!;
                           });
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Ingresá tu género';
-                          }
-                          return null;
-                        },
-                        items: items,
-                        decoration: InputDecoration(
-                          hintText: "Mi género",
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                          filled: true,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        onChanged: (value) {
-                          setState(() {
-                            genderController.text = value!;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Ingresá tu género';
+                            return 'Relación con tu ser querido';
                           }
                           return null;
                         },
