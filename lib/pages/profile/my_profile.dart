@@ -198,6 +198,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         ));
       }
     }
+    profileCompletionCards.sort((a, b) => !a.completed ? 0 : b.completed ? 0 : 1);
     setState(() {
       profileCompletedProgress = profileCompletionCards.where((p) => p.completed).length;
     });
@@ -479,8 +480,17 @@ class _MyProfilePageState extends State<MyProfilePage> {
                           textAlign: TextAlign.center,
                         ),
                         const Spacer(),
-                        if (!card.completed)
-                          card.button,
+                        card.completed
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 10),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: Theme.of(context).colorScheme.inversePrimary,
+                                ),
+                              )
+                            : card.button,
+                            
                       ],
                     ),
                   ),
