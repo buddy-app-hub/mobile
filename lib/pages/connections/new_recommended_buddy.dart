@@ -274,7 +274,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                         context,
                         theme,
                         recommendedBuddy.buddy!.firebaseUID,
-                        false,
+                        true,
                         recommendedBuddy.buddy!.buddyProfile!.globalRating!,
                         recommendedBuddy.buddy!.buddyProfile!.description!,
                         recommendedBuddy.buddy!.buddyProfile!.interests!,

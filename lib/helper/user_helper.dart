@@ -52,7 +52,6 @@ class UserHelper {
     } else {
       connections = await elderService.getConnections(id);
     }
-    print(isBuddy);
     Map<Meeting, Review> reviews = {
       for (var connection in connections)
         for (var meeting in connection.meetings)
