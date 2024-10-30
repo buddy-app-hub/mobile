@@ -9,7 +9,6 @@ part of 'personal_data.dart';
 PersonalData _$PersonalDataFromJson(Map<String, dynamic> json) => PersonalData(
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
-      age: (json['age'] as num?)?.toInt(),
       gender: json['gender'] as String,
       birthDate: json['birthDate'] == null
           ? null
@@ -25,7 +24,6 @@ Map<String, dynamic> _$PersonalDataToJson(PersonalData instance) =>
     <String, dynamic>{
       'firstName': instance.firstName,
       'lastName': instance.lastName,
-      'age': instance.age,
       'gender': instance.gender,
       'birthDate': instance.birthDate?.toIso8601String(),
       'nationality': instance.nationality,

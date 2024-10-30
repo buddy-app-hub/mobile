@@ -12,9 +12,11 @@ class SplashScreen extends StatelessWidget {
       if (authProvider.isAuthenticated) {
         return Navigation(index: 0,);
       }
-      if (authProvider.userData != null &&
-          authProvider.userData!.userWithPendingSignUp) {
+      if (authProvider.userData != null && authProvider.user!.phoneNumber == null && authProvider.userData!.userWithPendingSignUp) {
         return PhonePage();
+      }
+      if (authProvider.userData != null && authProvider.user!.phoneNumber != null && authProvider.userData!.userWithPendingSignUp) {
+        return LoginPage();
       }
 
       return LoginPage();

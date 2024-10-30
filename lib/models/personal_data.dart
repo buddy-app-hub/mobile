@@ -7,7 +7,6 @@ part 'personal_data.g.dart';
 class PersonalData {
   final String firstName;
   final String lastName;
-  final int? age;
   final String gender;
   final DateTime? birthDate;
   final String? nationality;
@@ -17,7 +16,6 @@ class PersonalData {
   PersonalData({
     required this.firstName,
     required this.lastName,
-    this.age,
     required this.gender,
     this.birthDate,
     this.nationality,

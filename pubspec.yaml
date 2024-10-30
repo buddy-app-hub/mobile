@@ -57,6 +57,7 @@ dependencies:
   cached_network_image: ^3.4.1
   qr_flutter: ^4.1.0
   stomp_dart_client: ^2.1.0
+  syncfusion_flutter_datepicker: ^27.1.57
 
 dev_dependencies:
   flutter_test:
