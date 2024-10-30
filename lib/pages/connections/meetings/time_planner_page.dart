@@ -1,20 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/pages/connections/chats/chat_screen.dart';
-import 'package:mobile/pages/connections/meetings/new_meeting.dart';
-import 'package:mobile/services/buddy_service.dart';
-import 'package:mobile/services/elder_service.dart';
-import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
-import 'package:mobile/utils/validators.dart';
-import 'package:mobile/widgets/base_decoration.dart';
-import 'package:provider/provider.dart';
-import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:time_planner/time_planner.dart';
 
 class TimePlannerPage extends StatefulWidget {
@@ -558,9 +547,6 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authProvider = Provider.of<AuthSessionProvider>(context);
-    final BuddyService buddyService = BuddyService();
-    final ElderService elderService = ElderService();
 
     return Scaffold(
       appBar: AppBar(

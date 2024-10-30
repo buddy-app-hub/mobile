@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
@@ -23,7 +22,6 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 class NewMeetingPage extends StatefulWidget {
   final Connection connection;
   final bool isBuddy;
-  // final MeetingSchedule? selectedDay;
 
   const NewMeetingPage({Key? key, required this.connection, required this.isBuddy,}) : super(key: key);
   @override
@@ -147,61 +145,77 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
       String day = weekdays[currentDate.weekday - 1];
 
       if (availableDays.contains(day)) {
-        var daySlots = availability.where((a) => a.dayOfWeek == day).toList();
+          var daySlots = availability.where((a) => a.dayOfWeek == day).toList();
+        if (isSameDay(currentDate, now)) {
+          findFreeAvailableTime(currentDate, now, daySlots, meetings, meetingsElder, schedules, checkCurrentDay: true);
+        } else {
+          findFreeAvailableTime(currentDate, now, daySlots, meetings, meetingsElder, schedules);
+        }
+      }
+    }
+    return getNearestOneHourSchedule(schedules);
+  }
 
-        for (var slot in daySlots) {
-          DateTime slotStart = currentDate.add(Duration(hours: slot.from ~/ 100, minutes: slot.from % 100));
-          DateTime slotEnd = currentDate.add(Duration(hours: slot.to ~/ 100, minutes: slot.to % 100));
+  void findFreeAvailableTime(
+    DateTime currentDate,
+    DateTime now,
+    List<custom_time.TimeOfDay> daySlots,
+    List<Meeting> meetings,
+    List<Meeting> meetingsElder,
+    List<MeetingSchedule> schedules,
+    {bool checkCurrentDay = false}
+  ) {
+    for (var slot in daySlots) {
+      DateTime slotStart, slotEnd;
+      if (checkCurrentDay) {
+        TimeOfDay nowTime = TimeOfDay(hour: now.hour, minute: now.minute);
+        if (isAfter(formatIntToTime(slot.to), nowTime)) {
+          slotStart = currentDate.add(Duration(hours: now.hour, minutes: now.minute));
+          slotEnd = currentDate.add(Duration(hours: slot.to ~/ 100, minutes: slot.to % 100));
+        } else {
+          continue;
+        }
+      } else {
+        slotStart = currentDate.add(Duration(hours: slot.from ~/ 100, minutes: slot.from % 100));
+        slotEnd = currentDate.add(Duration(hours: slot.to ~/ 100, minutes: slot.to % 100));
+      }
 
-          for (var meeting in meetings) {
-            if (meeting.schedule.date.weekday == slotStart.weekday) {
-              DateTime meetingStart = meeting.schedule.date.add(Duration(hours: meeting.schedule.startHour ~/ 100));
-              DateTime meetingEnd = meeting.schedule.date.add(Duration(hours: meeting.schedule.endHour ~/ 100));
+      (slotStart, slotEnd) = searchInMeetings(slotStart, slotEnd, meetings, schedules);
+      (slotStart, slotEnd) = searchInMeetings(slotStart, slotEnd, meetingsElder, schedules);
 
-              if ((meetingStart.isBefore(slotEnd) && meetingEnd.isAfter(slotStart))) {
-                if (meetingStart.isAfter(slotStart)) {
-                  slotEnd = meetingStart;
-                } else if (meetingEnd.isBefore(slotEnd)) {
-                  slotStart = meetingEnd;
-                } else {
-                  slotStart = slotEnd;
-                }
-              }
-            }
-          }
+      if (slotStart.isBefore(slotEnd)) {
+        schedules.add(MeetingSchedule(
+          date: slotStart,
+          startHour: slotStart.hour * 100 + slotStart.minute,
+          endHour: slotEnd.hour * 100 + slotEnd.minute,
+        ));
+      }
+    }
+  }
 
-          for (var meeting in meetingsElder) {
-            if (meeting.schedule.date.weekday == slotStart.weekday) {
-              DateTime meetingStart = meeting.schedule.date.add(Duration(hours: meeting.schedule.startHour ~/ 100));
-              DateTime meetingEnd = meeting.schedule.date.add(Duration(hours: meeting.schedule.endHour ~/ 100));
+  //Ajusta los tiempos disponibles dependiendo de las meetings que tenga la persona
+  (DateTime, DateTime) searchInMeetings(DateTime slotStart, DateTime slotEnd, List<Meeting> meetings, List<MeetingSchedule> schedules) {
+    for (var meeting in meetings) {
+      if (meeting.schedule.date.weekday == slotStart.weekday) {
+        DateTime meetingStart = meeting.schedule.date.add(Duration(hours: meeting.schedule.startHour ~/ 100));
+        DateTime meetingEnd = meeting.schedule.date.add(Duration(hours: meeting.schedule.endHour ~/ 100));
 
-              if ((meetingStart.isBefore(slotEnd) && meetingEnd.isAfter(slotStart))) {
-                if (meetingStart.isAfter(slotStart)) {
-                  slotEnd = meetingStart;
-                } else if (meetingEnd.isBefore(slotEnd)) {
-                  slotStart = meetingEnd;
-                } else {
-                  slotStart = slotEnd;
-                }
-              }
-            }
-          }
-
-          if (slotStart.isBefore(slotEnd)) {
-            schedules.add(MeetingSchedule(
-              date: slotStart,
-              startHour: slotStart.hour * 100 + slotStart.minute,
-              endHour: slotEnd.hour * 100 + slotEnd.minute,
-            ));
+        if (meetingStart.isBefore(slotEnd) && meetingEnd.isAfter(slotStart)) {
+          if (meetingStart.isAfter(slotStart)) {
+            slotEnd = meetingStart;
+          } else if (meetingEnd.isBefore(slotEnd)) {
+            slotStart = meetingEnd;
+          } else {
+            slotStart = slotEnd;
           }
         }
       }
     }
+    return (slotStart, slotEnd);
+  }
 
-    List<MeetingSchedule> oneHourSchedules = schedules
-        .where((schedule) => schedule.endHour - schedule.startHour >= 100)
-        .toList();
-    
+  MeetingSchedule? getNearestOneHourSchedule(List<MeetingSchedule> schedules) {
+    var oneHourSchedules = schedules.where((s) => s.endHour - s.startHour >= 100).toList();
     oneHourSchedules.sort((a, b) => a.date.compareTo(b.date));
     return oneHourSchedules.isNotEmpty ? oneHourSchedules.first : null;
   }
@@ -210,7 +224,7 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthSessionProvider>(context);
-    final scaffoldContext = context;
+    // final scaffoldContext = context;
 
     return Scaffold(
       appBar: AppBar(
@@ -232,10 +246,8 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                   content: Text('Por favor, complete todos los campos correctamente.'),
                   backgroundColor: theme.colorScheme.error,
                 );
-                // Navigator.pop(scaffoldContext);
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
               } else if (!validateMeetingTimeRange(_fromTime, _toTime)) {
-                // Navigator.pop(scaffoldContext);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Por favor, el encuentro tiene que ser de una hora.'),
@@ -265,7 +277,6 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
                   isPaymentPending: true,
                 );
                 await sendNewMeeting(meeting);
-                //Navigator.pop(scaffoldContext);
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => SplashScreen()));
               }
             },
