@@ -21,12 +21,12 @@ bool ongoingMeetingFilter(Meeting m) {
 }
 
 // Funcion para filtrar encuentros terminados y no calificados
-bool notReviewedMeetingFilter(Meeting m) {
+bool notReviewedMeetingFilter(Meeting m, bool isBuddy) {
   return isMeetingEnded(m.schedule) &&
       !m.isCancelled &&
       !m.isPaymentPending &&
       isConfirmed(m) &&
-      (m.buddyReviewForElder == null || m.elderReviewForBuddy == null);
+      (isBuddy ? m.buddyReviewForElder == null : m.elderReviewForBuddy == null);
 }
 
 // Funcion para filtrar encuentros confirmadas
@@ -59,13 +59,15 @@ Future<List<Widget>> fetchOngoingMeetingAsFuture(
 
 Future<List<Widget>> fetchNotReviewedMeetingsAsFuture(
     ThemeData theme, UserData userData, List<Connection> connections) {
+  bool isBuddy = userData.buddy != null;
   return buildMeetingsAsFuture(
     theme,
     userData,
     connections,
-    notReviewedMeetingFilter,
+    (meeting) => notReviewedMeetingFilter(meeting, isBuddy),
     'Encuentros pendientes de calificar',
     true,
+    buildNotReviewedMeetingCards,
   );
 }
 
@@ -78,6 +80,7 @@ Future<List<Widget>> fetchConfirmedMeetingsAsFuture(
     confirmedMeetingFilter,
     'Próximos encuentros confirmados',
     true,
+    buildMeetingCards,
   );
 }
 
@@ -91,6 +94,7 @@ Future<List<Widget>> fetchUnconfirmedMeetingsAsFuture(
     (m) => unconfirmedMeetingFilter(m, isBuddy),
     'Encuentros a confirmar',
     false,
+    buildMeetingCards,
   );
 }
 
@@ -101,6 +105,7 @@ Future<List<Widget>> buildMeetingsAsFuture(
   bool Function(Meeting) filterFunction,
   String titleText,
   bool isConfirmedMeeting,
+  Future<List<Widget>> Function(List<Meeting>, bool, UserData, bool) buildCardsFunction,
 ) async {
   List<Meeting> allMeetings = [];
   bool isBuddy = userData.buddy != null;
@@ -117,7 +122,7 @@ Future<List<Widget>> buildMeetingsAsFuture(
   // Ordena todas las encuentros por fecha y hora
   sortMeetings(allMeetings);
 
-  List<Widget> meetingCards = await buildMeetingCards(
+  List<Widget> meetingCards = await buildCardsFunction(
       allMeetings, isBuddy, userData, isConfirmedMeeting);
 
   if (meetingCards.isEmpty) {
@@ -168,12 +173,43 @@ Future<List<Widget>> buildMeetingCards(List<Meeting> meetings, bool isBuddy,
   return meetingWidgets;
 }
 
+// Construye las tarjetas de encuentros con opiniones pendientes
+Future<List<Widget>> buildNotReviewedMeetingCards(List<Meeting> meetings, bool isBuddy,
+    UserData userData, bool isConfirmed) async {
+  List<Widget> meetingWidgets = [];
+
+  for (var meeting in meetings) {
+    var (personID, personName) =
+        await userHelper.fetchPersonFullName(meeting.connection!, isBuddy);
+
+    String image = await fetchAvatar(personID, isBuddy);
+
+    meetingWidgets.add(
+      buildPendingReviewCard(
+        isBuddy,
+        personID,
+        personName,
+        meeting.connection!,
+        meeting,
+        image,
+      ),
+    );
+  }
+
+  return meetingWidgets;
+}
+
 Future<List<String>> fetchAvatars(
     String personID, bool isBuddy, UserData userData) async {
   String? imageUser = await userHelper.loadProfileImage(
       isBuddy ? userData.buddy!.firebaseUID : userData.elder!.firebaseUID);
   String? imageConnection = await userHelper.loadProfileImage(personID);
   return [imageUser, imageConnection];
+}
+
+Future<String> fetchAvatar(String personID, bool isBuddy) async {
+  String? imageConnection = await userHelper.loadProfileImage(personID);
+  return  imageConnection;
 }
 
 bool isConfirmed(Meeting m) {

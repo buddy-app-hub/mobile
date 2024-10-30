@@ -41,8 +41,8 @@ BaseCardMeeting buildMeetingCard(
   );
 }
 
-BaseAlertCartMeeting buildPendingReviewCard(bool isBuddy, String personID, String personName, Connection connection, Meeting meeting, String image) {
-  return BaseAlertCartMeeting(
+BaseNotificationCartMeeting buildPendingReviewCard(bool isBuddy, String personID, String personName, Connection connection, Meeting meeting, String image) {
+  return BaseNotificationCartMeeting(
     isBuddy: isBuddy,
     connection: connection,
     meeting: meeting,
@@ -350,7 +350,7 @@ bool isUnconfirmedByYourConn(Meeting m, bool isCurrUserBuddy) {
       (!isCurrUserBuddy && m.isConfirmedByBuddy == false);
 }
 
-class BaseAlertCartMeeting extends StatelessWidget {
+class BaseNotificationCartMeeting extends StatelessWidget {
   final bool isBuddy;
   final Connection connection;
   final Meeting meeting;
@@ -361,7 +361,7 @@ class BaseAlertCartMeeting extends StatelessWidget {
   final String location;
   final String avatar;
 
-  const BaseAlertCartMeeting({
+  const BaseNotificationCartMeeting({
     super.key,
     required this.isBuddy,
     required this.connection,
@@ -378,16 +378,19 @@ class BaseAlertCartMeeting extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      margin: EdgeInsets.only(right: 5),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: theme.colorScheme.tertiary,
+      padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+      child: Container(
+        margin: EdgeInsets.only(right: 5),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: theme.colorScheme.tertiary,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          color: theme.colorScheme.tertiaryContainer.withOpacity(0.5),
         ),
-        borderRadius: BorderRadius.circular(24),
-        color: theme.colorScheme.tertiaryContainer.withOpacity(0.5),
+        padding: EdgeInsets.all(10),
+        child: _buildConnectionInfo(context, theme),
       ),
-      padding: EdgeInsets.all(12),
-      child: _buildConnectionInfo(context, theme),
     );
   }
 
@@ -410,11 +413,10 @@ class BaseAlertCartMeeting extends StatelessWidget {
                 style: ThemeTextStyle.itemLargeOnBackground(context),
                 overflow: TextOverflow.clip,
               ),
-              // SizedBox(height: 4),
               Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
+                  padding: const EdgeInsets.only(top: 0.0),
                   child: BaseElevatedButton(
                     text: 'Opinar',
                     buttonTextStyle: TextStyle(
