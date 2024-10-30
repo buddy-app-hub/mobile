@@ -354,6 +354,12 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
             content: Text('No puedes seleccionar un horario anterior al actual porque hoy es el día seleccionado.\nElige un horario en el futuro.',),
           ),
         );
+      } else if (pickedTime != null && (pickedTime.hour < 6)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Solo se permiten cargar horas entre las 06:00 y las 23:00.\nPor favor, verifica que el horario ingresado cumpla con esta condición.'),
+          ),
+        );
       } else if (pickedTime != null) {
         final plannerDateTime = TimePlannerDateTime(
           day: getPlannerDay(pickedDate),
