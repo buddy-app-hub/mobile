@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/interest.dart';
@@ -8,7 +7,6 @@ import 'package:mobile/pages/connections/meetings/new_meeting.dart';
 import 'package:mobile/pages/profile/profile_widgets.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
-import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
 
