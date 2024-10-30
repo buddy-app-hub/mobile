@@ -7,7 +7,6 @@ part 'loved_one.g.dart';
 class LovedOne {
   final String firstName;
   final String lastName;
-  final int? age;
   final PhoneNumber phoneNumber;
   final String email;
   final String relationshipToElder;
@@ -15,7 +14,6 @@ class LovedOne {
   LovedOne({
     required this.firstName,
     required this.lastName,
-    this.age,
     required this.phoneNumber,
     required this.email,
     required this.relationshipToElder,
