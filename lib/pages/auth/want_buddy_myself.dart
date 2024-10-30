@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/models/elder_profile.dart';
 import 'package:mobile/models/identity_card.dart';
 import 'package:mobile/models/personal_data.dart';
@@ -11,26 +12,11 @@ import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/phone_number.dart';
 
 List<DropdownMenuItem<String>>? items = [
-  DropdownMenuItem(
-    value: 'Masculino',
-    child: Text('Masculino'),
-  ),
-  DropdownMenuItem(
-    value: 'Femenino',
-    child: Text('Femenino'),
-  ),
-  DropdownMenuItem(
-    value: 'No binario',
-    child: Text('No binario'),
-  ),
-  DropdownMenuItem(
-    value: 'Otro',
-    child: Text('Otro'),
-  ),
-  DropdownMenuItem(
-    value: 'Prefiero no decir',
-    child: Text('Prefiero no decir'),
-  ),
+  DropdownMenuItem(value: 'Masculino', child: Text('Masculino')),
+  DropdownMenuItem(value: 'Femenino', child: Text('Femenino')),
+  DropdownMenuItem(value: 'No binario', child: Text('No binario')),
+  DropdownMenuItem(value: 'Otro', child: Text('Otro')),
+  DropdownMenuItem(value: 'Prefiero no decir', child: Text('Prefiero no decir')),
 ];
 
 class WantBuddyForMyselfPage extends StatefulWidget {
@@ -56,8 +42,7 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController genderController = TextEditingController();
-  // TextEditingController phoneNumberController = TextEditingController();
-  // TextEditingController phoneCountryCodeController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
 
   Future<void> _submitForm() async {
     final ElderService elderService = ElderService();
@@ -69,13 +54,14 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
           firstName: firstNameController.text,
           lastName: lastNameController.text,
           gender: genderController.text,
+          birthDate: DateFormat('dd/MM/yyyy').parse(dateController.text),
         ),
         phoneNumber: PhoneNumber(
             countryCode: widget.countryCode,
             number: widget.phone),
         registrationDate: DateTime.now(),
         registrationMethod:
-            'email', // TODO: ajustar cuando se agregue registro por Google
+            'email',
         email: authProvider.user!.email!,
         onLovedOneMode: false,
         elderProfile: ElderProfile(
@@ -87,6 +73,21 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
       Navigator.pushNamed(context, Routes.splashScreen);
     } else {
       print("Formulario inválido");
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        dateController.text =
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      });
     }
   }
 
@@ -189,47 +190,26 @@ class _WantBuddyForMyselfPageState extends State<WantBuddyForMyselfPage> {
                           filled: true,
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: dateController,
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                        decoration: InputDecoration(
+                          hintText: "Fecha de nacimiento",
+                          suffixIcon: Icon(Icons.calendar_today),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                          filled: true,
+                        ),
+                        validator: (value) => value == null || value.isEmpty ? 'Ingresá tu fecha de nacimiento' : null,
+                      ),
                     ],
                   ),
                 ),
-                // const SizedBox(height: 16),
-                // TextFormField(
-                //   controller: phoneCountryCodeController,
-                //   decoration: InputDecoration(
-                //     hintText: "Prefijo Teléfono",
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(18),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                //     filled: true,
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Ingresá el prefijo del país de tu teléfono';
-                //     }
-                //     return null;
-                //   },
-                // ),
-                // const SizedBox(height: 16),
-                // TextFormField(
-                //   controller: phoneNumberController,
-                //   decoration: InputDecoration(
-                //     hintText: "Nro Teléfono",
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(18),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                //     filled: true,
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Ingresá tu número de teléfono';
-                //     }
-                //     return null;
-                //   },
-                // ),
                 const SizedBox(height: 20),
                 
               ],

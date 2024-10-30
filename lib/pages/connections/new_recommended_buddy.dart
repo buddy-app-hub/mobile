@@ -117,8 +117,9 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              OnboardNewConnectionPage(connection: newConnection, buddy: recommendedBuddies![currentBuddyIndex].buddy!)),
+          builder: (context) => OnboardNewConnectionPage(
+              connection: newConnection,
+              buddy: recommendedBuddies![currentBuddyIndex].buddy!)),
     );
   }
 
@@ -210,7 +211,10 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                         child: Column(
                           children: [
                             Text(
-                              '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${recommendedBuddy.buddy!.personalData.age}',
+                              recommendedBuddy.buddy!.personalData.birthDate !=
+                                      null
+                                  ? '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${calculateAge(recommendedBuddy.buddy!.personalData.birthDate!)}'
+                                  : '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}',
                               style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             SizedBox(
@@ -290,4 +294,16 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
       ),
     );
   }
+}
+
+int calculateAge(DateTime birthDate) {
+  DateTime today = DateTime.now();
+  int age = today.year - birthDate.year;
+
+  if (today.month < birthDate.month ||
+      (today.month == birthDate.month && today.day < birthDate.day)) {
+    age--;
+  }
+
+  return age;
 }

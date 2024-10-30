@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/elder_profile.dart';
 import 'package:mobile/models/identity_card.dart';
@@ -12,30 +13,27 @@ import 'package:mobile/theme/theme_text_style.dart';
 import 'package:provider/provider.dart';
 
 List<DropdownMenuItem<String>>? items = [
+  DropdownMenuItem(value: 'Masculino', child: Text('Masculino')),
+  DropdownMenuItem(value: 'Femenino', child: Text('Femenino')),
+  DropdownMenuItem(value: 'No binario', child: Text('No binario')),
+  DropdownMenuItem(value: 'Otro', child: Text('Otro')),
   DropdownMenuItem(
-    value: 'Masculino',
-    child: Text('Masculino'),
-  ),
-  DropdownMenuItem(
-    value: 'Femenino',
-    child: Text('Femenino'),
-  ),
-  DropdownMenuItem(
-    value: 'No binario',
-    child: Text('No binario'),
-  ),
-  DropdownMenuItem(
-    value: 'Otro',
-    child: Text('Otro'),
-  ),
-  DropdownMenuItem(
-    value: 'Prefiero no decir',
-    child: Text('Prefiero no decir'),
-  ),
+      value: 'Prefiero no decir', child: Text('Prefiero no decir')),
+];
+
+List<DropdownMenuItem<String>>? relationshipToElderOptions = [
+  DropdownMenuItem(value: 'Hijo', child: Text('Hijo/a')),
+  DropdownMenuItem(value: 'Nieto', child: Text('Nieto/a')),
+  DropdownMenuItem(value: 'Amigo', child: Text('Amigo/a')),
+  DropdownMenuItem(value: 'Hermano', child: Text('Hermano/a')),
+  DropdownMenuItem(value: 'Sobrino', child: Text('Sobrino/a')),
+  DropdownMenuItem(value: 'Familiar lejano', child: Text('Familiar lejano')),
+  DropdownMenuItem(value: 'Otro', child: Text('Otro')),
 ];
 
 class WantBuddyForLovedOnePage extends StatefulWidget {
-  const WantBuddyForLovedOnePage({super.key, required this.countryCode, required this.phone});
+  const WantBuddyForLovedOnePage(
+      {super.key, required this.countryCode, required this.phone});
 
   final String phone;
   final String countryCode;
@@ -58,15 +56,13 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
   // Loved one data
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-  TextEditingController genderController = TextEditingController();
-  // TextEditingController phoneNumberController = TextEditingController();
-  // TextEditingController phoneCountryCodeController = TextEditingController();
   TextEditingController relationshipToElderController = TextEditingController();
 
   // Elder data
   TextEditingController elderFirstNameController = TextEditingController();
   TextEditingController elderLastNameController = TextEditingController();
   TextEditingController elderGenderController = TextEditingController();
+  TextEditingController elderDateController = TextEditingController();
 
   Future<void> _submitForm() async {
     final ElderService elderService = ElderService();
@@ -78,21 +74,19 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
           firstName: elderFirstNameController.text,
           lastName: elderLastNameController.text,
           gender: elderGenderController.text,
+          birthDate: DateFormat('dd/MM/yyyy').parse(elderDateController.text),
         ),
-        phoneNumber: PhoneNumber(
-            countryCode: widget.countryCode,
-            number: widget.phone),
+        phoneNumber:
+            PhoneNumber(countryCode: widget.countryCode, number: widget.phone),
         registrationDate: DateTime.now(),
-        registrationMethod:
-            'email', // TODO: ajustar cuando se agregue registro por Google
+        registrationMethod: 'email',
         email: authProvider.user!.email!,
         onLovedOneMode: true,
         lovedOne: LovedOne(
             firstName: firstNameController.text,
             lastName: lastNameController.text,
             phoneNumber: PhoneNumber(
-                countryCode: widget.countryCode,
-                number: widget.phone),
+                countryCode: widget.countryCode, number: widget.phone),
             email: authProvider.user!.email!,
             relationshipToElder: relationshipToElderController.text),
         elderProfile: ElderProfile(
@@ -107,10 +101,24 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
     }
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        elderDateController.text =
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
 
     return Scaffold(
       appBar: AppBar(
@@ -194,32 +202,20 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                       DropdownButtonFormField<String>(
                         onChanged: (value) {
                           setState(() {
-                            genderController.text = value!;
+                            relationshipToElderController.text = value!;
                           });
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Ingresá tu género';
+                            return 'Relación con tu ser querido';
                           }
                           return null;
                         },
-                        items: items,
-                        decoration: InputDecoration(
-                          hintText: "Mi género",
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                          filled: true,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: relationshipToElderController,
+                        items: relationshipToElderOptions,
                         decoration: InputDecoration(
                           hintText: "Relación con tu ser querido",
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 15),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide.none,
@@ -227,60 +223,15 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                           fillColor: theme.colorScheme.primary.withOpacity(0.1),
                           filled: true,
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Ingresá la relación con tu ser querido';
-                          }
-                          return null;
-                        },
                       ),
                     ],
                   ),
                 ),
-                // const SizedBox(height: 16),
-                // TextFormField(
-                //   controller: phoneCountryCodeController,
-                //   decoration: InputDecoration(
-                //     hintText: "Prefijo Teléfono",
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(18),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                //     filled: true,
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Ingresá el prefijo del país de tu teléfono';
-                //     }
-                //     return null;
-                //   },
-                // ),
-                // const SizedBox(height: 16),
-                // TextFormField(
-                //   controller: phoneNumberController,
-                //   decoration: InputDecoration(
-                //     hintText: "Nro Teléfono",
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(18),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     fillColor: theme.colorScheme.primary.withOpacity(0.1),
-                //     filled: true,
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Ingresá tu número de teléfono';
-                //     }
-                //     return null;
-                //   },
-                // ),
-                
                 const SizedBox(height: 10),
                 Container(
                   padding: EdgeInsets.fromLTRB(8, 10, 8, 8),
                   child: Text(
-                    'Datos de tu ser querido',
+                    'Datos de tu ser querido (adulto mayor)',
                     style: TextStyle(fontSize: 14),
                     textAlign: TextAlign.left,
                   ),
@@ -342,7 +293,8 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                         items: items,
                         decoration: InputDecoration(
                           hintText: "Género de tu ser querido",
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 15),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide.none,
@@ -351,7 +303,25 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
                           filled: true,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: elderDateController,
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                        decoration: InputDecoration(
+                          hintText: "Fecha de nacimiento",
+                          suffixIcon: Icon(Icons.calendar_today),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: theme.colorScheme.primary.withOpacity(0.1),
+                          filled: true,
+                        ),
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Ingresá tu fecha de nacimiento'
+                            : null,
+                      ),
                     ],
                   ),
                 ),
@@ -373,8 +343,7 @@ class _WantBuddyForLovedOnePageState extends State<WantBuddyForLovedOnePage> {
           ),
           child: Text(
             "Listo",
-            style: TextStyle(
-                color: theme.colorScheme.onPrimary, fontSize: 20),
+            style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20),
           ),
         ),
       ),

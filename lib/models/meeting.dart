@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/models/connection.dart';
+import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/review.dart';
 import 'meeting_location.dart';
