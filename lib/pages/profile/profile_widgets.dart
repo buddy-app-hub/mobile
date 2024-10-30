@@ -256,7 +256,6 @@ class ProfileWidgets {
   static Future<int> fetchRatingCount(bool isBuddy, String personID) async {
     UserHelper userHelper = UserHelper();
     Map<Meeting, Review> reviews = await userHelper.fetchReviews(personID, !isBuddy);
-    print(reviews.length);
     return reviews.length;
   }
 
