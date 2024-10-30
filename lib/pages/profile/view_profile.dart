@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/interest.dart';
@@ -8,7 +7,6 @@ import 'package:mobile/pages/connections/meetings/new_meeting.dart';
 import 'package:mobile/pages/profile/profile_widgets.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
-import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
 
@@ -26,9 +24,10 @@ class ViewProfilePage extends StatefulWidget {
 class _ViewProfileState extends State<ViewProfilePage> {
   UserHelper userHelper = UserHelper();
   String _profileImageUrl = '';
-  String perseonName = '';
+  String personName = '';
   ElderService elderService = ElderService();
   BuddyService buddyService = BuddyService();
+  double globalRating = 4.4;
   String description = '';
   List<Interest> interest = List.empty();
   List<custom_time.TimeOfDay> availability = List.empty();
@@ -54,11 +53,11 @@ class _ViewProfileState extends State<ViewProfilePage> {
     final name = await userHelper.fetchProfileFullName(widget.personID, widget.isBuddy);
     if (name.isEmpty) {
       setState(() {
-        perseonName = 'Error fetching the name';
+        personName = 'Error fetching the name';
       });
     } else {
       setState(() {
-        perseonName = name;
+        personName = name;
       });
     }
   }
@@ -71,6 +70,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
           description = profile.elderProfile!.description!;
           interest = profile.elderProfile!.interests!;
           availability = profile.elderProfile!.availability!;
+          globalRating = profile.elderProfile!.globalRating!;
         });
       } else {
         setState(() {
@@ -85,6 +85,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
         description = profile.buddyProfile!.description!;
         interest = profile.buddyProfile!.interests!;
         availability = profile.buddyProfile!.availability!;
+        globalRating = profile.buddyProfile!.globalRating!;
       });
     }
   }
@@ -121,7 +122,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
         body: Stack(
           children: [
             Center(
-              child: ProfileWidgets.buildProfileData(context, theme, _profileImageUrl, perseonName, widget.isBuddy),
+              child: ProfileWidgets.buildProfileData(context, theme, _profileImageUrl, personName, globalRating, widget.isBuddy),
             ),
             SingleChildScrollView(
               child: Container(
@@ -136,7 +137,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ProfileWidgets.buildProfileInfo(context, theme, widget.isBuddy, description, interest, availability),
+                          ProfileWidgets.buildProfileInfo(context, theme, widget.personID, widget.isBuddy, globalRating, description, interest, availability),
                         ],
                       ),
                     ),

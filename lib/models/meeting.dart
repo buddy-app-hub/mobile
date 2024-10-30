@@ -17,8 +17,8 @@ class Meeting {
   String activity;
   DateTime dateLastModification;
   bool startConfirmed;
-  Review? elderRatingForBuddy; // Review that Elder made to Buddy
-  Review? buddyRatingForElder; // Review that Buddy made to Elder
+  Review? elderReviewForBuddy; // Review that Elder made to Buddy
+  Review? buddyReviewForElder; // Review that Buddy made to Elder
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   Connection? connection; // No esta en el backend, es solo para manejo en el front
@@ -41,8 +41,8 @@ class Meeting {
     required this.activity,
     required this.dateLastModification,
     this.startConfirmed = false,
-    this.elderRatingForBuddy,
-    this.buddyRatingForElder,
+    this.elderReviewForBuddy,
+    this.buddyReviewForElder,
     this.connection,
   });
 

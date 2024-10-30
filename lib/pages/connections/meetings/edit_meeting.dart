@@ -5,13 +5,16 @@ import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/meeting_location.dart';
 import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/pages/connections/meetings/time_planner_page.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/chat_service.dart';
 import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/utils/validators.dart';
 import 'package:mobile/widgets/base_card_meeting.dart';
+import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
@@ -43,7 +46,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
   UserHelper userHelper = UserHelper();
   final chatService = ChatService();
   final connectionService = ConnectionService();
-  List<custom_time.TimeOfDay> _availability = List.empty();
+  MeetingSchedule? selectedDay;
   DateTime? _dateTime;
   TimeOfDay? _fromTime;
   TimeOfDay? _toTime;
@@ -52,111 +55,59 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
   void initState() {
     super.initState();
     final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
-    _fetchPersonAvailability();
-    _isElderHouseController.text = 'Mi casa' ; 
-    _isElderHouseSelected = widget.meeting.location.isEldersHome;
-    _dateController.text = formatMeetingDate(widget.meeting.schedule.date);
-    _fromController.text = intToTime(widget.meeting.schedule.startHour);
-    _toController.text = intToTime(widget.meeting.schedule.endHour);
-    _placeNameController.text = widget.meeting.location.placeName;
-    _streetNameController.text = widget.meeting.location.streetName;
-    _streetNumberController.text = widget.meeting.location.streetNumber.toString();
-    _cityController.text = widget.meeting.location.city;
-    _stateController.text = widget.meeting.location.state;
-    _countryController.text = widget.meeting.location.country;
-    _activityController.text = widget.meeting.activity;
-    _dateTime = widget.meeting.schedule.date;
-    _fromTime = formatIntToTime(widget.meeting.schedule.startHour);
-    _toTime = formatIntToTime(widget.meeting.schedule.endHour);
+    setState(() {
+      _isElderHouseController.text = 'Mi casa' ; 
+      _isElderHouseSelected = widget.meeting.location.isEldersHome;
+      _dateController.text = formatMeetingDate(widget.meeting.schedule.date);
+      _fromController.text = intToTime(widget.meeting.schedule.startHour);
+      _toController.text = intToTime(widget.meeting.schedule.endHour);
+      _placeNameController.text = widget.meeting.location.placeName;
+      _streetNameController.text = widget.meeting.location.streetName;
+      _streetNumberController.text = widget.meeting.location.streetNumber.toString();
+      _cityController.text = widget.meeting.location.city;
+      _stateController.text = widget.meeting.location.state;
+      _countryController.text = widget.meeting.location.country;
+      _activityController.text = widget.meeting.activity;
+      _dateTime = widget.meeting.schedule.date;
+      _fromTime = formatIntToTime(widget.meeting.schedule.startHour);
+      _toTime = formatIntToTime(widget.meeting.schedule.endHour);
+      selectedDay = MeetingSchedule(date: widget.meeting.schedule.date, startHour: widget.meeting.schedule.startHour, endHour: widget.meeting.schedule.endHour);
+    });
   }
+  
+  Future<void> _navigateAndUpdateSchedule(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TimePlannerPage(
+          userID: widget.isBuddy ? widget.connection.buddyID : widget.connection.elderID,
+          personID: widget.isBuddy ? widget.connection.elderID : widget.connection.buddyID,
+          isBuddy: widget.isBuddy,
+          meetingSchedule: selectedDay!,
+        ),
+      ),
+    );
 
-  Future<void> _fetchPersonAvailability() async {
-    final profileID = widget.isBuddy ? widget.connection.elderID : widget.connection.buddyID;
-    final availability = await userHelper.fetchProfileAvailability(profileID, widget.isBuddy);
-    if (availability!.isNotEmpty) {
+    if (result != null && result is MeetingSchedule) {
       setState(() {
-        _availability = availability;
+        selectedDay = result;
       });
-    }
-  }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 7)),
-      helpText: 'Seleccionar un día',
-      cancelText: 'Cancelar',
-      initialEntryMode: DatePickerEntryMode.calendarOnly,
-    );
+      final startTime = formatIntToTime(selectedDay!.startHour);
+      final endTime = addOneHour(startTime);
+      selectedDay = MeetingSchedule(date: selectedDay!.date, startHour: selectedDay!.startHour, endHour: timeToInt(endTime));
+      setState(() {
+        _dateTime = selectedDay!.date;
+        _dateController.text = formatMeetingDate(selectedDay!.date);
+        _fromTime = startTime;
+        _fromController.text = timeToString(startTime);
+        _toTime = endTime;
+        _toController.text = timeToString(endTime);
+      });
 
-    if (picked != null) {
-      String selectedDay = formatDayOfWeek(picked.weekday);
-      bool isAvailableDay = _availability.any((a) => a.dayOfWeek.contains(selectedDay));
-
-      if (isAvailableDay) {
-        custom_time.TimeOfDay? availabilityTime = _availability.firstWhere(
-        (a) => a.dayOfWeek.contains(selectedDay),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('El horario del encuentro ha sido actualizado a ${formatMeetingDate(selectedDay!.date)} con éxito.')),
       );
-        setState(() {
-          _dateTime = picked;
-          _dateController.text = formatMeetingDate(picked);
-          _fromTime = formatIntToTime(availabilityTime.from);
-          _fromController.text = intToTime(availabilityTime.from);
-          _toTime = formatIntToTime(availabilityTime.to);
-          _toController.text = intToTime(availabilityTime.to);
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('El día seleccionado no está disponible')),
-        );
-      }
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context, bool isFromTime) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialEntryMode: TimePickerEntryMode.inputOnly,
-      initialTime: isFromTime
-          ? (_fromTime ?? TimeOfDay.now())
-          : (_toTime ?? TimeOfDay.now()),
-      cancelText: 'Cancelar',
-      helpText: 'Ingresar una hora',
-      errorInvalidText: 'Ingresá una hora válida',
-      hourLabelText: 'Hora',
-      minuteLabelText: 'Minutos',
-    );
-
-    if (picked != null && _dateTime != null) {
-      String selectedDay = formatDayOfWeek(_dateTime!.weekday);
-
-      custom_time.TimeOfDay? availabilityTime = _availability.firstWhere(
-        (a) => a.dayOfWeek.contains(selectedDay),
-      );
-
-      if (availabilityTime != null) {
-        int selectedTime = picked.hour * 100 + picked.minute;
-        int fromTime = availabilityTime.from;
-        int toTime = availabilityTime.to;
-
-        if (selectedTime >= fromTime && selectedTime <= toTime) {
-          setState(() {
-            if (isFromTime) {
-              _fromTime = picked;
-              _fromController.text = picked.format(context);
-            } else {
-              _toTime = picked;
-              _toController.text = picked.format(context);
-            }
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('La hora seleccionada no está disponible')),
-          );
-        }
-      }
     }
   }
 
@@ -247,7 +198,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
                             hintStyle: ThemeTextStyle.titleSmallOnSecondary(context),
                             suffixIcon: Icon(Icons.calendar_month, size: 24),
                           ),
-                          onTap: () => _selectDate(context),
+                          // onTap: () => _selectDate(context),
                         ),
                       ),
                       const SizedBox(width: 15.0),
@@ -266,7 +217,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
                             hintStyle: ThemeTextStyle.titleSmallOnSecondary(context),
                             suffixIcon: Icon(Icons.access_time, size: 24),
                           ),
-                          onTap: () => _selectTime(context, true),
+                          // onTap: () => _selectTime(context, true),
                         ),
                       ),
                       const SizedBox(width: 15.0),
@@ -280,11 +231,28 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
                             hintStyle: ThemeTextStyle.titleSmallOnSecondary(context),
                             suffixIcon: Icon(Icons.access_time, size: 24),
                           ),
-                          onTap: () => _selectTime(context, false),
+                          // onTap: () => _selectTime(context, false),
                         ),
                       ),
                       const SizedBox(width: 15.0),
                     ],
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(18, 20, 18, 20),
+                    child: Center(
+                      child: BaseElevatedButton(
+                        text: 'Ver otros horarios',
+                        buttonTextStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        buttonStyle: ThemeButtonStyle.primaryContainerRoundedButtonStyle(context),
+                        onPressed: () => _navigateAndUpdateSchedule(context),
+                        height: 40,
+                        width: 200,
+                      ),
+                    ),
                   ),
                   // determinar si ya con poner mi casa alcanza para que no ponga nada mas con respecto al lugar
                   Column(

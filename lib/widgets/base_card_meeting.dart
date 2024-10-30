@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
@@ -6,8 +7,10 @@ import 'package:mobile/models/meeting_schedule.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/connections/meetings/edit_meeting.dart';
+import 'package:mobile/pages/profile/review/add_review.dart';
 import 'package:mobile/routes.dart';
 import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/theme/theme_button_style.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/widgets/base_avatar_stack.dart';
@@ -33,6 +36,20 @@ BaseCardMeeting buildMeetingCard(
     time: formatTime(meeting.schedule),
     location: formatLocation(meeting.location),
     avatars: images,
+  );
+}
+
+BaseNotificationCartMeeting buildPendingReviewCard(bool isBuddy, String personID, String personName, Connection connection, Meeting meeting, String image) {
+  return BaseNotificationCartMeeting(
+    isBuddy: isBuddy,
+    connection: connection,
+    meeting: meeting,
+    personID: personID,
+    person: personName,
+    date: formatMeetingDateShort(meeting.schedule.date),
+    time: formatTime(meeting.schedule),
+    location: formatLocation(meeting.location),
+    avatar: image,
   );
 }
 
@@ -329,4 +346,104 @@ bool isUnconfirmedByYou(Meeting m, bool isCurrUserBuddy) {
 bool isUnconfirmedByYourConn(Meeting m, bool isCurrUserBuddy) {
   return (isCurrUserBuddy && m.isConfirmedByElder == false) ||
       (!isCurrUserBuddy && m.isConfirmedByBuddy == false);
+}
+
+class BaseNotificationCartMeeting extends StatelessWidget {
+  final bool isBuddy;
+  final Connection connection;
+  final Meeting meeting;
+  final String personID;
+  final String person;
+  final String date;
+  final String time;
+  final String location;
+  final String avatar;
+
+  const BaseNotificationCartMeeting({
+    super.key,
+    required this.isBuddy,
+    required this.connection,
+    required this.meeting,
+    required this.personID,
+    required this.person,
+    required this.date,
+    required this.time,
+    required this.location,
+    required this.avatar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+      child: Container(
+        margin: EdgeInsets.only(right: 5),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: theme.colorScheme.tertiary,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          color: theme.colorScheme.tertiaryContainer.withOpacity(0.5),
+        ),
+        padding: EdgeInsets.all(10),
+        child: _buildConnectionInfo(context, theme),
+      ),
+    );
+  }
+
+  Widget _buildConnectionInfo(BuildContext context, ThemeData theme) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 26,
+          backgroundImage: avatar.isEmpty
+              ? AssetImage('assets/images/default_user.jpg')
+              : CachedNetworkImageProvider(avatar) as ImageProvider,
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Opina sobre ${meeting.activity.toLowerCase()} con $person',
+                style: ThemeTextStyle.itemLargeOnBackground(context),
+                overflow: TextOverflow.clip,
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 0.0),
+                  child: BaseElevatedButton(
+                    text: 'Opinar',
+                    buttonTextStyle: TextStyle(
+                      color: theme.colorScheme.onTertiaryContainer,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    buttonStyle: ThemeButtonStyle.tertiaryFixedRoundedButtonStyle(context),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddReviewPage(
+                          isBuddy: isBuddy,
+                          connection: connection,
+                          meeting: meeting,
+                          personID: personID,
+                          personName: person,
+                        ),
+                      ),
+                    ),
+                    height: 36,
+                    width: 100,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }

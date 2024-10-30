@@ -277,7 +277,9 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                       ProfileWidgets.buildProfileInfo(
                         context,
                         theme,
+                        recommendedBuddy.buddy!.firebaseUID,
                         true,
+                        recommendedBuddy.buddy!.buddyProfile!.globalRating!,
                         recommendedBuddy.buddy!.buddyProfile!.description!,
                         recommendedBuddy.buddy!.buddyProfile!.interests!,
                         recommendedBuddy.buddy!.buddyProfile!.availability!,

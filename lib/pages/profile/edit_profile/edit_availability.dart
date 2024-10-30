@@ -50,7 +50,20 @@ class _EditAvailabilityPageState extends State<EditAvailabilityPage> {
       hourLabelText: 'Hora',
       minuteLabelText: 'Minutos',
     );
-    if (picked != null) {
+
+    if (picked != null && (picked.minute != 0 && picked.minute != 30)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Solo se permiten cargar horas que terminen en minuto 00 o 30.\nPor favor, verifica que el horario ingresado cumpla con esta condición.'),
+        ),
+      );
+    } else if (picked != null && (picked.hour < 6)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Solo se permiten cargar horas entre las 06:00 y las 23:00.\nPor favor, verifica que el horario ingresado cumpla con esta condición.'),
+        ),
+      );
+    } else if (picked != null) {
       setState(() {
         if (isFromTime) {
           _fromTime = picked;

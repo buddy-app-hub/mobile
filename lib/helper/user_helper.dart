@@ -1,4 +1,6 @@
 import 'package:mobile/models/connection.dart';
+import 'package:mobile/models/meeting.dart';
+import 'package:mobile/models/review.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/services/buddy_service.dart';
@@ -14,12 +16,55 @@ class UserHelper {
   Future<List<Connection>> fetchConnections(UserData userData) async {
     List<Connection> connections;
     if (userData.buddy != null) {
-      connections = await buddyService.getConnections(userData);
+      connections = await buddyService.getConnections(userData.buddy!.firebaseUID);
     } else {
-      connections = await elderService.getConnections(userData);
+      connections = await elderService.getConnections(userData.elder!.firebaseUID);
     }
 
     return connections;
+  }
+
+  Future<List<Meeting>> fetchMeetingCurrentWeek(String id, bool isBuddy) async {
+    List<Connection> connections;
+    if (isBuddy) {
+      connections = await buddyService.getConnections(id);
+    } else {
+      connections = await elderService.getConnections(id);
+    }
+
+    DateTime now = DateTime.now();
+    DateTime weekFromNow = now.add(Duration(days: 6));
+
+    List<Meeting> meeting = connections.expand((connection) => connection.meetings)
+      .where((meeting) {
+        final meetingDate = meeting.schedule.date;
+        return meetingDate.isAfter(now.subtract(Duration(days: 1))) && meetingDate.isBefore(weekFromNow);
+      })
+      .toList();
+
+    return meeting;
+  }
+
+  Future<Map<Meeting, Review>> fetchReviews(String id, bool isBuddy) async {
+    List<Connection> connections;
+    if (isBuddy) {
+      connections = await buddyService.getConnections(id);
+    } else {
+      connections = await elderService.getConnections(id);
+    }
+    Map<Meeting, Review> reviews = {
+      for (var connection in connections)
+        for (var meeting in connection.meetings)
+          if (isBuddy && meeting.elderReviewForBuddy != null)
+            meeting: meeting.elderReviewForBuddy!
+          else if (!isBuddy && meeting.buddyReviewForElder != null)
+            meeting: meeting.buddyReviewForElder!
+    };
+    
+    return Map.fromEntries(
+      reviews.entries.toList()
+        ..sort((a, b) => b.value.rating.compareTo(a.value.rating))
+    );
   }
 
   Future<Object> fetchPersonProfile(String personID, bool isBuddy) async {
@@ -63,6 +108,13 @@ class UserHelper {
   }
 
   Future<List<custom_time.TimeOfDay>?> fetchProfileAvailability(String personID, bool isBuddy) async {
+    var personalData = isBuddy
+      ? (await elderService.getElder(personID)).elderProfile?.availability
+      : (await buddyService.getBuddy(personID)).buddyProfile?.availability;
+    return personalData;
+  }
+
+  Future<List<custom_time.TimeOfDay>?> fetchProfileMeetings(String personID, bool isBuddy) async {
     var personalData = isBuddy
       ? (await elderService.getElder(personID)).elderProfile?.availability
       : (await buddyService.getBuddy(personID)).buddyProfile?.availability;

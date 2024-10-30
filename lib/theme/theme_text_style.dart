@@ -98,7 +98,13 @@ class ThemeTextStyle {
     );
   }
 
-  
+  static TextStyle titleSmallerOnSurface(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onSurface,
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+    );
+  }
 
   static TextStyle titleSmallOnSecondary(BuildContext context) {
     return TextStyle(
@@ -126,7 +132,7 @@ class ThemeTextStyle {
 
   static TextStyle titleMediumOnBackground(BuildContext context) {
     return TextStyle(
-      color: Theme.of(context).colorScheme.onBackground,
+      color: Theme.of(context).colorScheme.onSurface,
       fontSize: 18,
       fontWeight: FontWeight.w400,
     );
@@ -171,7 +177,7 @@ class ThemeTextStyle {
       fontSize: 16,
       height: 1.3,
       letterSpacing: 0.1,
-      color: Theme.of(context).colorScheme.onBackground,
+      color: Theme.of(context).colorScheme.onSurface,
     );
   }
 
@@ -187,9 +193,9 @@ class ThemeTextStyle {
 
   static TextStyle titleSmallBright(BuildContext context) {
     return TextStyle(
-      fontSize: 12,
-      fontWeight: FontWeight.w400,
-      color: Theme.of(context).colorScheme.tertiary,
+      fontSize: 12.5,
+      fontWeight: FontWeight.w500,
+      color: Theme.of(context).colorScheme.secondary,
       fontFamily: 'Comfortaa', //TODO: fix font family para reviews
     );
   }

@@ -4,8 +4,8 @@ part 'review.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Review {
-  final int rating;
-  final String comment;
+  double rating;
+  String comment;
   
   Review({
     required this.rating,

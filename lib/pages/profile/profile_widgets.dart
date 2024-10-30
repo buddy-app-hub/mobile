@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/interest.dart';
+import 'package:mobile/models/meeting.dart';
+import 'package:mobile/models/review.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/pages/profile/review/view_reviews.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 
 class ProfileWidgets {
   static Widget buildProfileData(BuildContext context, ThemeData theme,
-      String profileImageUrl, String personName, bool isBuddy) {
+      String profileImageUrl, String personName, double globalRating, bool isBuddy) {
     return Column(
       children: [
         CircleAvatar(
@@ -38,7 +42,7 @@ class ProfileWidgets {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ProfileWidgets.buildRowLocationReviewProfile(
-                        context, isBuddy, 'Buenos Aires', '4.4', '41'),
+                        context, isBuddy, 'Buenos Aires', globalRating.toString(), '41'),
                   ],
                 ),
               ),
@@ -52,7 +56,9 @@ class ProfileWidgets {
   static Widget buildProfileInfo(
       BuildContext context,
       ThemeData theme,
+      String personID,
       bool isBuddy,
+      double globalRating,
       String description,
       List<Interest> interest,
       List<custom_time.TimeOfDay> availability) {
@@ -74,15 +80,29 @@ class ProfileWidgets {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BaseDecoration.buildTitleProfile(context, 'Resumen de comentarios', isBuddy),
+              Expanded(
+                child: BaseDecoration.buildTitleProfile(
+                  context, 
+                  isBuddy ? 'Opiniones sobre el adulto mayor' : 'Opiniones sobre el buddy', 
+                  isBuddy
+                ),
+              ),
               Container(
-                margin: EdgeInsets.fromLTRB(0, 20, 28, 0),
+                margin: EdgeInsets.fromLTRB(0, 20, 8, 0),
                 child: Align(
                   alignment: Alignment.topRight,
                   child: TextButton(
                     onPressed: () {
                       print('veo rewiews');
-                      // Navegación a la página de opiniones.
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ViewReviewsPage(
+                            isBuddy: isBuddy,
+                            personID: personID,
+                          ),
+                        ),
+                      );
                     },
                     child: Text(
                       "Ver todos",
@@ -93,7 +113,7 @@ class ProfileWidgets {
               ),
             ],
           ),
-          buildReviewsSummary(context, theme, 'Esto es un resumen de todas las experiencias que tuvo esta persona. Todos dicen que pasaron muy lindos momentos, que es muy simpático y alegre, y generoso.'),
+          buildReviewsSummary(context, theme, isBuddy, personID, globalRating),
         ],
       ),
     );
@@ -233,17 +253,86 @@ class ProfileWidgets {
     );
   }
 
-static Widget buildReviewsSummary(BuildContext context, ThemeData theme, String summaryText) {
-  return Container(
-    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 32),
-    child: Text(
-      summaryText,
-      style: ThemeTextStyle.itemLargeOnBackground(context),
-      textAlign: TextAlign.justify,
-    ),
-  );
-}
+  static Future<int> fetchRatingCount(bool isBuddy, String personID) async {
+    UserHelper userHelper = UserHelper();
+    Map<Meeting, Review> reviews = await userHelper.fetchReviews(personID, !isBuddy);
+    return reviews.length;
+  }
 
+  static Widget buildReviewsSummary(
+      BuildContext context, ThemeData theme, bool isBuddy, String personID, double globalRating) {
+    
+    return FutureBuilder<int>(
+      future: fetchRatingCount(isBuddy, personID),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error loading ratings'));
+        } else {
+          int ratingCount = snapshot.data ?? 0;
+
+          return Container(
+            margin: EdgeInsets.symmetric(vertical: 0, horizontal: 66),
+            child: Center(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    globalRating.toString(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 52,
+                      height: 1.2,
+                      letterSpacing: 0.1,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RatingBar.builder(
+                        initialRating: globalRating,
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        ignoreGestures: true,
+                        itemCount: 5,
+                        itemSize: 27,
+                        itemPadding: EdgeInsets.symmetric(horizontal: 1.5),
+                        itemBuilder: (context, _) => Icon(
+                          Icons.star_rate_rounded,
+                          color: Colors.amber,
+                        ),
+                        onRatingUpdate: (rating) {
+                          print(rating);
+                        },
+                      ),
+                      SizedBox(height: 1,),
+                      if (ratingCount != 0)
+                        Text(
+                          "$ratingCount calificaciones",
+                          style: ThemeTextStyle.titleMediumInverseSurfaceTheme(theme),
+                          textAlign: TextAlign.start,
+                        ),
+                      if (ratingCount == 0) 
+                        Text(
+                          "No hay calificaciones",
+                          style: ThemeTextStyle.titleSmallerOnSurface(context),
+                          textAlign: TextAlign.start,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
 
   static Widget buildRowLocationReviewProfile(BuildContext context,
       bool isBuddy, String location, String rate, String xpHours) {

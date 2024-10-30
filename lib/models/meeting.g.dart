@@ -21,14 +21,14 @@ Meeting _$MeetingFromJson(Map<String, dynamic> json) => Meeting(
       dateLastModification:
           DateTime.parse(json['dateLastModification'] as String),
       startConfirmed: json['startConfirmed'] as bool? ?? false,
-      elderRatingForBuddy: json['elderRatingForBuddy'] == null
+      elderReviewForBuddy: json['elderReviewForBuddy'] == null
           ? null
           : Review.fromJson(
-              json['elderRatingForBuddy'] as Map<String, dynamic>),
-      buddyRatingForElder: json['buddyRatingForElder'] == null
+              json['elderReviewForBuddy'] as Map<String, dynamic>),
+      buddyReviewForElder: json['buddyReviewForElder'] == null
           ? null
           : Review.fromJson(
-              json['buddyRatingForElder'] as Map<String, dynamic>),
+              json['buddyReviewForElder'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
@@ -41,8 +41,8 @@ Map<String, dynamic> _$MeetingToJson(Meeting instance) => <String, dynamic>{
       'activity': instance.activity,
       'dateLastModification': instance.dateLastModification.toIso8601String(),
       'startConfirmed': instance.startConfirmed,
-      'elderRatingForBuddy': instance.elderRatingForBuddy?.toJson(),
-      'buddyRatingForElder': instance.buddyRatingForElder?.toJson(),
+      'elderReviewForBuddy': instance.elderReviewForBuddy?.toJson(),
+      'buddyReviewForElder': instance.buddyReviewForElder?.toJson(),
       'location': instance.location.toJson(),
       'schedule': instance.schedule.toJson(),
     };

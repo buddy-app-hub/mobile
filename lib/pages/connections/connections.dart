@@ -63,42 +63,34 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
                   height: 120,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: Container(
-                      width: MediaQuery.of(context)
-                          .size
-                          .width,
-                      child: FutureBuilder<List<Widget>>(
-                        future: fetchConnectionsAsFuture(userData),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            if (snapshot.hasError) {
-                              return Text('Error fetching meetings');
-                            } else if (snapshot.data!.isEmpty) {
-                              return Text('No hay conexiones');
-                            } else {
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .start,
-                                children: snapshot.data!,
-                              );
-                            }
+                    child: FutureBuilder<List<Widget>>(
+                      future: fetchConnectionsAsFuture(userData),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.hasError) {
+                            return Text('Error fetching meetings');
+                          } else if (snapshot.data!.isEmpty) {
+                            return Text('No hay conexiones');
                           } else {
                             return Row(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .start,
-                              children: [
-                                SizedBox(width: 16,),
-                                CircularProgressIndicator(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
-                                ),
-                              ],
+                              children: snapshot.data!.map((widget) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 1),
+                                  child: widget,
+                                );
+                              }).toList(),
                             );
                           }
-                        },
-                      ),
+                        } else {
+                          return Row(
+                            children: [
+                              CircularProgressIndicator(
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              ),
+                            ],
+                          );
+                        }
+                      },
                     ),
                   ),
                 ),
