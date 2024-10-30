@@ -155,6 +155,23 @@ bool isBefore(TimeOfDay t1, TimeOfDay t2) {
   return t1.hour < t2.hour || (t1.hour == t2.hour && t1.minute < t2.minute);
 }
 
+bool isEqual(TimeOfDay t1, TimeOfDay t2) {
+  return t1.hour == t2.hour || (t1.hour == t2.hour && t1.minute == t2.minute);
+}
+
+TimeOfDay roundToNearestHalfHour(TimeOfDay time) {
+  if (time.minute > 0 && time.minute < 30) {
+    return TimeOfDay(hour: time.hour, minute: 30);
+  } else if (time.minute == 0) {
+    return TimeOfDay(hour: time.hour, minute: 0);
+  } else {
+    if (time.hour == 23) {
+      return TimeOfDay(hour: 0, minute: 0);
+    }
+    return TimeOfDay(hour: time.hour + 1, minute: 0);
+  }
+}
+
 bool isSameDay(DateTime d1, DateTime d2) {
   return d1.year == d2.year &&
          d1.month == d2.month &&

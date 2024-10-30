@@ -165,14 +165,27 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
     List<MeetingSchedule> schedules,
     {bool checkCurrentDay = false}
   ) {
+    TimeOfDay availabilityStart = TimeOfDay(hour: 6, minute: 0);
     for (var slot in daySlots) {
       DateTime slotStart, slotEnd;
       if (checkCurrentDay) {
         TimeOfDay nowTime = TimeOfDay(hour: now.hour, minute: now.minute);
-        if (isAfter(formatIntToTime(slot.to), nowTime)) {
-          slotStart = currentDate.add(Duration(hours: now.hour, minutes: now.minute));
+        //Si estoy dentro de la disponibilidad del dia
+        if (isAfter(nowTime, formatIntToTime(slot.from)) && isBefore(nowTime, formatIntToTime(slot.to))) {
+          var roundedTime = roundToNearestHalfHour(nowTime);
+          slotStart = currentDate.add(Duration(hours: roundedTime.hour, minutes: roundedTime.minute));
           slotEnd = currentDate.add(Duration(hours: slot.to ~/ 100, minutes: slot.to % 100));
-        } else {
+        //Si estoy antes de la disponibilidad
+        } else if (isBefore(nowTime, availabilityStart) || isEqual(nowTime, formatIntToTime(slot.from))) {
+          slotStart = currentDate.add(Duration(hours: slot.from ~/ 100, minutes: slot.from % 100));
+          slotEnd = currentDate.add(Duration(hours: slot.to ~/ 100, minutes: slot.to % 100));
+        //antes de que empiece la disponibilidad de hoy
+        } else if (isBefore(nowTime, formatIntToTime(slot.from))) {
+          slotStart = currentDate.add(Duration(hours: slot.from ~/ 100, minutes: slot.from % 100));
+          slotEnd = currentDate.add(Duration(hours: slot.to ~/ 100, minutes: slot.to % 100));
+        } else if (isAfter(nowTime, formatIntToTime(slot.to))) {
+          continue;
+        }  else {
           continue;
         }
       } else {
