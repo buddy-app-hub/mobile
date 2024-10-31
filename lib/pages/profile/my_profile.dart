@@ -121,31 +121,36 @@ class _MyProfilePageState extends State<MyProfilePage> {
   void _loadProfileCompletion() {
     profileCompletionCards.clear();
 
-    if (isBuddy!) {
-      profileCompletionCards.add(ProfileCompletionCard(
+    if (isBuddy) {
+      profileCompletionCards.add(
+        ProfileCompletionCard(
           title: "Verificar identidad",
           completed: isIdentityVerified,
           icon: Icons.verified_user_rounded,
           button: ElevatedButton(
-            onPressed: () {
-              !isUserIdentityUploaded
-                  ? Navigator.push(
+            onPressed: isUserIdentityUploaded
+                ? null
+                : () {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => IdentityVerificationPage()),
-                    )
-                  : null;
-            },
+                    );
+                  },
             style: ElevatedButton.styleFrom(
               elevation: 0,
+              disabledBackgroundColor: Colors.transparent,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            child: isUserIdentityUploaded
-                ? Text("Esperando validación")
-                : Text("Enviar"),
-          )));
-      if (isBuddy!) {
+            child: Text(
+              isUserIdentityUploaded ? "Te estamos validando..." : "Cargar",
+            ),
+          ),
+        ),
+      );
+      if (isBuddy) {
         profileCompletionCards.add(ProfileCompletionCard(
             title: "Cargá tu foto de perfil",
             completed: _profileImageUrl != null && _profileImageUrl != "",
@@ -164,7 +169,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
       }
       profileCompletionCards.add(ProfileCompletionCard(
           title: "Completá tu biografía",
-          completed: isBiographyCompleted!,
+          completed: isBiographyCompleted,
           icon: Icons.edit_document,
           button: ElevatedButton(
             onPressed: () {
@@ -185,7 +190,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           )));
       profileCompletionCards.add(ProfileCompletionCard(
           title: "Completá tu domicilio",
-          completed: isAddressCompleted!,
+          completed: isAddressCompleted,
           icon: Icons.edit_document,
           button: ElevatedButton(
             onPressed: () {
@@ -203,7 +208,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           )));
       profileCompletionCards.add(ProfileCompletionCard(
           title: "Completá tu album de fotos",
-          completed: isPhotoAlbumCompleted!,
+          completed: isPhotoAlbumCompleted,
           icon: Icons.photo_album,
           button: ElevatedButton(
             onPressed: () {
@@ -219,10 +224,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
             ),
             child: Text("Cargar"),
           )));
-      if (isBuddy!) {
+      if (isBuddy) {
         profileCompletionCards.add(ProfileCompletionCard(
             title: "Cargá tu video introductorio",
-            completed: isIntroVideoUploaded!,
+            completed: isIntroVideoUploaded,
             icon: Icons.video_camera_back_rounded,
             button: ElevatedButton(
               onPressed: () {
@@ -239,10 +244,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
               child: Text("Cargar"),
             )));
       }
-      if (isBuddy!) {
+      if (isBuddy) {
         profileCompletionCards.add(ProfileCompletionCard(
             title: "Aplicá para ser Buddy",
-            completed: isBuddyApplicationCompleted!,
+            completed: isBuddyApplicationCompleted,
             icon: Icons.arrow_upward_rounded,
             button: ElevatedButton(
               onPressed: () {},
