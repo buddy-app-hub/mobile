@@ -9,6 +9,7 @@ import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_photos.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
+import 'package:mobile/pages/profile/settings/edit_address.dart';
 import 'package:mobile/pages/wallet/wallet.dart';
 import 'package:mobile/pages/profile/edit_profile/settings.dart';
 import 'package:mobile/services/files_service.dart';
@@ -30,144 +31,185 @@ class _MyProfilePageState extends State<MyProfilePage> {
       EditProfileImageBottomSheet();
   final List<ProfileCompletionCard> profileCompletionCards = [];
   int profileCompletedProgress = 0;
-  bool? isBuddy;
-  bool? isProfileImageUploaded;
-  bool? isIdentityVerified;
-  bool? isBiographyCompleted;
-  bool? isPhotoAlbumCompleted;
-  bool? isIntroVideoUploaded;
-  bool? isBuddyApplicationCompleted;
+  bool isBuddy = false;
+  bool isUserIdentityUploaded = false;
+  bool isIdentityVerified = false;
+  bool isBiographyCompleted = false;
+  bool isAddressCompleted = false;
+  bool isPhotoAlbumCompleted = false;
+  bool isIntroVideoUploaded = false;
+  bool isBuddyApplicationCompleted = false;
 
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    _loadUserIdentity();
     _loadProfileImage();
+    _updateProfileState();
+    _loadProfileCompletion();
+
+    authProvider.addListener(
+        _onAuthProviderChange); // Escuchamos los cambios que hayan el el user
+  }
+
+  void _onAuthProviderChange() {
+    _loadUserIdentity();
+    _updateProfileState();
+    _loadProfileCompletion();
+  }
+
+  @override
+  void dispose() {
+    authProvider.removeListener(_onAuthProviderChange);
+    super.dispose();
+  }
+
+  void _updateProfileState() {
+    print("Actualizando estado del perfil");
     setState(() {
       isBuddy = authProvider.userData!.buddy != null;
-      isIdentityVerified = userHelper.isUserIdentityVerified(authProvider.userData!);
-      isBiographyCompleted = userHelper.isUserBiographyCompleted(authProvider.userData!);
-      isPhotoAlbumCompleted = userHelper.isUserPhotoAlbumCompleted(authProvider.userData!);
-      isIntroVideoUploaded = userHelper.isIntroVideoUploaded(authProvider.userData!);
-      isBuddyApplicationCompleted = userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
+      isIdentityVerified =
+          userHelper.isUserIdentityVerified(authProvider.userData!);
+      isBiographyCompleted =
+          userHelper.isUserBiographyCompleted(authProvider.userData!);
+      isAddressCompleted =
+          userHelper.isUserAddressCompleted(authProvider.userData!);
+      isPhotoAlbumCompleted =
+          userHelper.isUserPhotoAlbumCompleted(authProvider.userData!);
+      isIntroVideoUploaded =
+          userHelper.isIntroVideoUploaded(authProvider.userData!);
+      isBuddyApplicationCompleted =
+          userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
     });
   }
 
-  Future<void> _loadProfileImage() async {
+  Future<void> _loadUserIdentity() async {
     try {
-      String? imageUrl = await _filesService.getProfileImageUrl(authProvider.user!.uid);
-      Map<String, String?> urlsMap = await _filesService.getCurrentUserDocuments(context);
-      bool isUserIdentityUploaded = true;
+      Map<String, String?> urlsMap =
+          await _filesService.getCurrentUserDocuments(context);
+      bool _isUserIdentityUploaded = true;
       for (String key in urlsMap.keys) {
         if (urlsMap[key] == null) {
-          isUserIdentityUploaded = false;
+          _isUserIdentityUploaded = false;
         }
       }
       setState(() {
-        _profileImageUrl = imageUrl;
-        isProfileImageUploaded = _profileImageUrl != null;
-        isIdentityVerified = isUserIdentityUploaded;
+        isUserIdentityUploaded = _isUserIdentityUploaded;
         _loadProfileCompletion();
       });
     } catch (e) {
       setState(() {
-        isProfileImageUploaded = false;
-        isIdentityVerified = false;
+        isUserIdentityUploaded = false;
         _loadProfileCompletion();
       });
+    }
+  }
+
+  Future<void> _loadProfileImage() async {
+    try {
+      String? imageUrl =
+          await _filesService.getProfileImageUrl(authProvider.user!.uid);
+      setState(() {
+        _profileImageUrl = imageUrl;
+      });
+    } catch (e) {
       print('Error al cargar la imagen de perfil: $e');
     }
   }
 
   void _loadProfileCompletion() {
     profileCompletionCards.clear();
-    
+
     if (isBuddy!) {
       profileCompletionCards.add(ProfileCompletionCard(
-        title: "Verificar identidad",
-        completed: isIdentityVerified!,
-        icon: Icons.verified_user_rounded,
-        button: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => IdentityVerificationPage()),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-          child: Text("Enviar"),
-        )
-      ));
-      if (isBuddy!) {
-        profileCompletionCards.add(ProfileCompletionCard(
-          title: "Cargá tu foto de perfil",
-          completed: isProfileImageUploaded ?? false,
-          icon: Icons.photo_camera_rounded,
+          title: "Verificar identidad",
+          completed: isIdentityVerified,
+          icon: Icons.verified_user_rounded,
           button: ElevatedButton(
             onPressed: () {
-              _bottomSheet.show(context, _loadProfileImage);
+              !isUserIdentityUploaded
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => IdentityVerificationPage()),
+                    )
+                  : null;
             },
             style: ElevatedButton.styleFrom(
               elevation: 0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: Text("Cargar"),
-          )
-        ));
-      }
-      profileCompletionCards.add(ProfileCompletionCard(
-        title: "Completá tu biografía",
-        completed: isBiographyCompleted!,
-        icon: Icons.edit_document,
-        button: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => EditBiographyPage(isEdit: false,)),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-          child: Text("Completar"),
-        )
-      ));
-      profileCompletionCards.add(ProfileCompletionCard(
-        title: "Completá tu album de fotos",
-        completed: isPhotoAlbumCompleted!,
-        icon: Icons.photo_album,
-        button: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => EditPhotosPage()),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-          child: Text("Cargar"),
-        )
-      ));
+            child: isUserIdentityUploaded
+                ? Text("Esperando validación")
+                : Text("Enviar"),
+          )));
       if (isBuddy!) {
         profileCompletionCards.add(ProfileCompletionCard(
-          title: "Cargá tu video introductorio",
-          completed: isIntroVideoUploaded!,
-          icon: Icons.video_camera_back_rounded,
+            title: "Cargá tu foto de perfil",
+            completed: _profileImageUrl != null && _profileImageUrl != "",
+            icon: Icons.photo_camera_rounded,
+            button: ElevatedButton(
+              onPressed: () {
+                _bottomSheet.show(context, _loadProfileImage);
+              },
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text("Cargar"),
+            )));
+      }
+      profileCompletionCards.add(ProfileCompletionCard(
+          title: "Completá tu biografía",
+          completed: isBiographyCompleted!,
+          icon: Icons.edit_document,
           button: ElevatedButton(
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => MyProfilePage()),
+                MaterialPageRoute(
+                    builder: (context) => EditBiographyPage(
+                          isEdit: false,
+                        )),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text("Completar"),
+          )));
+      profileCompletionCards.add(ProfileCompletionCard(
+          title: "Completá tu domicilio",
+          completed: isAddressCompleted!,
+          icon: Icons.edit_document,
+          button: ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditAddressPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text("Completar"),
+          )));
+      profileCompletionCards.add(ProfileCompletionCard(
+          title: "Completá tu album de fotos",
+          completed: isPhotoAlbumCompleted!,
+          icon: Icons.photo_album,
+          button: ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditPhotosPage()),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -176,32 +218,55 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   borderRadius: BorderRadius.circular(10)),
             ),
             child: Text("Cargar"),
-          )
-        ));
+          )));
+      if (isBuddy!) {
+        profileCompletionCards.add(ProfileCompletionCard(
+            title: "Cargá tu video introductorio",
+            completed: isIntroVideoUploaded!,
+            icon: Icons.video_camera_back_rounded,
+            button: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyProfilePage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text("Cargar"),
+            )));
       }
       if (isBuddy!) {
         profileCompletionCards.add(ProfileCompletionCard(
-          title: "Aplicá para ser Buddy",
-          completed: isBuddyApplicationCompleted!,
-          icon: Icons.arrow_upward_rounded,
-          button: ElevatedButton(
-            onPressed: () {
-              
-            },
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            child: Text("Enviar"),
-          )
-        ));
+            title: "Aplicá para ser Buddy",
+            completed: isBuddyApplicationCompleted!,
+            icon: Icons.arrow_upward_rounded,
+            button: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text("Enviar"),
+            )));
       }
     }
-    profileCompletionCards.sort((a, b) => !a.completed ? 0 : b.completed ? 0 : 1);
+    profileCompletionCards.sort((a, b) => !a.completed
+        ? 0
+        : b.completed
+            ? 0
+            : 1);
     setState(() {
-      profileCompletedProgress = profileCompletionCards.where((p) => p.completed).length;
+      profileCompletedProgress =
+          profileCompletionCards.where((p) => p.completed).length;
     });
+
+    print(profileCompletedProgress);
+    print(profileCompletionCards);
   }
 
   @override
@@ -213,7 +278,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
         : DateFormat('MMM yyyy')
             .format(authProvider.userData!.elder!.registrationDate);
 
-    final settingsToShow = authProvider.isBuddy ? customListTilesBuddy : customListTilesElder;
+    final settingsToShow =
+        authProvider.isBuddy ? customListTilesBuddy : customListTilesElder;
 
     return Scaffold(
       appBar: AppBar(
@@ -384,7 +450,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
       case 'Disponibilidad horaria':
         targetPage = EditAvailabilityPage();
       case 'Biografia':
-        targetPage = EditBiographyPage(isEdit: true,);
+        targetPage = EditBiographyPage(
+          isEdit: true,
+        );
       case 'Fotos':
         targetPage = EditPhotosPage();
       case 'Video introductorio':
@@ -404,107 +472,113 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   Widget _showCompletionCards() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(right: 5),
-              child: Text(
-                "Completá tu perfil",
+    return Consumer<AuthSessionProvider>(
+        builder: (context, authProvider, child) {
+      return Column(
+        children: [
+          Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(right: 5),
+                child: Text(
+                  "Completá tu perfil",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Text(
+                "($profileCompletedProgress/${profileCompletionCards.length})",
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onPrimaryFixedVariant,
                 ),
-              ),
-            ),
-            Text(
-              "($profileCompletedProgress/${profileCompletionCards.length})",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimaryFixedVariant,
-              ),
-            )
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            ...List.generate(profileCompletedProgress, (index) {
-              return Expanded(
-                child: Container(
-                  height: 7,
-                  margin: EdgeInsets.only(right: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                ),
-              );
-            }),
-            ...List.generate(profileCompletionCards.length - profileCompletedProgress, (index) {
-              return Expanded(
-                child: Container(
-                  height: 7,
-                  margin: EdgeInsets.only(right: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Theme.of(context).colorScheme.surfaceDim,
-                  ),
-                ),
-              );
-            }),
-          ],
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 180,
-          child: ListView.separated(
-            physics: const BouncingScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) {
-              final card = profileCompletionCards[index];
-              return SizedBox(
-                width: 160,
-                child: Card(
-                  shadowColor: Theme.of(context).colorScheme.surface,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        Icon(
-                          card.icon,
-                          size: 30,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          card.title,
-                          textAlign: TextAlign.center,
-                        ),
-                        const Spacer(),
-                        card.completed
-                            ? Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 10),
-                                child: Icon(
-                                  Icons.check_circle,
-                                  color: Theme.of(context).colorScheme.inversePrimary,
-                                ),
-                              )
-                            : card.button,
-                            
-                      ],
+              )
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              ...List.generate(profileCompletedProgress, (index) {
+                return Expanded(
+                  child: Container(
+                    height: 7,
+                    margin: EdgeInsets.only(right: 6),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Theme.of(context).colorScheme.inversePrimary,
                     ),
                   ),
-                ),
-              );
-            },
-            separatorBuilder: (context, index) =>
-                const Padding(padding: EdgeInsets.only(right: 5)),
-            itemCount: profileCompletionCards.length,
+                );
+              }),
+              ...List.generate(
+                  profileCompletionCards.length - profileCompletedProgress,
+                  (index) {
+                return Expanded(
+                  child: Container(
+                    height: 7,
+                    margin: EdgeInsets.only(right: 6),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Theme.of(context).colorScheme.surfaceDim,
+                    ),
+                  ),
+                );
+              }),
+            ],
           ),
-        ),
-        const SizedBox(height: 35),
-      ],
-    );
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 180,
+            child: ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                final card = profileCompletionCards[index];
+                return SizedBox(
+                  width: 160,
+                  child: Card(
+                    shadowColor: Theme.of(context).colorScheme.surface,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Icon(
+                            card.icon,
+                            size: 30,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            card.title,
+                            textAlign: TextAlign.center,
+                          ),
+                          const Spacer(),
+                          card.completed
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 10),
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .inversePrimary,
+                                  ),
+                                )
+                              : card.button,
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) =>
+                  const Padding(padding: EdgeInsets.only(right: 5)),
+              itemCount: profileCompletionCards.length,
+            ),
+          ),
+          const SizedBox(height: 35),
+        ],
+      );
+    });
   }
 }
 
@@ -520,7 +594,6 @@ class ProfileCompletionCard {
     required this.icon,
   });
 }
-
 
 class CustomListTile {
   final IconData icon;

@@ -18,8 +18,7 @@ class AuthService {
     var response = await ApiService.get<dynamic>(
       endpoint: "/users/me",
     );
-    print(response);
-
+    print("Fetcheando user en fetchUserData");
     return UserData.fromJson(response);
   }
 
