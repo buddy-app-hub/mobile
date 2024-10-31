@@ -13,7 +13,6 @@ class UserData {
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) {
-    print(json);
     if (json['userType'] == 'buddy') {
       return UserData(buddy: Buddy.fromJson(json));
     } else if (json['userType'] == 'elder') {

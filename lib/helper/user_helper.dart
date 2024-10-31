@@ -1,3 +1,4 @@
+import 'package:mobile/models/address.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/review.dart';
@@ -8,7 +9,6 @@ import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/services/files_service.dart';
 
 class UserHelper {
-
   BuddyService buddyService = BuddyService();
   ElderService elderService = ElderService();
   FilesService _filesService = FilesService();
@@ -16,9 +16,11 @@ class UserHelper {
   Future<List<Connection>> fetchConnections(UserData userData) async {
     List<Connection> connections;
     if (userData.buddy != null) {
-      connections = await buddyService.getConnections(userData.buddy!.firebaseUID);
+      connections =
+          await buddyService.getConnections(userData.buddy!.firebaseUID);
     } else {
-      connections = await elderService.getConnections(userData.elder!.firebaseUID);
+      connections =
+          await elderService.getConnections(userData.elder!.firebaseUID);
     }
 
     return connections;
@@ -35,12 +37,13 @@ class UserHelper {
     DateTime now = DateTime.now();
     DateTime weekFromNow = now.add(Duration(days: 6));
 
-    List<Meeting> meeting = connections.expand((connection) => connection.meetings)
-      .where((meeting) {
-        final meetingDate = meeting.schedule.date;
-        return meetingDate.isAfter(now.subtract(Duration(days: 1))) && meetingDate.isBefore(weekFromNow);
-      })
-      .toList();
+    List<Meeting> meeting = connections
+        .expand((connection) => connection.meetings)
+        .where((meeting) {
+      final meetingDate = meeting.schedule.date;
+      return meetingDate.isAfter(now.subtract(Duration(days: 1))) &&
+          meetingDate.isBefore(weekFromNow);
+    }).toList();
 
     return meeting;
   }
@@ -60,21 +63,20 @@ class UserHelper {
           else if (!isBuddy && meeting.buddyReviewForElder != null)
             meeting: meeting.buddyReviewForElder!
     };
-    
-    return Map.fromEntries(
-      reviews.entries.toList()
-        ..sort((a, b) => b.value.rating.compareTo(a.value.rating))
-    );
+
+    return Map.fromEntries(reviews.entries.toList()
+      ..sort((a, b) => b.value.rating.compareTo(a.value.rating)));
   }
 
   Future<Object> fetchPersonProfile(String personID, bool isBuddy) async {
     Object? personalProfile = isBuddy
-      ? (await elderService.getElder(personID)).elderProfile
-      : (await buddyService.getBuddy(personID)).buddyProfile;
+        ? (await elderService.getElder(personID)).elderProfile
+        : (await buddyService.getBuddy(personID)).buddyProfile;
     return personalProfile!;
   }
 
-  Future<(String, String)> fetchPersonFullName(Connection connection, bool isBuddy) async {
+  Future<(String, String)> fetchPersonFullName(
+      Connection connection, bool isBuddy) async {
     String personID;
     if (isBuddy) {
       personID = connection.elderID;
@@ -82,12 +84,13 @@ class UserHelper {
       personID = connection.buddyID;
     }
     var personalData = isBuddy
-      ? (await elderService.getElder(personID)).personalData
-      : (await buddyService.getBuddy(personID)).personalData;
+        ? (await elderService.getElder(personID)).personalData
+        : (await buddyService.getBuddy(personID)).personalData;
     return (personID, '${personalData.firstName} ${personalData.lastName}');
   }
 
-  Future<(String, String)> fetchPersonIDAndName(Connection connection, bool isBuddy) async {
+  Future<(String, String)> fetchPersonIDAndName(
+      Connection connection, bool isBuddy) async {
     String personID;
     if (isBuddy) {
       personID = connection.elderID;
@@ -95,104 +98,123 @@ class UserHelper {
       personID = connection.buddyID;
     }
     var personalData = isBuddy
-      ? (await elderService.getElder(personID)).personalData
-      : (await buddyService.getBuddy(personID)).personalData;
+        ? (await elderService.getElder(personID)).personalData
+        : (await buddyService.getBuddy(personID)).personalData;
     return (personID, personalData.firstName);
   }
 
   Future<String> fetchProfileFullName(String personID, bool isBuddy) async {
     var personalData = isBuddy
-      ? (await elderService.getElder(personID)).personalData
-      : (await buddyService.getBuddy(personID)).personalData;
+        ? (await elderService.getElder(personID)).personalData
+        : (await buddyService.getBuddy(personID)).personalData;
     return '${personalData.firstName} ${personalData.lastName}';
   }
 
-  Future<List<custom_time.TimeOfDay>?> fetchProfileAvailability(String personID, bool isBuddy) async {
+  Future<List<custom_time.TimeOfDay>?> fetchProfileAvailability(
+      String personID, bool isBuddy) async {
     var personalData = isBuddy
-      ? (await elderService.getElder(personID)).elderProfile?.availability
-      : (await buddyService.getBuddy(personID)).buddyProfile?.availability;
+        ? (await elderService.getElder(personID)).elderProfile?.availability
+        : (await buddyService.getBuddy(personID)).buddyProfile?.availability;
     return personalData;
   }
 
-  Future<List<custom_time.TimeOfDay>?> fetchProfileMeetings(String personID, bool isBuddy) async {
+  Future<List<custom_time.TimeOfDay>?> fetchProfileMeetings(
+      String personID, bool isBuddy) async {
     var personalData = isBuddy
-      ? (await elderService.getElder(personID)).elderProfile?.availability
-      : (await buddyService.getBuddy(personID)).buddyProfile?.availability;
+        ? (await elderService.getElder(personID)).elderProfile?.availability
+        : (await buddyService.getBuddy(personID)).buddyProfile?.availability;
     return personalData;
   }
 
   Future<String> fetchSenderName(String senderID, UserData userData) async {
     var userID = userData.buddy != null
-      ? userData.buddy?.firebaseUID
-      : userData.elder?.firebaseUID;
+        ? userData.buddy?.firebaseUID
+        : userData.elder?.firebaseUID;
     if (userID == senderID) {
       var personalData = userData.buddy != null
-      ? userData.buddy?.personalData
-      : userData.elder?.personalData;
+          ? userData.buddy?.personalData
+          : userData.elder?.personalData;
       return personalData!.firstName;
     } else {
       var personalData = userData.buddy != null
-      ? (await elderService.getElder(senderID)).personalData
-      : (await buddyService.getBuddy(senderID)).personalData;
+          ? (await elderService.getElder(senderID)).personalData
+          : (await buddyService.getBuddy(senderID)).personalData;
       return personalData.firstName;
     }
   }
 
   bool isUserSender(String senderID, UserData userData) {
     var userID = userData.buddy != null
-      ? userData.buddy?.firebaseUID
-      : userData.elder?.firebaseUID;
+        ? userData.buddy?.firebaseUID
+        : userData.elder?.firebaseUID;
 
     return userID == senderID;
   }
 
   Future<String> loadProfileImage(String personID) async {
-    String? imageUrl =
-        await _filesService.getProfileImageUrl(personID);
+    String? imageUrl = await _filesService.getProfileImageUrl(personID);
     if (imageUrl == null) {
       return '';
     } else {
-      return imageUrl; 
+      return imageUrl;
     }
   }
 
   bool isUserIdentityVerified(UserData userData) {
-    var isIdentityValidated = userData.buddy != null
-      ? userData.buddy?.isIdentityValidated
-      : true;
+    var isIdentityValidated =
+        userData.buddy != null ? userData.buddy!.isIdentityValidated : true;
 
-    return isIdentityValidated!;
+    return isIdentityValidated;
   }
 
   bool isUserBiographyCompleted(UserData userData) {
     var userBiography = userData.buddy != null
-      ? userData.buddy?.buddyProfile!.description
-      : userData.elder?.elderProfile!.description;
+        ? userData.buddy?.buddyProfile!.description
+        : userData.elder?.elderProfile!.description;
 
     return userBiography != null;
   }
 
+  bool isUserAddressCompleted(UserData userData) {
+    var userAddress = userData.buddy != null
+        ? userData.buddy?.personalData.address
+        : userData.elder?.personalData.address;
+
+    return isAddressCompleted(userAddress);
+  }
+
   bool isUserPhotoAlbumCompleted(UserData userData) {
     var photoAlbum = userData.buddy != null
-      ? userData.buddy?.buddyProfile!.photos
-      : userData.elder?.elderProfile!.photos;
+        ? userData.buddy?.buddyProfile!.photos
+        : userData.elder?.elderProfile!.photos;
 
     return photoAlbum != null && photoAlbum.isNotEmpty;
   }
 
   bool isIntroVideoUploaded(UserData userData) {
     var introVideo = userData.buddy != null
-      ? userData.buddy!.isApplicationToBeBuddyUnderReview
-      : true;
+        ? userData.buddy!.isApplicationToBeBuddyUnderReview
+        : true;
 
     return introVideo;
   }
 
   bool isUserBuddyApplicationCompleted(UserData userData) {
-    var applicationCompleted = userData.buddy != null
-      ? userData.buddy!.isApprovedBuddy
-      : true;
+    var applicationCompleted =
+        userData.buddy != null ? userData.buddy!.isApprovedBuddy : true;
 
     return applicationCompleted;
+  }
+
+  bool isAddressCompleted(Address? address) {
+    return address != null &&
+        address.streetName != null &&
+        address.streetName != "" &&
+        address.streetNumber != null &&
+        address.streetNumber != 0 &&
+        address.postalCode != null &&
+        address.postalCode != "" &&
+        address.city != null &&
+        address.city != "";
   }
 }
