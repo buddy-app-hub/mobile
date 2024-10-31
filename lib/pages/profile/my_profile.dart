@@ -24,6 +24,8 @@ class MyProfilePage extends StatefulWidget {
 }
 
 class _MyProfilePageState extends State<MyProfilePage> {
+  bool isLoading = true;
+
   late AuthSessionProvider authProvider;
   String? _profileImageUrl;
   final FilesService _filesService = FilesService();
@@ -51,6 +53,15 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
     authProvider.addListener(
         _onAuthProviderChange); // Escuchamos los cambios que hayan el el user
+
+    Future.wait([
+      _loadUserIdentity(),
+      _loadProfileImage(),
+    ]).then((_) {
+      setState(() {
+        isLoading = false;
+      });
+    });
   }
 
   void _onAuthProviderChange() {
@@ -322,7 +333,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
           )
         ],
       ),
-      body: ListView(
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(), // Muestra el indicador de carga centrado
+            ) : ListView(
         padding: const EdgeInsets.all(20),
         children: [
           Column(
