@@ -192,11 +192,9 @@ class UserHelper {
   }
 
   bool isIntroVideoUploaded(UserData userData) {
-    var introVideo = userData.buddy != null
-        ? userData.buddy!.isApplicationToBeBuddyUnderReview
-        : true;
+    // TODO: ver si cargo el video
 
-    return introVideo;
+    return true;
   }
 
   bool isUserBuddyApplicationCompleted(UserData userData) {

@@ -133,7 +133,8 @@ class BuddyService {
     return connections;
   }
 
-  Future<List<RecommendedBuddy>> getRecommendedBuddies(UserData userData) async {
+  Future<List<RecommendedBuddy>> getRecommendedBuddies(
+      UserData userData) async {
     var response = await ApiService.get<dynamic>(
       endpoint: "/elders/${userData.elder?.firebaseUID}/buddies/recommended",
     );
@@ -145,7 +146,8 @@ class BuddyService {
     return recommendedBuddies;
   }
 
-  void updateBuddyPersonalData(BuildContext context, PersonalData personalData) async {
+  void updateBuddyPersonalData(
+      BuildContext context, PersonalData personalData) async {
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
 
@@ -160,6 +162,22 @@ class BuddyService {
     } catch (e) {
       print("Error al actualizar la personal data: $e");
     }
-  
+  }
+
+  Future<void> sendBuddyApplication(BuildContext context) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+print("acaa");
+    try {
+      await ApiService.post(
+        endpoint: "/buddies/${authProvider.user!.uid}/send-approval",
+        body: {},
+      );
+      print("Buddy Application sent and is now under review");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al enviar buddy application: $e");
+    }
   }
 }

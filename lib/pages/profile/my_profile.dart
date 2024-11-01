@@ -12,6 +12,7 @@ import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
 import 'package:mobile/pages/profile/settings/edit_address.dart';
 import 'package:mobile/pages/wallet/wallet.dart';
 import 'package:mobile/pages/profile/edit_profile/settings.dart';
+import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -27,8 +28,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
   bool isLoading = true;
 
   late AuthSessionProvider authProvider;
-  String? _profileImageUrl;
   final FilesService _filesService = FilesService();
+  BuddyService buddyService = BuddyService();
   final EditProfileImageBottomSheet _bottomSheet =
       EditProfileImageBottomSheet();
   final List<ProfileCompletionCard> profileCompletionCards = [];
@@ -41,23 +42,24 @@ class _MyProfilePageState extends State<MyProfilePage> {
   bool isPhotoAlbumCompleted = false;
   bool isIntroVideoUploaded = false;
   bool isBuddyApplicationCompleted = false;
+  String? _profileImageUrl;
+
+  bool isBuddyProfileComplete = false;
 
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
-    _loadUserIdentity();
-    _loadProfileImage();
-    _updateProfileState();
-    _loadProfileCompletion();
 
     authProvider.addListener(
-        _onAuthProviderChange); // Escuchamos los cambios que hayan el el user
+        _onAuthProviderChange); // Escuchamos los cambios que hayan en el user
 
     Future.wait([
       _loadUserIdentity(),
       _loadProfileImage(),
     ]).then((_) {
+      _updateProfileState();
+      _loadProfileCompletion();
       setState(() {
         isLoading = false;
       });
@@ -92,6 +94,14 @@ class _MyProfilePageState extends State<MyProfilePage> {
           userHelper.isIntroVideoUploaded(authProvider.userData!);
       isBuddyApplicationCompleted =
           userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
+
+      isBuddyProfileComplete = isIdentityVerified &&
+          isBiographyCompleted &&
+          isAddressCompleted &&
+          isPhotoAlbumCompleted &&
+          isIntroVideoUploaded &&
+          _profileImageUrl != null &&
+          _profileImageUrl != "";
     });
   }
 
@@ -256,18 +266,35 @@ class _MyProfilePageState extends State<MyProfilePage> {
             )));
       }
       if (isBuddy) {
+        bool isUnderReview =
+            authProvider.userData!.buddy!.isApplicationToBeBuddyUnderReview;
         profileCompletionCards.add(ProfileCompletionCard(
             title: "Aplicá para ser Buddy",
             completed: isBuddyApplicationCompleted,
             icon: Icons.arrow_upward_rounded,
             button: ElevatedButton(
-              onPressed: () {},
+              onPressed: isBuddyProfileComplete &&
+                      !isBuddyApplicationCompleted &&
+                      !isUnderReview // Si el perfil esta completo y todavia no fue aprobado como Buddy, puede submittear la aplicacion
+                  ? () async {
+                      await buddyService.sendBuddyApplication(context);
+                      showBuddyApplicationDialog(context);
+                    }
+                  : null,
               style: ElevatedButton.styleFrom(
+                disabledBackgroundColor: Colors.transparent,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
               ),
-              child: Text("Enviar"),
+              child: Text(
+                isUnderReview
+                    ? "Estamos revisando tu perfil"
+                    : (isBuddyProfileComplete && !isBuddyApplicationCompleted
+                        ? "Postularme"
+                        : "Completá tu perfil antes"),
+                textAlign: TextAlign.center,
+              ),
             )));
       }
     }
@@ -280,9 +307,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
       profileCompletedProgress =
           profileCompletionCards.where((p) => p.completed).length;
     });
-
-    print(profileCompletedProgress);
-    print(profileCompletionCards);
   }
 
   @override
@@ -335,112 +359,145 @@ class _MyProfilePageState extends State<MyProfilePage> {
       ),
       body: isLoading
           ? Center(
-              child: CircularProgressIndicator(), // Muestra el indicador de carga centrado
-            ) : ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Column(
-            children: [
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _profileImageUrl != null
-                        ? CachedNetworkImageProvider(
-                            _profileImageUrl!,
-                          )
-                        : AssetImage('assets/images/default_user.jpg')
-                            as ImageProvider,
-                  ),
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: InkWell(
-                      onTap: () {
-                        _bottomSheet.show(context, _loadProfileImage);
-                      },
-                      child: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.edit, color: theme.iconTheme.color),
+              child:
+                  CircularProgressIndicator(), // Muestra el indicador de carga centrado
+            )
+          : ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Column(
+                  children: [
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 60,
+                          backgroundImage: _profileImageUrl != null
+                              ? CachedNetworkImageProvider(
+                                  _profileImageUrl!,
+                                )
+                              : AssetImage('assets/images/default_user.jpg')
+                                  as ImageProvider,
+                        ),
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: InkWell(
+                            onTap: () {
+                              _bottomSheet.show(context, _loadProfileImage);
+                            },
+                            child: CircleAvatar(
+                              radius: 16,
+                              backgroundColor: Colors.white,
+                              child: Icon(Icons.edit,
+                                  color: theme.iconTheme.color),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      '${authProvider.personalData.firstName} ${authProvider.personalData.lastName}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Text(
-                '${authProvider.personalData.firstName} ${authProvider.personalData.lastName}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        authProvider.isBuddy
+                            ? buildBuddyChip(
+                                context,
+                                theme,
+                                isBuddyApplicationCompleted,
+                                authProvider.userData!.buddy!
+                                    .isApplicationToBeBuddyUnderReview)
+                            : buildElderChip(context, theme),
+                        SizedBox(width: 10),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_month,
+                              color: theme.iconTheme.color,
+                              size: 16,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              registrationDate,
+                              style: TextStyle(
+                                color: theme.textTheme.bodyLarge?.color,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  authProvider.isBuddy
-                      ? buildBuddyChip(context, theme)
-                      : buildElderChip(context, theme),
-                  SizedBox(width: 10),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.calendar_month,
-                        color: theme.iconTheme.color,
-                        size: 16,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        registrationDate,
-                        style: TextStyle(
-                          color: theme.textTheme.bodyLarge?.color,
-                          fontWeight: FontWeight.bold,
+                const SizedBox(height: 25),
+                QuickProfileSummary(),
+                const SizedBox(height: 25),
+                if (profileCompletedProgress != profileCompletionCards.length)
+                  _showCompletionCards(),
+                ...List.generate(
+                  settingsToShow.length,
+                  (index) {
+                    final tile = settingsToShow[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: Card(
+                        elevation: 4,
+                        shadowColor: Colors.black12,
+                        child: ListTile(
+                          leading: Icon(tile.icon),
+                          title: Text(tile.title),
+                          onTap: () => _handleTileTap(context, tile.title),
+                          trailing: const Icon(Icons.chevron_right),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              )
-            ],
-          ),
-          const SizedBox(height: 25),
-          QuickProfileSummary(),
-          const SizedBox(height: 25),
-          if (profileCompletedProgress != profileCompletionCards.length)
-            _showCompletionCards(),
-          ...List.generate(
-            settingsToShow.length,
-            (index) {
-              final tile = settingsToShow[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 5),
-                child: Card(
-                  elevation: 4,
-                  shadowColor: Colors.black12,
-                  child: ListTile(
-                    leading: Icon(tile.icon),
-                    title: Text(tile.title),
-                    onTap: () => _handleTileTap(context, tile.title),
-                    trailing: const Icon(Icons.chevron_right),
-                  ),
-                ),
-              );
-            },
-          )
-        ],
-      ),
+                    );
+                  },
+                )
+              ],
+            ),
     );
   }
 
-  Widget buildBuddyChip(BuildContext context, ThemeData theme) => Chip(
-        label: Text(
-          'Buddy',
-          style: TextStyle(
-            color: theme.colorScheme.onTertiary,
-            fontWeight: FontWeight.bold,
-          ),
+  Widget buildBuddyChip(BuildContext context, ThemeData theme,
+          bool isBuddyApproved, bool isUnderReview) =>
+      Chip(
+        label: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Buddy',
+              style: TextStyle(
+                color: theme.colorScheme.onTertiary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(width: 4),
+            isBuddyApproved
+                ? Icon(
+                    Icons.check_circle,
+                    color: const Color.fromARGB(255, 100, 165, 219),
+                    size: 20,
+                  )
+                : isUnderReview
+                    ? Icon(
+                        Icons.pending,
+                        color: const Color.fromARGB(255, 201, 218, 92),
+                        size: 20,
+                      )
+                    : Icon(
+                        Icons.error_outline,
+                        color: const Color.fromARGB(255, 205, 124, 62),
+                        size: 20,
+                      ),
+          ],
         ),
         backgroundColor: theme.colorScheme.tertiary,
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
@@ -717,4 +774,38 @@ class QuickProfileSummary extends StatelessWidget {
           ],
         ),
       );
+}
+
+void showBuddyApplicationDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.all(20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Aplicaste para ser Buddy!\n\nEstamos considerando tu perfil. En menos de 48hs vas a tener una respuesta.\n\nGracias!',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              label: Text('Cerrar'),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

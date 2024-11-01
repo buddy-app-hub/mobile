@@ -46,8 +46,10 @@ class ApiService {
       final uri = Uri.parse('$BACKEND_URL$endpoint');
       final response = await http.post(uri, headers: headers, body: jsonEncode(body));
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201 ) {
         return jsonDecode(response.body);
+      } else if (response.statusCode == 204) {
+        return null;
       } else {
         print('Error POST: ${response.statusCode}');
         print('Response body: ${response.body}');

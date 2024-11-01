@@ -19,6 +19,7 @@ class AuthService {
       endpoint: "/users/me",
     );
     print("Fetcheando user en fetchUserData");
+    print(response);
     return UserData.fromJson(response);
   }
 
