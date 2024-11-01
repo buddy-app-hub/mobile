@@ -307,6 +307,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
       profileCompletedProgress =
           profileCompletionCards.where((p) => p.completed).length;
     });
+
+    print(profileCompletedProgress);
+    print(profileCompletionCards);
   }
 
   @override
