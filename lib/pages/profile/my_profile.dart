@@ -9,6 +9,7 @@ import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_photos.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
+import 'package:mobile/pages/profile/edit_profile/edit_video.dart';
 import 'package:mobile/pages/profile/settings/edit_address.dart';
 import 'package:mobile/pages/wallet/wallet.dart';
 import 'package:mobile/pages/profile/edit_profile/settings.dart';
@@ -535,11 +536,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
       case 'Fotos':
         targetPage = EditPhotosPage();
       case 'Video introductorio':
-        targetPage = MyProfilePage();
+        targetPage = EditVideoPage();
       case 'Intereses':
         targetPage = EditInterestsPage();
       case 'Datos de trabajo y/o estudio':
-        targetPage = MyProfilePage();
+        targetPage = null;
     }
 
     if (targetPage != null) {
