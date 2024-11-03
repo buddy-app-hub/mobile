@@ -179,20 +179,23 @@ class _EditVideoPageState extends State<EditVideoPage> {
                     SizedBox(height: 20),
                     if (_videoController != null &&
                         _videoController!.value.isInitialized)
-                      AspectRatio(
-                        aspectRatio: _videoController!.value.aspectRatio,
-                        child: Stack(
-                          alignment: Alignment.bottomRight,
-                          children: [
-                            VideoPlayer(_videoController!),
-                            IconButton(
-                              icon: Icon(_isMuted
-                                  ? Icons.volume_off
-                                  : Icons.volume_up),
-                              color: Colors.white,
-                              onPressed: _toggleMute,
-                            ),
-                          ],
+                      FractionallySizedBox(
+                        widthFactor: 0.7,
+                        child: AspectRatio(
+                          aspectRatio: _videoController!.value.aspectRatio,
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              VideoPlayer(_videoController!),
+                              IconButton(
+                                icon: Icon(_isMuted
+                                    ? Icons.volume_off
+                                    : Icons.volume_up),
+                                color: Colors.white,
+                                onPressed: _toggleMute,
+                              ),
+                            ],
+                          ),
                         ),
                       )
                     else if (_videoController != null)
