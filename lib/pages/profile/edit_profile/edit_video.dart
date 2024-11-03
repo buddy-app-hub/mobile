@@ -86,6 +86,12 @@ class _EditVideoPageState extends State<EditVideoPage> {
   }
 
   void _deleteVideo() {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+    final userId = authProvider.user?.uid ?? '';
+    if (videoUrl != null) {
+      filesService.deleteIntroVideo(userId);
+    }
     setState(() {
       _videoFile = null;
       videoUrl = null;

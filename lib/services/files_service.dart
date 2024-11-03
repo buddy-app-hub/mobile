@@ -110,6 +110,23 @@ class FilesService {
     }
   }
 
+  Future<void> deleteIntroVideo(String userId) async {
+    try {
+      final storageRef = _firebaseStorage
+          .ref()
+          .child('users/$userId/presentation/presentation.mp4');
+
+      await storageRef.delete();
+      print('Video introductorio eliminado correctamente.');
+    } catch (e) {
+      if (!e.toString().contains('object-not-found')) {
+        print('Error al eliminar el video introductorio: $e');
+      } else {
+        print('El video no existe en Firebase Storage.');
+      }
+    }
+  }
+
   Future<void> uploadUserPhotos({
     required String userId,
     required List<File?> images,
