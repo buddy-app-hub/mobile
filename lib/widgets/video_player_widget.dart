@@ -19,6 +19,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   VideoPlayerController? _videoController;
   bool isLoading = true;
   bool _isMuted = false;
+  bool _isPlaying = false;
 
   @override
   void initState() {
@@ -39,6 +40,17 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     });
   }
 
+  void _togglePlayPause() {
+    if (_isPlaying) {
+      _videoController?.pause();
+    } else {
+      _videoController?.play();
+    }
+    setState(() {
+      _isPlaying = !_isPlaying;
+    });
+  }
+
   Future<void> _loadVideo() async {
     final filesService = FilesService();
     final videoUrl = await filesService.getIntroVideo(widget.userId);
@@ -49,11 +61,19 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           setState(() {
             isLoading = false;
           });
-          _videoController?.play();
+          _videoController?.addListener(_onVideoEnded);
         });
     } else {
       setState(() {
         isLoading = false;
+      });
+    }
+  }
+
+  void _onVideoEnded() {
+    if (_videoController!.value.position == _videoController!.value.duration) {
+      setState(() {
+        _isPlaying = false;
       });
     }
   }
@@ -68,18 +88,30 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                 child: AspectRatio(
                   aspectRatio: _videoController!.value.aspectRatio,
                   child: Stack(
-                    alignment: Alignment.bottomRight,
+                    alignment: Alignment.center,
                     children: [
                       VideoPlayer(_videoController!),
-                      IconButton(
-                        icon:
-                            Icon(_isMuted ? Icons.volume_off : Icons.volume_up),
-                        color: Colors.white,
-                        onPressed: _toggleMute,
+                      if (!_isPlaying)
+                        IconButton(
+                          icon: Icon(Icons.play_arrow,
+                              size: 48, color: Colors.white),
+                          onPressed: _togglePlayPause,
+                        ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: Icon(
+                            _isMuted ? Icons.volume_off : Icons.volume_up,
+                            color: Colors.white,
+                          ),
+                          onPressed: _toggleMute,
+                        ),
                       ),
                     ],
                   ),
-                ))
+                ),
+              )
             : SizedBox.shrink();
   }
 }
