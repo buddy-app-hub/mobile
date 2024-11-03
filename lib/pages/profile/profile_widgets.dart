@@ -9,6 +9,7 @@ import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/pages/profile/review/view_reviews.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/widgets/base_decoration.dart';
+import 'package:mobile/widgets/video_player_widget.dart';
 
 class ProfileWidgets {
   static Widget buildProfileData(
@@ -76,6 +77,10 @@ class ProfileWidgets {
               isBuddy ? 'Sobre este buddy' : 'Sobre este adulto mayor',
               isBuddy),
           buildPersonalInformation(context, description),
+          SizedBox(
+            height: 20,
+          ),
+          if (isBuddy) VideoPlayerWidget(userId: personID),
           BaseDecoration.buildTitleProfile(context, 'Intereses', isBuddy),
           buildInterests(context, theme, interest, isBuddy),
           BaseDecoration.buildTitleProfile(
