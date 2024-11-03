@@ -2,11 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/services/files_service.dart';
+import 'package:mobile/theme/theme_text_style.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/pages/navigation.dart';
-import 'package:mobile/theme/theme_text_style.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
 class EditVideoPage extends StatefulWidget {
@@ -23,6 +22,7 @@ class _EditVideoPageState extends State<EditVideoPage> {
   final ImagePicker _picker = ImagePicker();
   String? videoUrl;
   bool isLoading = true;
+  bool isUploading = false;
   final FilesService filesService = FilesService();
 
   @override
@@ -47,15 +47,14 @@ class _EditVideoPageState extends State<EditVideoPage> {
       final MediaInfo? compressedVideo = await VideoCompress.compressVideo(
         videoFile.path,
         quality: VideoQuality.MediumQuality,
-        deleteOrigin: true, // Puedes eliminar el archivo original si quieres
+        deleteOrigin: true,
       );
 
       if (compressedVideo != null) {
         setState(() {
           _videoFile = File(compressedVideo.path!);
         });
-        _initializeVideoPlayer(
-            file: _videoFile); // Inicializamos el video convertido
+        _initializeVideoPlayer(file: _videoFile);
       } else {
         print("Error en la conversión de video.");
       }
@@ -112,11 +111,15 @@ class _EditVideoPageState extends State<EditVideoPage> {
   }
 
   Future<void> _saveVideo(File videoFile) async {
+    setState(() {
+      isUploading = true;
+    });
+
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
     final userId = authProvider.user?.uid ?? '';
 
-    filesService.uploadIntroVideo(
+    await filesService.uploadIntroVideo(
       userId: userId,
       videoFile: videoFile,
       onProgress: (progress) {
@@ -125,10 +128,13 @@ class _EditVideoPageState extends State<EditVideoPage> {
       onComplete: (downloadUrl) {
         setState(() {
           videoUrl = downloadUrl;
+          isUploading = false;
         });
-        print("Video subido y disponible en $downloadUrl");
       },
       onError: (errorMessage) {
+        setState(() {
+          isUploading = false;
+        });
         print("Error al subir video: $errorMessage");
       },
     );
@@ -142,20 +148,16 @@ class _EditVideoPageState extends State<EditVideoPage> {
           IconButton(
             icon: Icon(Icons.check),
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-            onPressed: () {
+            onPressed: () async {
               if (_videoFile != null) {
-                _saveVideo(_videoFile!);
+                await _saveVideo(_videoFile!);
               }
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-              );
+              Navigator.pop(context);
             },
           ),
         ],
       ),
-      body: isLoading
+      body: isLoading || isUploading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Padding(
@@ -192,6 +194,10 @@ class _EditVideoPageState extends State<EditVideoPage> {
                             ),
                           ],
                         ),
+                      )
+                    else if (_videoController != null)
+                      Center(
+                        child: CircularProgressIndicator(),
                       )
                     else
                       Center(
