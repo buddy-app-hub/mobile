@@ -67,7 +67,8 @@ class BaseConnectionCard extends StatelessWidget {
               builder: (context) => ViewProfilePage(
                   connection: connection,
                   personID: personID,
-                  isBuddy: isBuddy)),
+                  isBuddy:
+                      isBuddy)), // Si el usuario actual es buddy, las conexiones son elders, y viceversa
         );
       },
       child: Column(

@@ -13,7 +13,7 @@ import 'package:mobile/widgets/base_decoration.dart';
 class ViewProfilePage extends StatefulWidget {
   final Connection connection;
   final String personID;
-  final bool isBuddy;
+  final bool isBuddy; // Refiere al usuario actual
 
   const ViewProfilePage({required this.connection, required this.personID, required this.isBuddy});
 
@@ -122,7 +122,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
         body: Stack(
           children: [
             Center(
-              child: ProfileWidgets.buildProfileData(context, theme, _profileImageUrl, personName, globalRating, widget.isBuddy),
+              child: ProfileWidgets.buildProfileData(context, theme, _profileImageUrl, personName, globalRating, !widget.isBuddy),
             ),
             SingleChildScrollView(
               child: Container(
@@ -137,7 +137,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ProfileWidgets.buildProfileInfo(context, theme, widget.personID, widget.isBuddy, globalRating, description, interest, availability),
+                          ProfileWidgets.buildProfileInfo(context, theme, widget.personID, !widget.isBuddy, globalRating, description, interest, availability),
                         ],
                       ),
                     ),

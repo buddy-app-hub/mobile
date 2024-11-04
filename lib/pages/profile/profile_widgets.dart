@@ -13,12 +13,13 @@ import 'package:mobile/widgets/video_player_widget.dart';
 
 class ProfileWidgets {
   static Widget buildProfileData(
-      BuildContext context,
-      ThemeData theme,
-      String profileImageUrl,
-      String personName,
-      double globalRating,
-      bool isBuddy) {
+    BuildContext context,
+    ThemeData theme,
+    String profileImageUrl,
+    String personName,
+    double globalRating,
+    bool isBuddy, // Refiere no al usuario actual sino a la conexion
+  ) {
     return Column(
       children: [
         CircleAvatar(
@@ -63,7 +64,7 @@ class ProfileWidgets {
       BuildContext context,
       ThemeData theme,
       String personID,
-      bool isBuddy,
+      bool isBuddy, // Refiere no al usuario actual sino a la conexion
       double globalRating,
       String description,
       List<Interest> interest,
