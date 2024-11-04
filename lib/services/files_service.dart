@@ -52,10 +52,78 @@ class FilesService {
       String downloadUrl = await storageRef.getDownloadURL();
       return downloadUrl;
     } catch (e) {
-      if (! e.toString().contains('object-not-found')) {
+      if (!e.toString().contains('object-not-found')) {
         print('Error obteniendo URL de imagen de perfil: $e');
       }
       return null;
+    }
+  }
+
+  Future<String?> getIntroVideo(String userId) async {
+    try {
+      final storageRef = _firebaseStorage
+          .ref()
+          .child('users/$userId/presentation/presentation.mp4');
+      String downloadUrl = await storageRef.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      if (!e.toString().contains('object-not-found')) {
+        print('Error obteniendo URL del video introductorio: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<void> uploadIntroVideo({
+    required String userId,
+    required File videoFile,
+    required Function(double) onProgress,
+    required Function(String) onComplete,
+    required Function(String) onError,
+  }) async {
+    try {
+      final String fileExtension = path.extension(videoFile.path);
+      final String filePath =
+          'users/$userId/presentation/presentation$fileExtension';
+      print(filePath);
+
+      final storageRef = _firebaseStorage.ref().child(filePath);
+
+      final uploadTask = storageRef.putFile(
+        videoFile,
+        SettableMetadata(
+            contentType: 'video/${fileExtension.replaceAll('.', '')}'),
+      );
+
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+        onProgress(progress);
+      });
+
+      await uploadTask;
+
+      String downloadUrl = await storageRef.getDownloadURL();
+      onComplete(downloadUrl);
+    } catch (e) {
+      onError(e.toString());
+      print(e.toString());
+    }
+  }
+
+  Future<void> deleteIntroVideo(String userId) async {
+    try {
+      final storageRef = _firebaseStorage
+          .ref()
+          .child('users/$userId/presentation/presentation.mp4');
+
+      await storageRef.delete();
+      print('Video introductorio eliminado correctamente.');
+    } catch (e) {
+      if (!e.toString().contains('object-not-found')) {
+        print('Error al eliminar el video introductorio: $e');
+      } else {
+        print('El video no existe en Firebase Storage.');
+      }
     }
   }
 
@@ -63,12 +131,13 @@ class FilesService {
     required String userId,
     required List<File?> images,
     required BuildContext context,
-    List<int>? swapFromTo, 
+    List<int>? swapFromTo,
     required Function(int, double) onProgress,
     required Function onComplete,
     required Function(String) onError,
   }) async {
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
     final BuddyService buddyService = BuddyService();
     final ElderService elderService = ElderService();
 
@@ -81,7 +150,8 @@ class FilesService {
         if (images[i] != null) {
           // Valido que no haya una foto ya cargada en esa posicion
           if (photosArray.length - 1 >= i) {
-            throw Exception('Cannot upload a photo in the position of an existing one');
+            throw Exception(
+                'Cannot upload a photo in the position of an existing one');
           }
 
           final imageFile = images[i]!;
@@ -117,13 +187,12 @@ class FilesService {
         photosArray[swapFromTo[0]] = toPhoto;
       }
 
-    // Guardo el nuevo array de fotos en el backend
-    if (authProvider.isBuddy) {
-      buddyService.updateBuddyProfilePhotosArray(context, photosArray);
-    } else {
-      elderService.updateElderProfilePhotosArray(context, photosArray);
-    }
-      
+      // Guardo el nuevo array de fotos en el backend
+      if (authProvider.isBuddy) {
+        buddyService.updateBuddyProfilePhotosArray(context, photosArray);
+      } else {
+        elderService.updateElderProfilePhotosArray(context, photosArray);
+      }
     } catch (e) {
       onError(e.toString());
       print('Error al subir fotos de usuario: $e');
@@ -134,7 +203,7 @@ class FilesService {
     required String userId,
     required Map<String, File?> images,
     required BuildContext context,
-    List<int>? swapFromTo, 
+    List<int>? swapFromTo,
     required Function(String, double) onProgress,
     required Function onComplete,
     required Function(String) onError,
@@ -156,33 +225,35 @@ class FilesService {
 
           uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
             double progress = snapshot.bytesTransferred / snapshot.totalBytes;
-            onProgress(imageName, progress); // Use imageName for progress tracking
+            onProgress(
+                imageName, progress); // Use imageName for progress tracking
           });
 
           await uploadTask;
         }
       }
       onComplete();
-
     } catch (e) {
       onError(e.toString());
       print('Error al subir fotos de usuario: $e');
     }
   }
-  
-  Future<Map<String, String?>> getCurrentUserDocuments(BuildContext context) async {
-    Map<String, String?> photoUrls =  {
-      'front_id' : null,
-      'back_id' : null,
-      'selfie' : null,
+
+  Future<Map<String, String?>> getCurrentUserDocuments(
+      BuildContext context) async {
+    Map<String, String?> photoUrls = {
+      'front_id': null,
+      'back_id': null,
+      'selfie': null,
     };
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
 
     try {
       final storageRef = await _firebaseStorage
-        .ref()
-        .child('users/${authProvider.user!.uid}/identity')
-        .listAll();
+          .ref()
+          .child('users/${authProvider.user!.uid}/identity')
+          .listAll();
 
       for (var item in storageRef.items) {
         String downloadUrl = await item.getDownloadURL();
@@ -195,10 +266,10 @@ class FilesService {
           photoUrls['selfie'] = downloadUrl;
         }
       }
-
     } catch (e) {
       if (e is FirebaseException && e.code != 'object-not-found') {
-        print('Error obteniendo fotos del documento para el usuario ${authProvider.user!.uid}: $e');
+        print(
+            'Error obteniendo fotos del documento para el usuario ${authProvider.user!.uid}: $e');
       }
     }
     return photoUrls;
@@ -206,15 +277,18 @@ class FilesService {
 
   Future<List<String?>> getCurrentUserPhotos(BuildContext context) async {
     List<String?> photoUrls = List.filled(6, null);
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
     List<String>? photos = authProvider.isBuddy
         ? authProvider.userData!.buddy!.buddyProfile!.photos
         : authProvider.userData!.elder!.elderProfile!.photos;
 
     int i = 0;
     try {
-      final storageRef =
-          await _firebaseStorage.ref().child('users/${authProvider.user!.uid}/photos').listAll();
+      final storageRef = await _firebaseStorage
+          .ref()
+          .child('users/${authProvider.user!.uid}/photos')
+          .listAll();
       for (var item in storageRef.items) {
         String downloadUrl = await item.getDownloadURL();
         // Me fijo en que posicion debe estar la foto e inserto la url en esta
@@ -224,21 +298,24 @@ class FilesService {
       }
     } catch (e) {
       if (e is FirebaseException && e.code != 'object-not-found') {
-        print('Error obteniendo fotos para el usuario ${authProvider.user!.uid}: $e');
+        print(
+            'Error obteniendo fotos para el usuario ${authProvider.user!.uid}: $e');
       }
     }
 
     if (i != photos!.length) {
-      print('IMPORTANTE: la cantidad de fotos en storage es $i pero en la base son ${photos.length}. Revisar users/${authProvider.user!.uid}/photos');
+      print(
+          'IMPORTANTE: la cantidad de fotos en storage es $i pero en la base son ${photos.length}. Revisar users/${authProvider.user!.uid}/photos');
     }
 
     return photoUrls;
   }
 
-  Future<List<String?>> getUserPhotos(String id, bool isBuddy, BuildContext context) async {
+  Future<List<String?>> getUserPhotos(
+      String id, bool isBuddy, BuildContext context) async {
     List<String?> photoUrls = List.filled(6, null);
     List<String>? photos;
-    if (isBuddy){
+    if (isBuddy) {
       BuddyService buddyService = BuddyService();
       photos = (await buddyService.getBuddy(id)).buddyProfile!.photos;
     } else {
@@ -264,7 +341,8 @@ class FilesService {
     }
 
     if (i != photos!.length) {
-      print('IMPORTANTE: la cantidad de fotos en storage es $i pero en la base son ${photos.length}. Revisar users/$id/photos');
+      print(
+          'IMPORTANTE: la cantidad de fotos en storage es $i pero en la base son ${photos.length}. Revisar users/$id/photos');
     }
 
     return photoUrls.where((url) => url != null).toList();
@@ -272,10 +350,11 @@ class FilesService {
 
   Future<void> deletePhoto(
       String userId, BuildContext context, int indexPhotoToDelete) async {
-    final authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
     final BuddyService buddyService = BuddyService();
     final ElderService elderService = ElderService();
-    
+
     List<String>? photos = authProvider.isBuddy
         ? authProvider.userData!.buddy!.buddyProfile!.photos
         : authProvider.userData!.elder!.elderProfile!.photos;
