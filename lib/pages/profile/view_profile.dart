@@ -10,6 +10,7 @@ import 'package:mobile/pages/profile/profile_widgets.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/services/files_service.dart';
+import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
 
@@ -31,6 +32,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
   final FilesService _filesService = FilesService();
   double globalRating = 0;
   String location = 'Argentina';
+  int age = 0;
   String description = '';
   List<Interest> interest = List.empty();
   List<custom_time.TimeOfDay> availability = List.empty();
@@ -90,6 +92,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
       final profile = await elderService.getElder(widget.personID);
       if (profile != null) {
         setState(() {
+          age = profile.personalData.birthDate != null ? calculateAge(profile.personalData.birthDate!) : 0;
           location = profile.personalData.address!.city;
           description = profile.elderProfile!.description!;
           interest = profile.elderProfile!.interests!;
@@ -118,7 +121,9 @@ class _ViewProfileState extends State<ViewProfilePage> {
   @override 
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-      
+    
+    final profileName = age == 0 ? personName : '$personName, $age';
+
     return
     SafeArea(
       top: false,
@@ -192,7 +197,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
                         children: [
                           Padding(
                             padding: EdgeInsets.fromLTRB(0, 16, 0, 5),
-                            child: ProfileWidgets.buildProfileData(context, theme, personName, globalRating.toString(), xpHours, location, !widget.isBuddy),
+                            child: ProfileWidgets.buildProfileData(context, theme, profileName, globalRating.toString(), xpHours, location, !widget.isBuddy),
                           ), //isBuddy es el de la persona, tengo que mandar el de la conexion
                           ProfileWidgets.buildProfileInfo(context, theme, widget.personID, false, !widget.isBuddy, globalRating, description, interest, availability), //isBuddy es el de la persona, tengo que mandar el de la conexion
                         ],

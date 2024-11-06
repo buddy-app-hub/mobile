@@ -9,6 +9,7 @@ import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/connection_service.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
+import 'package:mobile/utils/format_date.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -284,16 +285,4 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
       ),
     );
   }
-}
-
-int calculateAge(DateTime birthDate) {
-  DateTime today = DateTime.now();
-  int age = today.year - birthDate.year;
-
-  if (today.month < birthDate.month ||
-      (today.month == birthDate.month && today.day < birthDate.day)) {
-    age--;
-  }
-
-  return age;
 }

@@ -85,7 +85,7 @@ class UserHelper {
         .expand((connection) => connection.meetings)
         .where((meeting) {
       final meetingDate = meeting.schedule.date;
-      return now.isAfter(meetingDate) && !meeting.isCancelled;
+      return now.isAfter(meetingDate) && !meeting.isCancelled && meeting.isConfirmedByBuddy && meeting.isConfirmedByElder;
     }).toList();
 
     int totalHours = pastMeetings
@@ -94,6 +94,38 @@ class UserHelper {
 
     return totalHours;
   }
+
+  Future<int> fetchTotalMeetings(String id, bool isBuddy) async {
+    List<Connection> connections;
+    if (isBuddy) {
+      connections = await buddyService.getConnections(id);
+    } else {
+      connections = await elderService.getConnections(id);
+    }
+
+    DateTime now = DateTime.now();
+
+    List<Meeting> pastMeetings = connections
+        .expand((connection) => connection.meetings)
+        .where((meeting) {
+      final meetingDate = meeting.schedule.date;
+      return now.isAfter(meetingDate) && !meeting.isCancelled && meeting.isConfirmedByBuddy && meeting.isConfirmedByElder;
+    }).toList();
+
+    return pastMeetings.length;
+  }
+
+  Future<int> fetchTotalConnections(String id, bool isBuddy) async {
+    List<Connection> connections;
+    if (isBuddy) {
+      connections = await buddyService.getConnections(id);
+    } else {
+      connections = await elderService.getConnections(id);
+    }
+
+    return connections.length;
+  }
+
 
   Future<Object> fetchPersonProfile(String personID, bool isBuddy) async {
     Object? personalProfile = isBuddy
