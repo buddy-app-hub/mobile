@@ -158,7 +158,7 @@ class _EditVideoPageState extends State<EditVideoPage> {
               if (_videoFile != null) {
                 await _saveVideo(_videoFile!);
               }
-              Navigator.pop(context);
+              Navigator.pop(context, true);
             },
           ),
         ],
