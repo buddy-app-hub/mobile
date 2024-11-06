@@ -17,7 +17,7 @@ class EditAvailabilityPage extends StatefulWidget {
 
 class _EditAvailabilityPageState extends State<EditAvailabilityPage> {
   final List<String> days = [
-    'Seleccionar un dia', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'
+    'Seleccionar un dia', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
   ]; // fix cuando lo traiga de la base de datos ponga el acento bien
   late String selectedDay;
   final List<custom_time.TimeOfDay> _availabilities = [];

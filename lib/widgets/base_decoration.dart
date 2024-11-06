@@ -65,14 +65,14 @@ class BaseDecoration {
     );
   }
 
-  static Container buildTitleProfile(BuildContext context, String title, bool isBuddy) {
+  static Container buildTitleProfile(BuildContext context, String title, bool newBuddy, bool isBuddy) {
     return Container(
       margin: EdgeInsets.fromLTRB(28, 30, 5, 20),
       child: Align(
         alignment: Alignment.topLeft,
         child: Text(
           title,
-          style: isBuddy ? ThemeTextStyle.titleLargePrimary700(context) : ThemeTextStyle.titleLargeTertiary700(context),
+          style: newBuddy ? ThemeTextStyle.titleLargePrimary700(context) : isBuddy ? ThemeTextStyle.titleLargeTertiary700(context) : ThemeTextStyle.titleLargePrimary700(context),
         ),
       ),
     );
@@ -94,14 +94,14 @@ class BaseDecoration {
     );
   }
 
-  static Widget buildInterestTag(BuildContext context, Interest interest, bool isBuddy, ThemeData theme) {
+  static Widget buildInterestTag(BuildContext context, Interest interest, bool newBuddy, bool isBuddy, ThemeData theme) {
     final emoji = getEmojiInterest(interest.name);
     return Container(
       margin: EdgeInsets.fromLTRB(0, 0, 4.5, 0),
       decoration: BoxDecoration(
-        border: Border.all(color: isBuddy ? theme.colorScheme.primary : theme.colorScheme.tertiary),
+        border: Border.all(color: newBuddy ? theme.colorScheme.primary : isBuddy ? theme.colorScheme.tertiary : theme.colorScheme.primary),
         borderRadius: BorderRadius.circular(32),
-        color: isBuddy ? theme.colorScheme.primary.withOpacity(0.05) : theme.colorScheme.tertiary.withOpacity(0.05),
+        color: newBuddy ? theme.colorScheme.primary.withOpacity(0.05)  : isBuddy ? theme.colorScheme.tertiary.withOpacity(0.05) : theme.colorScheme.primary.withOpacity(0.05),
       ),
       padding: EdgeInsets.fromLTRB(11, 7, 11.3, 7),
       child: Text(
@@ -111,15 +111,15 @@ class BaseDecoration {
     );
   }
 
-  static Widget buildAvailabilityTag(BuildContext context, custom_time.TimeOfDay availability, bool isBuddy, ThemeData theme) {
+  static Widget buildAvailabilityTag(BuildContext context, custom_time.TimeOfDay availability, bool newBuddy, bool isBuddy, ThemeData theme) {
     String startHour = intToTime(availability.from);
     String endHour = intToTime(availability.to);
     return Container(
       margin: EdgeInsets.fromLTRB(0, 0, 4.5, 0),
       decoration: BoxDecoration(
-        border: Border.all(color: isBuddy ? theme.colorScheme.primary : theme.colorScheme.tertiary),
+        border: Border.all(color: newBuddy ? theme.colorScheme.primary : isBuddy ? theme.colorScheme.tertiary : theme.colorScheme.primary),
         borderRadius: BorderRadius.circular(32),
-        color: isBuddy ? theme.colorScheme.primary.withOpacity(0.05) : theme.colorScheme.tertiary.withOpacity(0.05),
+        color: newBuddy ? theme.colorScheme.primary.withOpacity(0.05) : isBuddy ? theme.colorScheme.tertiary.withOpacity(0.05) : theme.colorScheme.primary.withOpacity(0.05),
       ),
       padding: EdgeInsets.fromLTRB(11, 7, 11.3, 7),
       child: Text(

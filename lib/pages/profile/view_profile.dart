@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
@@ -7,6 +9,7 @@ import 'package:mobile/pages/connections/meetings/new_meeting.dart';
 import 'package:mobile/pages/profile/profile_widgets.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
+import 'package:mobile/services/files_service.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
 
@@ -23,34 +26,54 @@ class ViewProfilePage extends StatefulWidget {
 
 class _ViewProfileState extends State<ViewProfilePage> {
   UserHelper userHelper = UserHelper();
-  String _profileImageUrl = '';
-  String personName = '';
   ElderService elderService = ElderService();
   BuddyService buddyService = BuddyService();
-  double globalRating = 4.4;
+  final FilesService _filesService = FilesService();
+  double globalRating = 0;
+  String location = 'Argentina';
   String description = '';
   List<Interest> interest = List.empty();
   List<custom_time.TimeOfDay> availability = List.empty();
+  int xpHours= 0;
+  String personName = '';
+  List<String?> _photoUrls = [];
 
   @override
   void initState() {
     super.initState();
-    _loadProfileImage();
+    _loadUserPhotos();
+    _loadExperienceHours();
     _fetchPersonName();
     _fetchPersonProfile();
   }
 
-  Future<void> _loadProfileImage() async {
-    String? imageUrl =
-        await userHelper.loadProfileImage(widget.personID);
+  Future<void> _loadExperienceHours() async {
+    int? experience =
+        await userHelper.fetchExperience(widget.personID, !widget.isBuddy);
 
     setState(() {
-      _profileImageUrl = imageUrl;
+      xpHours = experience;
     });
   }
 
+  Future<void> _loadUserPhotos() async {
+    print("Cargando fotos");
+    try {
+      final List<String?> urls = await _filesService.getUserPhotos(widget.personID,
+          !widget.isBuddy,
+          this.context);
+      setState(() {
+        _photoUrls = urls;
+        print("Fotos cargadas");
+      });
+    } catch (e) {
+      print('Error loading photos: $e');
+    }
+  }
+
+
   Future<void> _fetchPersonName() async {
-    final name = await userHelper.fetchProfileFullName(widget.personID, widget.isBuddy);
+    final name = await userHelper.fetchProfileFullName(widget.personID, !widget.isBuddy); //isBuddy es el de la persona, tengo que mandar el de la conexion
     if (name.isEmpty) {
       setState(() {
         personName = 'Error fetching the name';
@@ -67,10 +90,11 @@ class _ViewProfileState extends State<ViewProfilePage> {
       final profile = await elderService.getElder(widget.personID);
       if (profile != null) {
         setState(() {
+          location = profile.personalData.address!.city;
           description = profile.elderProfile!.description!;
           interest = profile.elderProfile!.interests!;
           availability = profile.elderProfile!.availability!;
-          globalRating = profile.elderProfile!.globalRating!;
+          globalRating = profile.elderProfile?.globalRating ?? 0.0;
         });
       } else {
         setState(() {
@@ -82,10 +106,11 @@ class _ViewProfileState extends State<ViewProfilePage> {
     } else {
       final profile = await buddyService.getBuddy(widget.personID);
       setState(() {
+        location = profile.personalData.address!.city;
         description = profile.buddyProfile!.description!;
         interest = profile.buddyProfile!.interests!;
         availability = profile.buddyProfile!.availability!;
-        globalRating = profile.buddyProfile!.globalRating!;
+        globalRating = profile.buddyProfile?.globalRating ?? 0.0;
       });
     }
   }
@@ -108,7 +133,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NewMeetingPage(connection: widget.connection, isBuddy: widget.isBuddy)),
+                  MaterialPageRoute(builder: (context) => NewMeetingPage(connection: widget.connection, isBuddy: false)), //solo los elders pueden generar un nuevo encuentro
                 );
               },
               icon: Icon(Icons.add, color: theme.colorScheme.onTertiaryContainer),
@@ -121,12 +146,40 @@ class _ViewProfileState extends State<ViewProfilePage> {
         resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
-            Center(
-              child: ProfileWidgets.buildProfileData(context, theme, _profileImageUrl, personName, globalRating, !widget.isBuddy),
+            Column(
+              children: [
+                CarouselSlider(
+                  items: _photoUrls.map((url) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: url != null
+                          ? CachedNetworkImage(
+                              imageUrl: url,
+                              fit: BoxFit.cover,
+                              width: MediaQuery.of(context).size.width,
+                              placeholder: (context, url) => Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                            )
+                          : null,
+                    );
+                  }).toList(),
+                  options: CarouselOptions(
+                    height: 300,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    enableInfiniteScroll: true,
+                    scrollPhysics: BouncingScrollPhysics(),
+                  ),
+                ),
+                SizedBox(height: 20),
+              ],
             ),
             SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
+                padding: EdgeInsets.fromLTRB(0, 310, 0, 0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -137,7 +190,11 @@ class _ViewProfileState extends State<ViewProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ProfileWidgets.buildProfileInfo(context, theme, widget.personID, !widget.isBuddy, globalRating, description, interest, availability),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0, 16, 0, 5),
+                            child: ProfileWidgets.buildProfileData(context, theme, personName, globalRating.toString(), xpHours, location, !widget.isBuddy),
+                          ), //isBuddy es el de la persona, tengo que mandar el de la conexion
+                          ProfileWidgets.buildProfileInfo(context, theme, widget.personID, false, !widget.isBuddy, globalRating, description, interest, availability), //isBuddy es el de la persona, tengo que mandar el de la conexion
                         ],
                       ),
                     ),

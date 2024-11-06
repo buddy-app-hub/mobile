@@ -32,13 +32,14 @@ class _ViewReviewsPageState extends State<ViewReviewsPage> {
   }
 
   Future<void> _fetchMeetings() async {
-    Map<Meeting, Review> meetings = await userHelper.fetchReviews(widget.personID, !widget.isBuddy);
+    Map<Meeting, Review> meetings = await userHelper.fetchReviews(widget.personID, widget.isBuddy);
     setState(() {
       _meetings = meetings;
     });
   }
 
   Future<void> _fetchPersonName() async {
+    print(widget.isBuddy);
     final name = await userHelper.fetchProfileFullName(widget.personID, widget.isBuddy);
     if (name.isEmpty) {
       setState(() {

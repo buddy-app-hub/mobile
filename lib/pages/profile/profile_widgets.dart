@@ -15,48 +15,35 @@ class ProfileWidgets {
   static Widget buildProfileData(
     BuildContext context,
     ThemeData theme,
-    String profileImageUrl,
     String personName,
-    double globalRating,
+    String globalRating,
+    int xpHours,
+    String location,
     bool isBuddy, // Refiere no al usuario actual sino a la conexion
   ) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 60,
-          backgroundImage: profileImageUrl.isEmpty
-              ? AssetImage('assets/images/default_user.jpg')
-              : NetworkImage(profileImageUrl) as ImageProvider,
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-              child: Text(
-                personName,
-                style: isBuddy
-                    ? ThemeTextStyle.titleLargeOnPrimaryFixed(context)
-                    : ThemeTextStyle.titleLargeOnTertiaryContainer(context),
-              ),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
+      child: Column(
+        children: [
+          Center(
+            // margin: EdgeInsets.fromLTRB(20, 10, 0, 0),
+            child: Text(
+              personName,
+              style: ThemeTextStyle.titleXLargeOnPrimaryFixed(context),
             ),
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 5, 0, 15),
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ProfileWidgets.buildRowLocationReviewProfile(context,
-                        isBuddy, 'Buenos Aires', globalRating.toString(), '41'),
-                  ],
-                ),
-              ),
+          ),
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ProfileWidgets.buildRowLocationReviewProfile(context,
+                  isBuddy, location, globalRating.toString(), xpHours.toString()),
+              ],
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -64,6 +51,7 @@ class ProfileWidgets {
       BuildContext context,
       ThemeData theme,
       String personID,
+      bool newBuddy,
       bool isBuddy, // Refiere no al usuario actual sino a la conexion
       double globalRating,
       String description,
@@ -75,18 +63,20 @@ class ProfileWidgets {
         children: [
           BaseDecoration.buildTitleProfile(
               context,
+              newBuddy ? 'Sobre este buddy' :
               isBuddy ? 'Sobre este buddy' : 'Sobre este adulto mayor',
+              newBuddy,
               isBuddy),
           buildPersonalInformation(context, description),
           SizedBox(
             height: 20,
           ),
           if (isBuddy) VideoPlayerWidget(userId: personID),
-          BaseDecoration.buildTitleProfile(context, 'Intereses', isBuddy),
-          buildInterests(context, theme, interest, isBuddy),
+          BaseDecoration.buildTitleProfile(context, 'Intereses', newBuddy, isBuddy),
+          buildInterests(context, theme, interest, newBuddy, isBuddy),
           BaseDecoration.buildTitleProfile(
-              context, 'Disponibilidad horaria', isBuddy),
-          buildAvailability(context, theme, availability, isBuddy),
+              context, 'Disponibilidad horaria', newBuddy, isBuddy),
+          buildAvailability(context, theme, availability, newBuddy, isBuddy),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,9 +84,11 @@ class ProfileWidgets {
               Expanded(
                 child: BaseDecoration.buildTitleProfile(
                     context,
+                    newBuddy ? 'Opiniones sobre el buddy' :
                     isBuddy
                         ? 'Opiniones sobre el buddy'
                         : 'Opiniones sobre el adulto mayor',
+                    newBuddy,
                     isBuddy),
               ),
               Container(
@@ -125,7 +117,7 @@ class ProfileWidgets {
               ),
             ],
           ),
-          buildReviewsSummary(context, theme, isBuddy, personID, globalRating),
+          buildReviewsSummary(context, theme, newBuddy, isBuddy, personID, globalRating),
         ],
       ),
     );
@@ -152,7 +144,7 @@ class ProfileWidgets {
   }
 
   static Widget buildInterests(BuildContext context, ThemeData theme,
-      List<Interest> interests, bool isBuddy) {
+      List<Interest> interests, bool newBuddy, bool isBuddy) {
     return Container(
       margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: interests.isNotEmpty
@@ -162,7 +154,7 @@ class ProfileWidgets {
               runSpacing: 8.0,
               children: interests
                   .map((tag) => BaseDecoration.buildInterestTag(
-                      context, tag, isBuddy, theme))
+                      context, tag, newBuddy, isBuddy, theme))
                   .toList(),
             )
           : Container(),
@@ -170,7 +162,7 @@ class ProfileWidgets {
   }
 
   static Widget buildAvailability(BuildContext context, ThemeData theme,
-      List<custom_time.TimeOfDay> availability, bool isBuddy) {
+      List<custom_time.TimeOfDay> availability, bool newBuddy, bool isBuddy) {
     return Container(
       margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Wrap(
@@ -179,7 +171,7 @@ class ProfileWidgets {
         runSpacing: 8.0,
         children: availability
             .map((day) => BaseDecoration.buildAvailabilityTag(
-                context, day, isBuddy, theme))
+                context, day, newBuddy, isBuddy, theme))
             .toList(),
       ),
     );
@@ -188,11 +180,11 @@ class ProfileWidgets {
   static Future<int> fetchRatingCount(bool isBuddy, String personID) async {
     UserHelper userHelper = UserHelper();
     Map<Meeting, Review> reviews =
-        await userHelper.fetchReviews(personID, !isBuddy);
+        await userHelper.fetchReviews(personID, isBuddy);
     return reviews.length;
   }
 
-  static Widget buildReviewsSummary(BuildContext context, ThemeData theme,
+  static Widget buildReviewsSummary(BuildContext context, ThemeData theme, bool newBuddy,
       bool isBuddy, String personID, double globalRating) {
     return FutureBuilder<int>(
       future: fetchRatingCount(isBuddy, personID),
@@ -217,7 +209,7 @@ class ProfileWidgets {
                       fontSize: 52,
                       height: 1.2,
                       letterSpacing: 0.1,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: newBuddy ? Theme.of(context).colorScheme.primary : isBuddy ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   SizedBox(width: 8),
@@ -284,8 +276,8 @@ class ProfileWidgets {
                   Container(
                     margin: EdgeInsets.fromLTRB(4, 3.3, 6, 3.3),
                     child: SizedBox(
-                      width: 21,
-                      height: 21,
+                      width: 20,
+                      height: 20,
                       child: SvgPicture.asset(
                         'assets/icons/iconLocation.svg',
                         color: Colors.green,
@@ -300,7 +292,7 @@ class ProfileWidgets {
                           : Theme.of(context)
                               .colorScheme
                               .onTertiaryFixedVariant,
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -311,8 +303,8 @@ class ProfileWidgets {
                   Container(
                     margin: EdgeInsets.fromLTRB(10, 3.3, 3, 3.3),
                     child: SizedBox(
-                      width: 21,
-                      height: 21,
+                      width: 20,
+                      height: 20,
                       child: SvgPicture.asset(
                         'assets/icons/star.svg',
                         color: const Color.fromARGB(255, 230, 207, 8),
@@ -329,7 +321,7 @@ class ProfileWidgets {
                               : Theme.of(context)
                                   .colorScheme
                                   .onTertiaryFixedVariant,
-                          fontSize: 18,
+                          fontSize: 16,
                         ),
                         children: [
                           TextSpan(text: rate),
@@ -346,8 +338,8 @@ class ProfileWidgets {
               Container(
                 margin: EdgeInsets.fromLTRB(4, 3.3, 6, 3.3),
                 child: SizedBox(
-                  width: 21,
-                  height: 21,
+                  width: 20,
+                  height: 20,
                   child: SvgPicture.asset(
                     'assets/icons/eventavailable.svg',
                     color: Colors.blue,
@@ -361,8 +353,8 @@ class ProfileWidgets {
                     color: isBuddy
                         ? Theme.of(context).colorScheme.onSecondaryContainer
                         : Theme.of(context).colorScheme.onTertiaryFixedVariant,
-                    fontSize: 18, // Tamaño para xpHours
-                    fontWeight: FontWeight.w400,
+                    fontSize: 16, // Tamaño para xpHours
+                    fontWeight: FontWeight.w500,
                   ),
                   children: [
                     TextSpan(
@@ -374,7 +366,7 @@ class ProfileWidgets {
                       text: 'de experiencias', // Texto más pequeño
                       style: TextStyle(
                         fontFamily: 'Comfortaa',
-                        fontSize: 14, // Tamaño de fuente más pequeño
+                        fontSize: 15, // Tamaño de fuente más pequeño
                       ),
                     ),
                   ],

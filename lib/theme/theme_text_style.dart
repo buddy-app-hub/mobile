@@ -154,10 +154,26 @@ class ThemeTextStyle {
     );
   }
 
+  static TextStyle titleXLargeOnPrimaryFixed(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onPrimaryFixed,
+      fontSize: 25,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
   static TextStyle titleLargeOnPrimaryFixed(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onPrimaryFixed,
-      fontSize: 24,
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle titleXLargeOnTertiaryContainer(BuildContext context) {
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onTertiaryContainer,
+      fontSize: 25,
       fontWeight: FontWeight.w600,
     );
   }
@@ -165,11 +181,10 @@ class ThemeTextStyle {
   static TextStyle titleLargeOnTertiaryContainer(BuildContext context) {
     return TextStyle(
       color: Theme.of(context).colorScheme.onTertiaryContainer,
-      fontSize: 24,
+      fontSize: 20,
       fontWeight: FontWeight.w600,
     );
   }
-
 
   static TextStyle itemLargeOnBackground(BuildContext context) {
     return TextStyle(

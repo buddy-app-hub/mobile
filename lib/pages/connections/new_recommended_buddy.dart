@@ -149,6 +149,14 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     final RecommendedBuddy recommendedBuddy =
         recommendedBuddies![currentBuddyIndex];
 
+    final personName = recommendedBuddy.buddy!.personalData.birthDate != null
+      ? '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${calculateAge(recommendedBuddy.buddy!.personalData.birthDate!)}'
+      : '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}';
+
+    final globalRating = recommendedBuddy.buddy!.buddyProfile?.globalRating ?.toString() ?? '0';
+
+    final location = 'A ${recommendedBuddy.distanceToKM} km';
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -210,26 +218,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Column(
                           children: [
-                            Text(
-                              recommendedBuddy.buddy!.personalData.birthDate !=
-                                      null
-                                  ? '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${calculateAge(recommendedBuddy.buddy!.personalData.birthDate!)}'
-                                  : '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            ProfileWidgets.buildRowLocationReviewProfile(
-                                context,
-                                true,
-                                'A ${recommendedBuddy.distanceToKM} km',
-                                recommendedBuddy
-                                        .buddy!.buddyProfile?.globalRating
-                                        ?.toString() ??
-                                    '0',
-                                '23' // TODO: sacar hardcodeo
-                                ),
+                            ProfileWidgets.buildProfileData(context, theme, personName, globalRating, 0, location, true), 
                           ],
                         ),
                       ),
@@ -278,6 +267,7 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                         context,
                         theme,
                         recommendedBuddy.buddy!.firebaseUID,
+                        true,
                         true,
                         recommendedBuddy.buddy!.buddyProfile!.globalRating!,
                         recommendedBuddy.buddy!.buddyProfile!.description!,

@@ -95,13 +95,15 @@ class _TimePlannerPageState extends State<TimePlannerPage> {
           }).toList()));
           tasks.addAll(meetingsTasks);
         });
-        _setSelectedDay();
       } else {
         setState(() {
           meetingsTasks.addAll(generateMeetingTasks(context, meetings));
         });
       }
       
+    }
+    if (isSelectedDay) {
+      _setSelectedDay();
     }
   }
 
