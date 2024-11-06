@@ -71,7 +71,7 @@ class ProfileWidgets {
           SizedBox(
             height: 20,
           ),
-          // if (isBuddy) VideoPlayerWidget(userId: personID),
+          if (isBuddy) VideoPlayerWidget(userId: personID),
           BaseDecoration.buildTitleProfile(context, 'Intereses', newBuddy, isBuddy),
           buildInterests(context, theme, interest, newBuddy, isBuddy),
           BaseDecoration.buildTitleProfile(
