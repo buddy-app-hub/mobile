@@ -85,7 +85,7 @@ class UserHelper {
         .expand((connection) => connection.meetings)
         .where((meeting) {
       final meetingDate = meeting.schedule.date;
-      return now.isAfter(meetingDate) && !meeting.isCancelled;
+      return now.isAfter(meetingDate) && !meeting.isCancelled && meeting.isConfirmedByBuddy && meeting.isConfirmedByElder;
     }).toList();
 
     int totalHours = pastMeetings
