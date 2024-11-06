@@ -38,7 +38,7 @@ class ProfileWidgets {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ProfileWidgets.buildRowLocationReviewProfile(context,
-                  isBuddy, location, globalRating.toString(), xpHours.toString()),
+                  isBuddy, location, globalRating.toString(), xpHours),
               ],
             ),
           ),
@@ -262,7 +262,7 @@ class ProfileWidgets {
   }
 
   static Widget buildRowLocationReviewProfile(BuildContext context,
-      bool isBuddy, String location, String rate, String xpHours) {
+      bool isBuddy, String location, String rate, int xpHours) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -357,13 +357,14 @@ class ProfileWidgets {
                     fontWeight: FontWeight.w500,
                   ),
                   children: [
+                    if (xpHours > 0)
                     TextSpan(
                         text: '$xpHours hs ', // Texto principal
                         style: TextStyle(
                           fontFamily: 'Comfortaa',
                         )),
                     TextSpan(
-                      text: 'de experiencias', // Texto más pequeño
+                      text: xpHours < 1 ? 'En busca de su primer encuentro.' : xpHours > 1 ? 'de experiencias' : 'de experiencia', // Texto más pequeño
                       style: TextStyle(
                         fontFamily: 'Comfortaa',
                         fontSize: 15, // Tamaño de fuente más pequeño

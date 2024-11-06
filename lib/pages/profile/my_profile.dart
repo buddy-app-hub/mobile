@@ -454,7 +454,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ],
                 ),
                 const SizedBox(height: 25),
-                QuickProfileSummary(),
+                QuickProfileSummary(userID: authProvider.user!.uid, isBuddy: isBuddy,),
                 const SizedBox(height: 25),
                 if (profileCompletedProgress != profileCompletionCards.length)
                   _showCompletionCards(),
@@ -767,17 +767,51 @@ List<CustomListTile> customListTilesElder = [
 ];
 
 class QuickProfileSummary extends StatelessWidget {
+  final String userID;
+  final bool isBuddy;
+
+  QuickProfileSummary({required this.userID, required this.isBuddy});
+
+  Future<List<int>> fetchMeetingsInfo() async {
+
+    return await Future.wait([
+      userHelper.fetchExperience(userID, isBuddy),
+      userHelper.fetchTotalMeetings(userID, isBuddy),
+      userHelper.fetchTotalConnections(userID, isBuddy),
+    ]);
+  }
+
   @override
-  Widget build(BuildContext context) => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          buildButton(context, '4h 30m', 'de compañía'),
-          buildDivider(),
-          buildButton(context, '3', 'experiencias'),
-          buildDivider(),
-          buildButton(context, '31', 'seguidores'),
-        ],
-      );
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<int>>(
+      future: fetchMeetingsInfo(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error');
+        } else {
+          final totalHours = snapshot.data![0];
+          final totalMeetings = snapshot.data![1];
+          final totalConnections = snapshot.data![2];
+          final experience = totalMeetings != 1 ? 'encuentros' : 'encuentro';
+          final connection = totalConnections != 1 ? 'conexiones' : 'conexión';
+          final hoursText = '$totalHours hrs';
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              buildButton(context, hoursText, 'de compañía'),
+              buildDivider(),
+              buildButton(context, totalMeetings.toString(), experience),
+              buildDivider(),
+              buildButton(context, totalConnections.toString(), connection),
+            ],
+          );
+        }
+      },
+    );
+  }
   Widget buildDivider() => SizedBox(
         height: 34,
         width: 20,
