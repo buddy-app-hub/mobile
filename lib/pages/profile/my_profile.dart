@@ -58,8 +58,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
     Future.wait([
       _loadUserIdentity(),
       _loadProfileImage(),
+      _updateProfileState(),
     ]).then((_) {
-      _updateProfileState();
       _loadProfileCompletion();
       setState(() {
         isLoading = false;
@@ -79,8 +79,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
     super.dispose();
   }
 
-  void _updateProfileState() {
+  Future<void> _updateProfileState() async {
     print("Actualizando estado del perfil");
+    bool hasVideoURL =
+        await userHelper.isIntroVideoUploaded(context, authProvider.userData!);
+    print(hasVideoURL);
+
     setState(() {
       isBuddy = authProvider.userData!.buddy != null;
       isIdentityVerified =
@@ -91,8 +95,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           userHelper.isUserAddressCompleted(authProvider.userData!);
       isPhotoAlbumCompleted =
           userHelper.isUserPhotoAlbumCompleted(authProvider.userData!);
-      isIntroVideoUploaded =
-          userHelper.isIntroVideoUploaded(authProvider.userData!);
+      isIntroVideoUploaded = hasVideoURL;
       isBuddyApplicationCompleted =
           userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
 
@@ -252,11 +255,20 @@ class _MyProfilePageState extends State<MyProfilePage> {
             completed: isIntroVideoUploaded,
             icon: Icons.video_camera_back_rounded,
             button: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                // Esperamos el valor retornado por EditVideoPage
+                final videoUploaded = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MyProfilePage()),
+                  MaterialPageRoute(builder: (context) => EditVideoPage()),
                 );
+
+                // Si el video fue cargado, actualizamos el estado
+                if (videoUploaded == true) {
+                  setState(() {
+                    isIntroVideoUploaded = true;
+                    _loadProfileCompletion();
+                  });
+                }
               },
               style: ElevatedButton.styleFrom(
                 elevation: 0,
@@ -458,7 +470,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         child: ListTile(
                           leading: Icon(tile.icon),
                           title: Text(tile.title),
-                          onTap: () => _handleTileTap(context, tile.title),
+                          onTap: () async =>
+                              await _handleTileTap(context, tile.title),
                           trailing: const Icon(Icons.chevron_right),
                         ),
                       ),
@@ -519,8 +532,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       );
 
-  void _handleTileTap(BuildContext context, String title) {
+  Future<void> _handleTileTap(BuildContext context, String title) async {
     Widget? targetPage;
+    bool isVideoEdited = false;
 
     switch (title) {
       case 'Pagar suscripción':
@@ -537,13 +551,27 @@ class _MyProfilePageState extends State<MyProfilePage> {
         targetPage = EditPhotosPage();
       case 'Video introductorio':
         targetPage = EditVideoPage();
+        isVideoEdited = true;
       case 'Intereses':
         targetPage = EditInterestsPage();
       case 'Datos de trabajo y/o estudio':
         targetPage = null;
     }
+    if (targetPage != null && isVideoEdited) {
+      // Esperamos el valor retornado por EditVideoPage
+      final videoUploaded = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => EditVideoPage()),
+      );
 
-    if (targetPage != null) {
+      // Si el video fue cargado, actualizamos el estado
+      if (videoUploaded == true) {
+        setState(() {
+          isIntroVideoUploaded = true;
+          _loadProfileCompletion();
+        });
+      }
+    } else if (targetPage != null) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => targetPage!),

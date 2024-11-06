@@ -1,12 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:mobile/models/address.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/review.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
 import 'package:mobile/models/user_data.dart';
+import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/services/files_service.dart';
+import 'package:provider/provider.dart';
 
 class UserHelper {
   BuddyService buddyService = BuddyService();
@@ -191,10 +194,14 @@ class UserHelper {
     return photoAlbum != null && photoAlbum.isNotEmpty;
   }
 
-  bool isIntroVideoUploaded(UserData userData) {
-    // TODO: ver si cargo el video
+  Future<bool> isIntroVideoUploaded(
+      BuildContext context, UserData userData) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+    final userId = authProvider.user?.uid ?? '';
+    final url = await _filesService.getIntroVideo(userId);
 
-    return true;
+    return url != null;
   }
 
   bool isUserBuddyApplicationCompleted(UserData userData) {
