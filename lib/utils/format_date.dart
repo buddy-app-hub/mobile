@@ -10,7 +10,7 @@ List<String> months = [
 ];
 
 List<String> weekdays = [
-  'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo' //fix acentos los trae raros
+  'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
 ];
 
 String formattedDate() {
