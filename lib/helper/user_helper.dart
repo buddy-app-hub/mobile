@@ -42,7 +42,7 @@ class UserHelper {
         .where((meeting) {
       final meetingDate = meeting.schedule.date;
       return meetingDate.isAfter(now.subtract(Duration(days: 1))) &&
-          meetingDate.isBefore(weekFromNow);
+          meetingDate.isBefore(weekFromNow) && !meeting.isCancelled;
     }).toList();
 
     return meeting;
@@ -66,6 +66,30 @@ class UserHelper {
 
     return Map.fromEntries(reviews.entries.toList()
       ..sort((a, b) => b.value.rating.compareTo(a.value.rating)));
+  }
+
+  Future<int> fetchExperience(String id, bool isBuddy) async {
+    List<Connection> connections;
+    if (isBuddy) {
+      connections = await buddyService.getConnections(id);
+    } else {
+      connections = await elderService.getConnections(id);
+    }
+
+    DateTime now = DateTime.now();
+
+    List<Meeting> pastMeetings = connections
+        .expand((connection) => connection.meetings)
+        .where((meeting) {
+      final meetingDate = meeting.schedule.date;
+      return now.isAfter(meetingDate) && !meeting.isCancelled;
+    }).toList();
+
+    int totalHours = pastMeetings
+    .map((m) => (m.schedule.endHour - m.schedule.startHour) / 100)
+    .fold(0.0, (sum, hours) => sum + hours).round();
+
+    return totalHours;
   }
 
   Future<Object> fetchPersonProfile(String personID, bool isBuddy) async {
@@ -105,8 +129,8 @@ class UserHelper {
 
   Future<String> fetchProfileFullName(String personID, bool isBuddy) async {
     var personalData = isBuddy
-        ? (await elderService.getElder(personID)).personalData
-        : (await buddyService.getBuddy(personID)).personalData;
+        ? (await buddyService.getBuddy(personID)).personalData
+        : (await elderService.getElder(personID)).personalData;
     return '${personalData.firstName} ${personalData.lastName}';
   }
 
