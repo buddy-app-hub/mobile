@@ -46,6 +46,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   String? _profileImageUrl;
 
   bool isBuddyProfileComplete = false;
+  bool isElderProfileComplete = false;
 
   @override
   void initState() {
@@ -68,11 +69,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   void _onAuthProviderChange() {
-    _loadUserIdentity();
-    _updateProfileState();
-    _loadProfileCompletion();
+    if (authProvider.user != null) {
+      _loadUserIdentity();
+      _updateProfileState();
+      _loadProfileCompletion();
+    }
   }
-
+  
   @override
   void dispose() {
     authProvider.removeListener(_onAuthProviderChange);
@@ -104,6 +107,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
           isAddressCompleted &&
           isPhotoAlbumCompleted &&
           isIntroVideoUploaded &&
+          _profileImageUrl != null &&
+          _profileImageUrl != "";
+
+      isElderProfileComplete = isBiographyCompleted &&
+          isAddressCompleted &&
+          isPhotoAlbumCompleted &&
           _profileImageUrl != null &&
           _profileImageUrl != "";
     });
@@ -175,72 +184,99 @@ class _MyProfilePageState extends State<MyProfilePage> {
           ),
         ),
       );
-      if (isBuddy) {
-        profileCompletionCards.add(ProfileCompletionCard(
-            title: "Cargá tu foto de perfil",
-            completed: _profileImageUrl != null && _profileImageUrl != "",
-            icon: Icons.photo_camera_rounded,
-            button: ElevatedButton(
-              onPressed: () {
-                _bottomSheet.show(context, _loadProfileImage);
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-              child: Text("Cargar"),
-            )));
-      }
+    }
+    profileCompletionCards.add(ProfileCompletionCard(
+        title: "Cargá tu foto de perfil",
+        completed: _profileImageUrl != null && _profileImageUrl != "",
+        icon: Icons.photo_camera_rounded,
+        button: ElevatedButton(
+          onPressed: () {
+            _bottomSheet.show(context, _loadProfileImage);
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Cargar"),
+        )));
+    profileCompletionCards.add(ProfileCompletionCard(
+        title: "Completá tu biografía",
+        completed: isBiographyCompleted,
+        icon: Icons.edit_document,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => EditBiographyPage(
+                        isEdit: false,
+                      )),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Completar"),
+        )));
+    profileCompletionCards.add(ProfileCompletionCard(
+        title: "Completá tu domicilio",
+        completed: isAddressCompleted,
+        icon: Icons.edit_document,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditAddressPage()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Completar"),
+        )));
+    profileCompletionCards.add(ProfileCompletionCard(
+        title: "Completá tu album de fotos",
+        completed: isPhotoAlbumCompleted,
+        icon: Icons.photo_album,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditPhotosPage()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Cargar"),
+        )));
+    if (isBuddy) {
       profileCompletionCards.add(ProfileCompletionCard(
-          title: "Completá tu biografía",
-          completed: isBiographyCompleted,
-          icon: Icons.edit_document,
+          title: "Cargá tu video introductorio",
+          completed: isIntroVideoUploaded,
+          icon: Icons.video_camera_back_rounded,
           button: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              // Esperamos el valor retornado por EditVideoPage
+              final videoUploaded = await Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => EditBiographyPage(
-                          isEdit: false,
-                        )),
+                MaterialPageRoute(builder: (context) => EditVideoPage()),
               );
-            },
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            child: Text("Completar"),
-          )));
-      profileCompletionCards.add(ProfileCompletionCard(
-          title: "Completá tu domicilio",
-          completed: isAddressCompleted,
-          icon: Icons.edit_document,
-          button: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EditAddressPage()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            child: Text("Completar"),
-          )));
-      profileCompletionCards.add(ProfileCompletionCard(
-          title: "Completá tu album de fotos",
-          completed: isPhotoAlbumCompleted,
-          icon: Icons.photo_album,
-          button: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EditPhotosPage()),
-              );
+
+              // Si el video fue cargado, actualizamos el estado
+              if (videoUploaded == true) {
+                setState(() {
+                  isIntroVideoUploaded = true;
+                  _loadProfileCompletion();
+                });
+              }
             },
             style: ElevatedButton.styleFrom(
               elevation: 0,
@@ -249,67 +285,38 @@ class _MyProfilePageState extends State<MyProfilePage> {
             ),
             child: Text("Cargar"),
           )));
-      if (isBuddy) {
-        profileCompletionCards.add(ProfileCompletionCard(
-            title: "Cargá tu video introductorio",
-            completed: isIntroVideoUploaded,
-            icon: Icons.video_camera_back_rounded,
-            button: ElevatedButton(
-              onPressed: () async {
-                // Esperamos el valor retornado por EditVideoPage
-                final videoUploaded = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditVideoPage()),
-                );
-
-                // Si el video fue cargado, actualizamos el estado
-                if (videoUploaded == true) {
-                  setState(() {
-                    isIntroVideoUploaded = true;
-                    _loadProfileCompletion();
-                  });
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-              child: Text("Cargar"),
-            )));
-      }
-      if (isBuddy) {
-        bool isUnderReview =
-            authProvider.userData!.buddy!.isApplicationToBeBuddyUnderReview;
-        profileCompletionCards.add(ProfileCompletionCard(
-            title: "Aplicá para ser Buddy",
-            completed: isBuddyApplicationCompleted,
-            icon: Icons.arrow_upward_rounded,
-            button: ElevatedButton(
-              onPressed: isBuddyProfileComplete &&
-                      !isBuddyApplicationCompleted &&
-                      !isUnderReview // Si el perfil esta completo y todavia no fue aprobado como Buddy, puede submittear la aplicacion
-                  ? () async {
-                      await buddyService.sendBuddyApplication(context);
-                      showBuddyApplicationDialog(context);
-                    }
-                  : null,
-              style: ElevatedButton.styleFrom(
-                disabledBackgroundColor: Colors.transparent,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-              child: Text(
-                isUnderReview
-                    ? "Estamos revisando tu perfil"
-                    : (isBuddyProfileComplete && !isBuddyApplicationCompleted
-                        ? "Postularme"
-                        : "Completá tu perfil antes"),
-                textAlign: TextAlign.center,
-              ),
-            )));
-      }
+    }
+    if (isBuddy) {
+      bool isUnderReview =
+          authProvider.userData!.buddy!.isApplicationToBeBuddyUnderReview;
+      profileCompletionCards.add(ProfileCompletionCard(
+          title: "Aplicá para ser Buddy",
+          completed: isBuddyApplicationCompleted,
+          icon: Icons.arrow_upward_rounded,
+          button: ElevatedButton(
+            onPressed: isBuddyProfileComplete &&
+                    !isBuddyApplicationCompleted &&
+                    !isUnderReview // Si el perfil esta completo y todavia no fue aprobado como Buddy, puede submittear la aplicacion
+                ? () async {
+                    await buddyService.sendBuddyApplication(context);
+                    showBuddyApplicationDialog(context);
+                  }
+                : null,
+            style: ElevatedButton.styleFrom(
+              disabledBackgroundColor: Colors.transparent,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text(
+              isUnderReview
+                  ? "Estamos revisando tu perfil"
+                  : (isBuddyProfileComplete && !isBuddyApplicationCompleted
+                      ? "Postularme"
+                      : "Completá tu perfil antes"),
+              textAlign: TextAlign.center,
+            ),
+          )));
     }
     profileCompletionCards.sort((a, b) => !a.completed
         ? 0
@@ -454,7 +461,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ],
                 ),
                 const SizedBox(height: 25),
-                QuickProfileSummary(userID: authProvider.user!.uid, isBuddy: isBuddy,),
+                QuickProfileSummary(
+                  userID: authProvider.user!.uid,
+                  isBuddy: isBuddy,
+                ),
                 const SizedBox(height: 25),
                 if (profileCompletedProgress != profileCompletionCards.length)
                   _showCompletionCards(),
@@ -773,7 +783,6 @@ class QuickProfileSummary extends StatelessWidget {
   QuickProfileSummary({required this.userID, required this.isBuddy});
 
   Future<List<int>> fetchMeetingsInfo() async {
-
     return await Future.wait([
       userHelper.fetchExperience(userID, isBuddy),
       userHelper.fetchTotalMeetings(userID, isBuddy),
@@ -812,6 +821,7 @@ class QuickProfileSummary extends StatelessWidget {
       },
     );
   }
+
   Widget buildDivider() => SizedBox(
         height: 34,
         width: 20,

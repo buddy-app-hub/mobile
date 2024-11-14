@@ -127,7 +127,7 @@ class _ChooseUserPageState extends State<ChooseUserPage> {
           Container(
             padding: EdgeInsets.fromLTRB(30, 30, 30, 40),
             child: Text(
-              'Quiero que mi ser querido sea acompañado de jóvenes con los que comparta experiencias divertidas, a fin de socializar el estar acompañado cuando yo no esté con él.',
+              'Busco una compañía confiable con quien compartir momentos, charlas y actividades que me enriquezcan y me ayuden a mantenerme activo/a.',
               style: ThemeTextStyle.titleSmallOutline(context),
               textAlign: TextAlign.center,
             ),
@@ -149,7 +149,7 @@ class _ChooseUserPageState extends State<ChooseUserPage> {
           Container(
             padding: EdgeInsets.fromLTRB(30, 30, 30, 40),
             child: Text(
-              'Quiero realizar actividades y compartir experiencias con personas de otras generaciones, estableciendo amistades que van más allá de la edad.',
+              'Quiero encontrar una persona de confianza que brinde compañía a mi ser querido, compartiendo intereses y tiempo de calidad para mejorar su bienestar y reducir la soledad.',
               style: ThemeTextStyle.titleSmallOutline(context),
               textAlign: TextAlign.center,
             ),
@@ -171,7 +171,7 @@ class _ChooseUserPageState extends State<ChooseUserPage> {
           Container(
             padding: EdgeInsets.fromLTRB(30, 20, 30, 40),
             child: Text(
-              'Quiero combatir la soledad compartiendo momentos únicos junto a adultos mayores, generando un impacto positivo y obteniendo un ingreso económico.',
+              'Quiero combatir la soledad compartiendo momentos inolvidables junto a adultos mayores, generando un impacto positivo y obteniendo un ingreso económico.',
               style: ThemeTextStyle.titleSmallOutline(context),
               textAlign: TextAlign.center,
             ),
