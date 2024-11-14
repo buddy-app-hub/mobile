@@ -231,7 +231,7 @@ class UserHelper {
         ? userData.buddy?.buddyProfile!.description
         : userData.elder?.elderProfile!.description;
 
-    return userBiography != null;
+    return userBiography != null && userBiography.isNotEmpty;
   }
 
   bool isUserAddressCompleted(UserData userData) {

@@ -12,12 +12,14 @@ class ConnectionService {
     return Connection.fromJson(response);
   }
 
-  Future<void> createConnection(
+  Future<Connection> createConnection(
       BuildContext context, Connection connection) async {
-    await ApiService.post(
+    var response = await ApiService.post(
       endpoint: "/connections",
       body: connection.toJson(),
     );
+
+    return Connection.fromJson(response);
   }
 
   Future<void> createMeetingOfConnection(

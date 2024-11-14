@@ -161,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Text("olis"),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('No messages yet.'));
+                  return Center(child: Text('No hay mensajes aún.'));
                 } else {
                   final messages = snapshot.data!.docs
                       .map((doc) => Message.fromFirestore(doc))

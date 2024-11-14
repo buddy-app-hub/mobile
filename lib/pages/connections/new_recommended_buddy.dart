@@ -108,20 +108,19 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     print(newConnection);
 
     try {
-      await connectionService.createConnection(context, newConnection);
+      Connection connection = await connectionService.createConnection(context, newConnection);
       print("Conexión enviada con éxito");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => OnboardNewConnectionPage(
+                connection: connection,
+                buddy: recommendedBuddies![currentBuddyIndex].buddy!)),
+      );
     } catch (e) {
       print("Error al crear la conexión: $e");
       return;
     }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => OnboardNewConnectionPage(
-              connection: newConnection,
-              buddy: recommendedBuddies![currentBuddyIndex].buddy!)),
-    );
   }
 
   @override

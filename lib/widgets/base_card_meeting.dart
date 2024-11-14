@@ -376,7 +376,7 @@ class BaseNotificationCartMeeting extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+      padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
       child: Container(
         margin: EdgeInsets.only(right: 5),
         decoration: BoxDecoration(

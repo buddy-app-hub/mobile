@@ -4,6 +4,9 @@ import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/home/for_you/your_meetings.dart';
+import 'package:mobile/theme/theme_button_style.dart';
+import 'package:mobile/theme/theme_text_style.dart';
+import 'package:mobile/widgets/base_elevated_button.dart';
 import 'package:provider/provider.dart';
 
 UserHelper userHelper = UserHelper();
@@ -46,6 +49,71 @@ class _ForYouPageState extends State<ForYouPage> {
       resizeToAvoidBottomInset: false, 
       body: Stack (
         children: [
+          // Padding(
+          //   padding: const EdgeInsets.all(10.0),
+          //   child: Column(
+          //     children: [
+          //       Container(
+          //         margin: EdgeInsets.only(right: 5),
+          //         decoration: BoxDecoration(
+          //           border: Border.all(
+          //             color: theme.colorScheme.primary,
+          //           ),
+          //           borderRadius: BorderRadius.circular(24),
+          //           color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+          //         ),
+          //         padding: EdgeInsets.all(10),
+          //       child: Row(
+          //       children: [
+          //         SizedBox(width: 12),
+          //         Expanded(
+          //           child: Column(
+          //             crossAxisAlignment: CrossAxisAlignment.start,
+          //             children: [
+          //               Text(
+          //                 'Primero debes completar tu perfil.',
+          //                 style: ThemeTextStyle.itemLargeOnBackground(context),
+          //                 overflow: TextOverflow.clip,
+          //               ),
+          //               Align(
+          //                 alignment: Alignment.centerRight,
+          //                 child: Padding(
+          //                   padding: const EdgeInsets.only(top: 8.0),
+          //                   child: BaseElevatedButton(
+          //                     text: 'Completar',
+          //                     buttonTextStyle: TextStyle(
+          //                       color: theme.colorScheme.onPrimaryContainer,
+          //                       fontSize: 13.5,
+          //                       fontWeight: FontWeight.w600,
+          //                     ),
+          //                     buttonStyle: ThemeButtonStyle.primaryContainerRoundedButtonStyle(context),
+          //                     onPressed: () => null,
+          //                     // Navigator.push(
+          //                     //   context,
+          //                     //   MaterialPageRoute(
+          //                     //     builder: (context) => AddReviewPage(
+          //                     //       isBuddy: isBuddy,
+          //                     //       connection: connection,
+          //                     //       meeting: meeting,
+          //                     //       personID: personID,
+          //                     //       personName: person,
+          //                     //     ),
+          //                     //   ),
+          //                     // ),
+          //                     height: 36,
+          //                     width: 125,
+          //                   ),
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ],
+          //       ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           FutureBuilder<List<List<Widget>>>(
             future: fetchAllMeetings(userData, theme),
             builder: (context, snapshot) {

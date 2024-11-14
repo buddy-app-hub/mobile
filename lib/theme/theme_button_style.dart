@@ -91,7 +91,7 @@ class ThemeButtonStyle {
 
   static ButtonStyle primaryContainerRoundedButtonStyle(BuildContext context) {
     return ElevatedButton.styleFrom(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.primaryFixed,
       disabledBackgroundColor: Theme.of(context).colorScheme.primaryFixedDim,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(100),
