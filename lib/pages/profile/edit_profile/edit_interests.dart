@@ -48,7 +48,7 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
               if (updatedInterest.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Por favor, agregue un interés para poder guardar.'),
+                    content: Text('Por favor, agregue sus intereses para poder guardar.'),
                   ),
                 );
               } else {
