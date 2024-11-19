@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/interest.dart';
+import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -44,12 +45,23 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             onPressed: () {
               final updatedInterest = _interests;
-              if (authProvider.isBuddy) {
-                buddyService.updateProfileInterests(context, updatedInterest);
+              if (updatedInterest.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Por favor, agregue un interés para poder guardar.'),
+                  ),
+                );
               } else {
-                elderService.updateProfileInterests(context, updatedInterest);
+                if (authProvider.isBuddy) {
+                  buddyService.updateProfileInterests(context, updatedInterest);
+                } else {
+                  elderService.updateProfileInterests(context, updatedInterest);
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Navigation(index: 2)),
+                );
               }
-              Navigator.pop(context);
             },
           ),
         ],

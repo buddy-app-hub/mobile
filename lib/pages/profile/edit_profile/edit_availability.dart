@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
+import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -92,12 +93,23 @@ class _EditAvailabilityPageState extends State<EditAvailabilityPage> {
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             onPressed: () {
               final updatedAvailability = _availabilities;
-              if (authProvider.isBuddy) {
-                buddyService.updateProfileAvailability(context, updatedAvailability);
+              if (updatedAvailability.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Por favor, agregue un horario de disponibilidad para poder guardar.'),
+                  ),
+                );
               } else {
-                elderService.updateProfileAvailability(context, updatedAvailability);
+                if (authProvider.isBuddy) {
+                  buddyService.updateProfileAvailability(context, updatedAvailability);
+                } else {
+                  elderService.updateProfileAvailability(context, updatedAvailability);
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Navigation(index: 2)),
+                );
               }
-              Navigator.pop(context);
             },
           ),
         ],
@@ -204,7 +216,8 @@ class _EditAvailabilityPageState extends State<EditAvailabilityPage> {
                     ],
                   ),
                   const SizedBox(height: 25.0),
-                  BaseDecoration.buildTitle(context, 'Horarios cargados'), //no se si va
+                  if (_availabilities.isNotEmpty)
+                    BaseDecoration.buildTitle(context, 'Horarios cargados'),
                   Wrap(
                     alignment: WrapAlignment.center,
                     spacing: 4.0,

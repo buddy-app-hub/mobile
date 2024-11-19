@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:video_compress/video_compress.dart';
@@ -158,7 +159,10 @@ class _EditVideoPageState extends State<EditVideoPage> {
               if (_videoFile != null) {
                 await _saveVideo(_videoFile!);
               }
-              Navigator.pop(context, true);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
+              );
             },
           ),
         ],
