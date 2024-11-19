@@ -250,6 +250,22 @@ class UserHelper {
     return photoAlbum != null && photoAlbum.isNotEmpty;
   }
 
+  bool isUserInterestCompleted(UserData userData) {
+    var interests = userData.buddy != null
+        ? userData.buddy?.buddyProfile!.interests
+        : userData.elder?.elderProfile!.interests;
+
+    return interests != null && interests.isNotEmpty;
+  }
+
+  bool isUserAvailabilityCompleted(UserData userData) {
+    var availability = userData.buddy != null
+        ? userData.buddy?.buddyProfile!.availability
+        : userData.elder?.elderProfile!.availability;
+
+    return availability != null && availability.isNotEmpty;
+  }
+
   Future<bool> isIntroVideoUploaded(
       BuildContext context, UserData userData) async {
     final authProvider =

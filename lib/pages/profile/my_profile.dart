@@ -41,6 +41,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
   bool isBiographyCompleted = false;
   bool isAddressCompleted = false;
   bool isPhotoAlbumCompleted = false;
+  bool isInterestCompleted = false;
+  bool isAvailabilityCompleted = false;
   bool isIntroVideoUploaded = false;
   bool isBuddyApplicationCompleted = false;
   String? _profileImageUrl;
@@ -98,6 +100,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
           userHelper.isUserAddressCompleted(authProvider.userData!);
       isPhotoAlbumCompleted =
           userHelper.isUserPhotoAlbumCompleted(authProvider.userData!);
+      isInterestCompleted =
+          userHelper.isUserInterestCompleted(authProvider.userData!);
+      isAvailabilityCompleted =
+          userHelper.isUserAvailabilityCompleted(authProvider.userData!);
       isIntroVideoUploaded = hasVideoURL;
       isBuddyApplicationCompleted =
           userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
@@ -106,6 +112,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
           isBiographyCompleted &&
           isAddressCompleted &&
           isPhotoAlbumCompleted &&
+          isInterestCompleted &&
+          isAvailabilityCompleted &&
           isIntroVideoUploaded &&
           _profileImageUrl != null &&
           _profileImageUrl != "";
@@ -113,6 +121,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
       isElderProfileComplete = isBiographyCompleted &&
           isAddressCompleted &&
           isPhotoAlbumCompleted &&
+          isInterestCompleted &&
+          isAvailabilityCompleted &&
           _profileImageUrl != null &&
           _profileImageUrl != "";
     });
@@ -240,23 +250,59 @@ class _MyProfilePageState extends State<MyProfilePage> {
           child: Text("Completar"),
         )));
     profileCompletionCards.add(ProfileCompletionCard(
-        title: "Completá tu album de fotos",
-        completed: isPhotoAlbumCompleted,
-        icon: Icons.photo_album,
-        button: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => EditPhotosPage()),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          child: Text("Cargar"),
-        )));
+      title: "Completá tu album de fotos",
+      completed: isPhotoAlbumCompleted,
+      icon: Icons.photo_album,
+      button: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EditPhotosPage()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: Text("Cargar"),
+      )));
+    profileCompletionCards.add(ProfileCompletionCard(
+      title: "Completá tus intereses",
+      completed: isInterestCompleted,
+      icon: Icons.favorite_rounded,
+      button: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EditInterestsPage()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: Text("Cargar"),
+      )));
+    profileCompletionCards.add(ProfileCompletionCard(
+      title: "Completá tu disponibilidad horaria",
+      completed: isAvailabilityCompleted,
+      icon: Icons.schedule_rounded,
+      button: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EditAvailabilityPage()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: Text("Cargar"),
+      )));
     if (isBuddy) {
       profileCompletionCards.add(ProfileCompletionCard(
           title: "Cargá tu video introductorio",
