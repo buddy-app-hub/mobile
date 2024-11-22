@@ -3,6 +3,7 @@ String getEmojiInterest(String interest) {
   Map<RegExp, String> emojiMap = {
     RegExp(r'programación|programacion|computadora|gaming|informatica|informática|tecnologia|tecnología') : '💻',
     RegExp(r'fútbol|futbol|balón pie|deportes|baseball') : '⚽',
+    RegExp(r'deportes') : '🏈',
     RegExp(r'golf|mini-golf|mini golf') : '⛳️',
     RegExp(r'boxeo|combat|boxing') : '🥊',
     RegExp(r'comida|restaurantes|gastronomía|comer') : '🍔',
@@ -19,6 +20,8 @@ String getEmojiInterest(String interest) {
     RegExp(r'bordado|costura|coser|manualidades') : '🪡',
     RegExp(r'crochet|tejer|macrame') : '🧶',
     RegExp(r'tenis|padel') : '🎾',
+    RegExp(r'básquet') : '🏀',
+    RegExp(r'natación') : '🤿',
     RegExp(r'lectura|poesía|poesia|libros|novelas') : '📖',
     RegExp(r'baile|bailar|danza|ritmo|ballet') : '💃',
     RegExp(r'fotografía|fotografia|fotos|cámaras|camaras') : '📸',
@@ -47,4 +50,57 @@ String getEmojiInterest(String interest) {
     }
   }
   return '📌';
+}
+
+List<String> getInterestsList() {
+  List<String> list = [
+    'Seleccionar un interés',
+    '💻 Programación',
+    '🏈 Deportes',
+    '⚽ Fútbol',
+    '🏀 Básquet',
+    '⛳️ Golf',
+    '🥊 Boxeo', 
+    '🍔 Comida', 
+    '🍳 Cocina', 
+    '🎶 Música', 
+    '🎬 Películas y Series', 
+    '🏝️ Viajar', 
+    '✍️ Literatura', 
+    '🙂 Conocer gente', 
+    '🎭 Teatro', 
+    '🏛️ Museos', 
+    '🎨 Arte', 
+    '♟️ Juegos', 
+    '🍃 Naturaleza', 
+    '🪡 Costura', 
+    '🧶 Crochet', 
+    '🎾 Tenis', 
+    '📖 Lectura', 
+    '💃 Baile', 
+    '📸 Fotografía', 
+    '🎥 Cine', 
+    '🔬 Ciencia', 
+    '🧠 Psicología', 
+    '🏛️ Política', 
+    '🤝 Voluntariado', 
+    '🧘 Bienestar', 
+    '🏋️ Fitness', 
+    '🐾 Animales', 
+    '⛰️ Montañismo', 
+    '🌌 Astronomía',
+    '🚴 Ciclismo', 
+    '🍷 Cerveza y Vinos', 
+    '🚗 Autos', 
+    '🏎️ Fórmula 1', 
+    '🏃 Running',
+    '🤿 Natación',
+  ];
+
+  return list;
+}
+
+String extractInterest(String interestWithEmoji) {
+  RegExp emojiRegex = RegExp(r'^[^\w]+');
+  return interestWithEmoji.replaceAll(emojiRegex, '').trim();
 }

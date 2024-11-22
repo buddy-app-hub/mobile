@@ -4,6 +4,7 @@ import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
+import 'package:mobile/utils/emoji_interest.dart';
 import 'package:mobile/widgets/base_decoration.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
@@ -17,7 +18,8 @@ class EditInterestsPage extends StatefulWidget {
 class _EditInterestsPageState extends State<EditInterestsPage> {
 
   final List<Interest> _interests = [];
-  final TextEditingController _interestController = TextEditingController();
+  final List<String> interests = getInterestsList();
+  late String selectedInterest;
 
   @override
   void initState() {
@@ -27,6 +29,7 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
     ? authProvider.userData?.buddy?.buddyProfile?.interests
     : authProvider.userData?.elder?.elderProfile?.interests) as Iterable<Interest>? ?? []);
     _interests.addAll(widget.initialInterests);
+    selectedInterest = interests[0];
   }
 
   @override
@@ -38,59 +41,88 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editar Intereses'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.check),
-            padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-            onPressed: () {
-              final updatedInterest = _interests;
-              if (updatedInterest.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Por favor, agregue sus intereses para poder guardar.'),
-                  ),
-                );
+      // title: Text('Editar Intereses'),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.check),
+          padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+          onPressed: () {
+            final updatedInterest = _interests;
+            if (updatedInterest.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Por favor, agregue sus intereses para poder guardar.'),
+                ),
+              );
+            } else {
+              if (authProvider.isBuddy) {
+                buddyService.updateProfileInterests(context, updatedInterest);
               } else {
-                if (authProvider.isBuddy) {
-                  buddyService.updateProfileInterests(context, updatedInterest);
-                } else {
-                  elderService.updateProfileInterests(context, updatedInterest);
-                }
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-                );
+                elderService.updateProfileInterests(context, updatedInterest);
               }
-            },
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-                child: Column(
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
+              );
+            }
+          },
+        ),
+      ],
+    ),
+    body: Stack(
+      children: [
+        SingleChildScrollView(
+          child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Container(
+                    padding: EdgeInsets.fromLTRB(8, 0, 28, 20),
+                    child: Text(
+                      'Editar Intereses',
+                      style: TextStyle(fontSize: 24),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(8, 0, 8, 18),
+                    child: Text(
+                      'Esta información nos permitirá conectarte con personas que compartan tus intereses.',
+                      style: ThemeTextStyle.titleInfoSmallOutline(context),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
                   Row(
                     children: [
                     Expanded(
-                    child: TextField(
-                      controller: _interestController,
-                      decoration: const InputDecoration(
-                      hintText: 'Agregar interés...',
-                      ),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(15, 0, 10, 0),
+                        child: DropdownButton<String>(
+                          value: selectedInterest,
+                          isExpanded: true,
+                          items: interests.map((String value) {
+                            return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedInterest = newValue!;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: () {
-                        final interest = _interestController.text.trim();
-                        if (interest.isNotEmpty) {
+                        final interest = extractInterest(selectedInterest.trim());
+                        if (!interest.contains('Seleccionar') || interest.isNotEmpty) {
                           setState(() {
                             _interests.add(Interest(name: interest));
-                            _interestController.clear();
+                            selectedInterest = interests[0];
                           });
                         } else {
                           final snackBar = SnackBar(
