@@ -62,25 +62,29 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
 
   Future<void> _fetchNearestAvailableTime() async {
     final availability = await userHelper.fetchProfileAvailability(widget.connection.buddyID, widget.isBuddy);
+    final availabilityUser = await userHelper.fetchProfileAvailability(widget.connection.elderID, !widget.isBuddy);
     final meetings = await userHelper.fetchMeetingCurrentWeek(widget.connection.buddyID, !widget.isBuddy);
     final meetingsElder = await userHelper.fetchMeetingCurrentWeek(widget.connection.elderID, widget.isBuddy);
 
-    if (availability!.isNotEmpty) {
-      final nearestAvailableTime = findNearestAvailableMeetingSchedule(availability, meetings, meetingsElder);
-      if (nearestAvailableTime != null) {
-        final startTime = formatIntToTime(nearestAvailableTime.startHour);
-        final endTime = addOneHour(startTime);
-        setState(() {
-          selectedDay = MeetingSchedule(date: nearestAvailableTime.date, startHour: nearestAvailableTime.startHour, endHour: timeToInt(endTime));
-          encuentroCercano = 'Próximo encuentro más cercano.';
-          _dateTime = nearestAvailableTime.date;
-          _dateController.text = formatMeetingDate(nearestAvailableTime.date);
-          _fromTime = startTime;
-          _fromController.text = timeToString(startTime);
-          _toTime = endTime;
-          _toController.text = timeToString(endTime);
-        });
-      } 
+    if (availability!.isNotEmpty && availabilityUser!.isNotEmpty) {
+      final bothAvailabilities = getMergeAvailability(availability, availabilityUser);
+      if (bothAvailabilities.isNotEmpty) {
+        final nearestAvailableTime = findNearestAvailableMeetingSchedule(bothAvailabilities, meetings, meetingsElder);
+        if (nearestAvailableTime != null) {
+          final startTime = formatIntToTime(nearestAvailableTime.startHour);
+          final endTime = addOneHour(startTime);
+          setState(() {
+            selectedDay = MeetingSchedule(date: nearestAvailableTime.date, startHour: nearestAvailableTime.startHour, endHour: timeToInt(endTime));
+            encuentroCercano = 'Próximo encuentro más cercano.';
+            _dateTime = nearestAvailableTime.date;
+            _dateController.text = formatMeetingDate(nearestAvailableTime.date);
+            _fromTime = startTime;
+            _fromController.text = timeToString(startTime);
+            _toTime = endTime;
+            _toController.text = timeToString(endTime);
+          });
+        } 
+      }
     } 
     if (selectedDay == null) {
       setState(() {
@@ -127,6 +131,27 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
         SnackBar(content: Text('El horario del encuentro ha sido actualizado a ${formatMeetingDate(selectedDay!.date)} con éxito.')),
       );
     }
+  }
+
+  List<custom_time.TimeOfDay> getMergeAvailability(
+    List<custom_time.TimeOfDay> availability,
+    List<custom_time.TimeOfDay> availabilityUser,
+  ) {
+    return availability.map((a) {
+      if (availabilityUser.any((a2) => a2.dayOfWeek.contains(a.dayOfWeek))) {
+        var availabilityDay = availabilityUser.firstWhere((a2) => a2.dayOfWeek.contains(a.dayOfWeek));
+        if (isBefore(formatIntToTime(a.from), formatIntToTime(availabilityDay.from))) {
+          a.from = availabilityDay.from;
+        }
+        if (isAfter(formatIntToTime(a.to), formatIntToTime(availabilityDay.to))) {
+          a.to = availabilityDay.to;
+        }
+        return a;
+      }
+    })
+    .where((a) => a != null)
+    .cast<custom_time.TimeOfDay>()
+    .toList();
   }
 
   MeetingSchedule? findNearestAvailableMeetingSchedule(

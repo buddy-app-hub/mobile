@@ -172,7 +172,7 @@ class UserHelper {
   Future<List<custom_time.TimeOfDay>?> fetchProfileAvailability(
       String personID, bool isBuddy) async {
     var personalData = isBuddy
-        ? (await elderService.getElder(personID)).elderProfile?.availability
+        ? (await elderService.getElder(personID)).elderProfile?.availability //se usa invertido porque en la parte del planner de muestra la disponibilidad del otro
         : (await buddyService.getBuddy(personID)).buddyProfile?.availability;
     return personalData;
   }

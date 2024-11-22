@@ -4,9 +4,9 @@ part 'time_of_day.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class TimeOfDay {
-  final String dayOfWeek;
-  final int from;
-  final int to;
+  String dayOfWeek;
+  int from;
+  int to;
   
   TimeOfDay({
     required this.dayOfWeek,
