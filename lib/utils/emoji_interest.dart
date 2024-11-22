@@ -2,7 +2,7 @@ String getEmojiInterest(String interest) {
   String interestLower = interest.toLowerCase();
   Map<RegExp, String> emojiMap = {
     RegExp(r'programación|programacion|computadora|gaming|informatica|informática|tecnologia|tecnología') : '💻',
-    RegExp(r'fútbol|futbol|balón pie|deportes|baseball') : '⚽',
+    RegExp(r'fútbol|futbol|balón pie|baseball') : '⚽',
     RegExp(r'deportes') : '🏈',
     RegExp(r'golf|mini-golf|mini golf') : '⛳️',
     RegExp(r'boxeo|combat|boxing') : '🥊',
@@ -27,12 +27,12 @@ String getEmojiInterest(String interest) {
     RegExp(r'fotografía|fotografia|fotos|cámaras|camaras') : '📸',
     RegExp(r'cine|filmes|director|actuar|actuacion|actuación') : '🎥',
     RegExp(r'ciencia|investigación|investigacion|tecnología|descubrimientos') : '🔬',
-    RegExp(r'psicología|psicologia|mentes|bienestar') : '🧠',
+    RegExp(r'psicología|psicologia|mentes') : '🧠',
     RegExp(r'política|politica|debate|noticias') : '🏛️',
     RegExp(r'voluntariado|ayudar|comunidad|solidaridad') : '🤝',
     RegExp(r'bienestar|meditación|meditacion|yoga|relajación|relajacion') : '🧘',
     RegExp(r'fitness|entrenamiento|ejercicio|gym|salud') : '🏋️',
-    RegExp(r'animales|mascotas|perros|gatos|naturaleza') : '🐾',
+    RegExp(r'animales|mascotas|perros|gatos') : '🐾',
     RegExp(r'montañismo|escalar|senderismo|trekking') : '⛰️',
     RegExp(r'astronomía|astronomia|espacio|estrellas|universo') : '🌌',
     RegExp(r'ciclismo|bicicleta|ciclismo de montaña|bici') : '🚴',
