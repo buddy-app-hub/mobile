@@ -86,7 +86,7 @@ class _EditAvailabilityPageState extends State<EditAvailabilityPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editar Disponibilidad'),
+        // title: Text('Editar Disponibilidad'),
         actions: [
           IconButton(
             icon: Icon(Icons.check),
@@ -120,8 +120,24 @@ class _EditAvailabilityPageState extends State<EditAvailabilityPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Container(
+                    padding: EdgeInsets.fromLTRB(8, 0, 28, 20),
+                    child: Text(
+                      'Editar Disponibilidad Horaria',
+                      style: TextStyle(fontSize: 24),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(8, 0, 8, 18),
+                    child: Text(
+                      'Esta información nos permitirá conectarte con personas con una disponibilidad compatible contigo.',
+                      style: ThemeTextStyle.titleInfoSmallOutline(context),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
                   Row(
                     children: [
                       Expanded(
