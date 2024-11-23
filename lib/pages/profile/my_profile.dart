@@ -88,7 +88,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
     print("Actualizando estado del perfil");
     bool hasVideoURL =
         await userHelper.isIntroVideoUploaded(context, authProvider.userData!);
-    print(hasVideoURL);
 
     setState(() {
       isBuddy = authProvider.userData!.buddy != null;
@@ -118,6 +117,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           _profileImageUrl != null &&
           _profileImageUrl != "";
 
+      // Logica tambien presente en userHelper.isElderProfileComplete()
       isElderProfileComplete = isBiographyCompleted &&
           isAddressCompleted &&
           isPhotoAlbumCompleted &&
@@ -374,8 +374,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
           profileCompletionCards.where((p) => p.completed).length;
     });
 
-    print(profileCompletedProgress);
-    print(profileCompletionCards);
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/address.dart';
 import 'package:mobile/models/connection.dart';
+import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/meeting.dart';
 import 'package:mobile/models/review.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
@@ -45,7 +46,8 @@ class UserHelper {
         .where((meeting) {
       final meetingDate = meeting.schedule.date;
       return meetingDate.isAfter(now.subtract(Duration(days: 1))) &&
-          meetingDate.isBefore(weekFromNow) && !meeting.isCancelled;
+          meetingDate.isBefore(weekFromNow) &&
+          !meeting.isCancelled;
     }).toList();
 
     return meeting;
@@ -85,12 +87,16 @@ class UserHelper {
         .expand((connection) => connection.meetings)
         .where((meeting) {
       final meetingDate = meeting.schedule.date;
-      return now.isAfter(meetingDate) && !meeting.isCancelled && meeting.isConfirmedByBuddy && meeting.isConfirmedByElder;
+      return now.isAfter(meetingDate) &&
+          !meeting.isCancelled &&
+          meeting.isConfirmedByBuddy &&
+          meeting.isConfirmedByElder;
     }).toList();
 
     int totalHours = pastMeetings
-    .map((m) => (m.schedule.endHour - m.schedule.startHour) / 100)
-    .fold(0.0, (sum, hours) => sum + hours).round();
+        .map((m) => (m.schedule.endHour - m.schedule.startHour) / 100)
+        .fold(0.0, (sum, hours) => sum + hours)
+        .round();
 
     return totalHours;
   }
@@ -109,7 +115,10 @@ class UserHelper {
         .expand((connection) => connection.meetings)
         .where((meeting) {
       final meetingDate = meeting.schedule.date;
-      return now.isAfter(meetingDate) && !meeting.isCancelled && meeting.isConfirmedByBuddy && meeting.isConfirmedByElder;
+      return now.isAfter(meetingDate) &&
+          !meeting.isCancelled &&
+          meeting.isConfirmedByBuddy &&
+          meeting.isConfirmedByElder;
     }).toList();
 
     return pastMeetings.length;
@@ -125,7 +134,6 @@ class UserHelper {
 
     return connections.length;
   }
-
 
   Future<Object> fetchPersonProfile(String personID, bool isBuddy) async {
     Object? personalProfile = isBuddy
@@ -293,5 +301,18 @@ class UserHelper {
         address.postalCode != "" &&
         address.city != null &&
         address.city != "";
+  }
+
+  Future<bool> isElderProfileComplete(UserData userData) async {
+    String? imageUrl =
+        await _filesService.getProfileImageUrl(userData.elder!.firebaseUID);
+
+    return isUserBiographyCompleted(userData) &&
+        isUserAddressCompleted(userData) &&
+        isUserPhotoAlbumCompleted(userData) &&
+        isUserInterestCompleted(userData) &&
+        isUserAvailabilityCompleted(userData) &&
+        imageUrl != null &&
+        imageUrl != "";
   }
 }

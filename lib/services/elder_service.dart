@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/elder_profile.dart';
@@ -37,7 +38,9 @@ class ElderService {
   }
 
   Future<void> updateElderProfileDescription(
-      BuildContext context, String newDescription) async {
+    BuildContext context,
+    String newDescription,
+  ) async {
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
 
@@ -45,9 +48,11 @@ class ElderService {
     newProfile.description = newDescription;
 
     try {
-      await ApiService.patch(
-        endpoint: "/elders/${authProvider.user!.uid}/profile",
-        body: newProfile.toJson(),
+      await updateElderProfile(
+        context,
+        newProfile,
+        authProvider.user!.uid,
+        false, // Por ahora la biografia no forma parte del algoritmo de matching asi que no hay que recalcular recomendaciones
       );
       print("Descripción actualizada con éxito");
 
@@ -58,17 +63,25 @@ class ElderService {
   }
 
   Future<void> updateProfileInterests(
-      BuildContext context, List<Interest> newInterests) async {
+    BuildContext context,
+    List<Interest> newInterests,
+  ) async {
+    UserHelper userHelper = UserHelper();
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
 
     ElderProfile newProfile = authProvider.userData!.elder!.elderProfile!;
     newProfile.interests = newInterests;
 
+    bool isElderProfileComplete =
+        await userHelper.isElderProfileComplete(authProvider.userData!);
+
     try {
-      await ApiService.patch(
-        endpoint: "/elders/${authProvider.user!.uid}/profile",
-        body: newProfile.toJson(),
+      await updateElderProfile(
+        context,
+        newProfile,
+        authProvider.user!.uid,
+        isElderProfileComplete, // Recalculamos reco. budd. solo si el perfil del mayor esta completo
       );
       print("Intereses actualizados con éxito");
 
@@ -79,17 +92,25 @@ class ElderService {
   }
 
   Future<void> updateProfileAvailability(
-      BuildContext context, List<custom_time.TimeOfDay> newAvailability) async {
+    BuildContext context,
+    List<custom_time.TimeOfDay> newAvailability,
+  ) async {
+    UserHelper userHelper = UserHelper();
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
 
     ElderProfile newProfile = authProvider.userData!.elder!.elderProfile!;
     newProfile.availability = newAvailability;
 
+    bool isElderProfileComplete =
+        await userHelper.isElderProfileComplete(authProvider.userData!);
+
     try {
-      await ApiService.patch(
-        endpoint: "/elders/${authProvider.user!.uid}/profile",
-        body: newProfile.toJson(),
+      await updateElderProfile(
+        context,
+        newProfile,
+        authProvider.user!.uid,
+        isElderProfileComplete, // Recalculamos reco. budd. solo si el perfil del mayor esta completo
       );
       print("Dispobibilidad actualizada con éxito");
 
@@ -108,9 +129,11 @@ class ElderService {
     newProfile.photos = newPhotosArray;
 
     try {
-      await ApiService.patch(
-        endpoint: "/elders/${authProvider.user!.uid}/profile",
-        body: newProfile.toJson(),
+      await updateElderProfile(
+        context,
+        newProfile,
+        authProvider.user!.uid,
+        false, // Nunca recalculamos reco. budd. si se cambian las fotos
       );
       print("Array de fotos actualizado con éxito");
 
@@ -132,13 +155,35 @@ class ElderService {
     return connections;
   }
 
-  void updateElderPersonalData(BuildContext context, PersonalData personalData) async {
+  Future<void> updateElderProfile(
+    BuildContext context,
+    ElderProfile newProfile,
+    String uid,
+    bool recalcRecoBuddies,
+  ) async {
+    await ApiService.patch(
+      endpoint:
+          "/elders/$uid/profile?recalcRecommendedBuddies=$recalcRecoBuddies",
+      body: newProfile.toJson(),
+    );
+  }
+
+  void updateElderPersonalData(
+    BuildContext context,
+    PersonalData personalData,
+  ) async {
+    UserHelper userHelper = UserHelper();
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
     print(personalData.toJson());
     try {
+      // Se recalcularan los buddies recomendados del mayor solo si el perfil esta completo
+      bool isElderProfileComplete =
+          await userHelper.isElderProfileComplete(authProvider.userData!);
+
       await ApiService.patch(
-        endpoint: "/elders/${authProvider.user!.uid}/personaldata",
+        endpoint:
+            "/elders/${authProvider.user!.uid}/personaldata?recalcRecommendedBuddies=$isElderProfileComplete",
         body: personalData.toJson(),
       );
       print("Personal data actualizada con éxito");
@@ -146,6 +191,25 @@ class ElderService {
       await authProvider.fetchUserData();
     } catch (e) {
       print("Error al actualizar la personal data: $e");
+    }
+  }
+
+  /* Solo para usar cuando se termina de completar el perfil con acciones que no recalculan las recomendaciones 
+  de manera automatica (por ej. si un elder subio su foto de perfil o su album de fotos) 
+  Tiene como precondicion que el perfil del elder debe estar completo */
+  void calculateRecommendedBuddies(
+    String uid,
+  ) async {
+    print("Recalculando recomendaciones de buddies directamente...");
+    try {
+      await ApiService.post(
+        endpoint: "/elders/$uid/buddies/recalc",
+        body: {},
+      );
+      print("Peticion de recalculo de recomendacion de buddies con éxito");
+    } catch (e) {
+      print(
+          "Error al intentar hacer la peticion de recalculo de recomendaciones: $e");
     }
   }
 }

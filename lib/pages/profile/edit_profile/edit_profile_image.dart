@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
+import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/services/files_service.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
@@ -50,12 +53,20 @@ class EditProfileImageBottomSheet {
         userId: authProvider.user!.uid,
         imageFile: imageFile,
         onProgress: (progress) {},
-        onComplete: (downloadUrl) {
+        onComplete: (downloadUrl) async {
           Navigator.pop(scaffoldContext); // Close the progress dialog
           ScaffoldMessenger.of(scaffoldContext).showSnackBar(
             SnackBar(content: Text('Imagen subida correctamente')),
           );
           _loadProfileImage();
+          if (authProvider.isElder) {
+            ElderService elderService = ElderService();
+            UserHelper userHelper = UserHelper();
+            await userHelper.isElderProfileComplete(authProvider.userData!)
+                ? elderService
+                    .calculateRecommendedBuddies(authProvider.user!.uid)
+                : null;
+          }
         },
         onError: (error) {
           Navigator.pop(scaffoldContext); // Close the progress dialog
