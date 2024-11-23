@@ -64,43 +64,54 @@ class _HomeContentPageState extends State<HomeContentPage>
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Row(
             children: [
-              Text(
-                authProvider.userData != null
-                    ? 'Hola, ${authProvider.isElder && isLovedOneModeOn && authProvider.userData!.elder!.lovedOne != null ? authProvider.userData!.elder!.lovedOne!.firstName : authProvider.personalData.firstName}!'
-                    : 'No logueado',
-                style: ThemeTextStyle.titleLargePrimary700(context),
-              ),
+              authProvider.isElder &&
+                      isLovedOneModeOn &&
+                      authProvider.userData!.elder!.lovedOne != null
+                  ? Text(
+                      authProvider.userData != null
+                          ? 'Hola, ${authProvider.userData!.elder!.lovedOne!.firstName}!'
+                          : 'No logueado',
+                      style: ThemeTextStyle.titleLargeTertiary700(context),
+                    )
+                  : Text(
+                      authProvider.userData != null
+                          ? 'Hola, ${authProvider.personalData.firstName}!'
+                          : 'No logueado',
+                      style: ThemeTextStyle.titleLargePrimary700(context),
+                    ),
               Spacer(),
               authProvider.isElder &&
-                      authProvider.userData!.elder!.lovedOne != null // Mostramos el switch si el elder tiene modo loved one
+                      authProvider.userData!.elder!.lovedOne !=
+                          null // Mostramos el switch si el elder tiene modo loved one
                   ? Row(
                       children: [
                         Icon(
-                          Icons.emoji_people, // iconos posibles: elderly, emoji_people
+                          Icons
+                              .emoji_people, // iconos posibles: elderly, emoji_people
                           color: !isLovedOneModeOn
                               ? Theme.of(context).primaryColor
                               : Colors.grey,
                         ),
-                        SizedBox(
-                            width: 2),
+                        SizedBox(width: 2),
                         Switch(
-                          value: !isLovedOneModeOn,
+                          value: isLovedOneModeOn,
                           onChanged: (value) {
                             _toggleMode();
                           },
-                          activeColor: Theme.of(context).primaryColor,
-                          inactiveThumbColor: Colors.grey,
-                          inactiveTrackColor: Colors.grey[300],
+                          activeColor: Theme.of(context).colorScheme.tertiary,
+                          activeTrackColor:
+                              Theme.of(context).colorScheme.tertiaryContainer,
+                          inactiveThumbColor: Theme.of(context).primaryColor,
+                          inactiveTrackColor:
+                              Theme.of(context).colorScheme.primaryContainer,
                         ),
-                        SizedBox(
-                            width:
-                                2),
+                        SizedBox(width: 2),
                         Icon(
                           Icons
                               .supervisor_account, // iconos posibles: family_restroom, supervisor_account
                           color: !isLovedOneModeOn
                               ? Colors.grey
-                              : Theme.of(context).primaryColor,
+                              : Theme.of(context).colorScheme.tertiary,
                         ),
                       ],
                     )
