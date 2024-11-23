@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 import 'package:mobile/pages/navigation.dart';
+import 'package:mobile/services/elder_service.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:mobile/services/files_service.dart';
@@ -130,13 +132,21 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
         onProgress: (index, progress) {
           // Optional: Handle progress updates here
         },
-        onComplete: () {
+        onComplete: () async {
           setState(() {
             _isLoading = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Fotos subidas correctamente')),
           );
+          if (authProvider.isElder) {
+            ElderService elderService = ElderService();
+            UserHelper userHelper = UserHelper();
+            await userHelper.isElderProfileComplete(authProvider.userData!)
+                ? elderService
+                    .calculateRecommendedBuddies(authProvider.user!.uid)
+                : null;
+          }
         },
         onError: (error) {
           setState(() {
@@ -169,7 +179,8 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
             icon: Icon(Icons.check),
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             onPressed: () async {
-              await _uploadPhotos(null); // Upload photos when the check button is pressed
+              await _uploadPhotos(
+                  null); // Upload photos when the check button is pressed
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Navigation(index: 2)),
@@ -212,7 +223,8 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                                 )
                               : (_storedPhotoUrls[index] != null
                                   ? DecorationImage(
-                                      image: NetworkImage(_storedPhotoUrls[index]!),
+                                      image: NetworkImage(
+                                          _storedPhotoUrls[index]!),
                                       fit: BoxFit.cover,
                                     )
                                   : null),
@@ -227,22 +239,23 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
                 onReorder: (oldIndex, newIndex) async {
                   // La foto que estaba en oldIndex pasa a newIndex (la que arrastre), y la que estaba en newIndex pasa a oldIndex
                   if (oldIndex != newIndex) {
-                    if (oldIndex < firstFreeIndex && newIndex < firstFreeIndex) { // Tienen que estar dentro de las fotos que se cargaron
-                       setState(() {
-                    _isLoading = true;
-                  });
+                    if (oldIndex < firstFreeIndex &&
+                        newIndex < firstFreeIndex) {
+                      // Tienen que estar dentro de las fotos que se cargaron
+                      setState(() {
+                        _isLoading = true;
+                      });
 
-                  try {
-                    await _uploadPhotos([oldIndex, newIndex]);
-                    await _loadUserPhotos();
-                  } catch (e) {
-                    print('Error al reordernar las fotos: $e');
-                  }
+                      try {
+                        await _uploadPhotos([oldIndex, newIndex]);
+                        await _loadUserPhotos();
+                      } catch (e) {
+                        print('Error al reordernar las fotos: $e');
+                      }
 
-                  setState(() {
-                    _isLoading = false;
-                  });
-                      
+                      setState(() {
+                        _isLoading = false;
+                      });
                     }
                   }
                 },
@@ -266,7 +279,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
 
     for (int i = 0; i < _newPhotos.length; i++) {
       if (_newPhotos[i] != null) {
-        _reorderedNewPhotos[i-1] = _newPhotos[i];
+        _reorderedNewPhotos[i - 1] = _newPhotos[i];
       }
     }
     _newPhotos = _reorderedNewPhotos;
