@@ -17,11 +17,17 @@ class _HomeContentPageState extends State<HomeContentPage>
     with TickerProviderStateMixin {
   late final TabController _tabController;
   bool isLovedOneModeOn = false; // Solo util para elders
+  bool isLoadingMode = true;
   final LovedOneModePreference _modePreference = LovedOneModePreference();
+  late AuthSessionProvider authProvider;
 
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    isLoadingMode = authProvider.isElder &&
+        authProvider.userData!.elder!.lovedOne !=
+            null; // Si es elder y tiene loved one, espero a que cargue el modo de preferencia
     _loadIsLovedOneModeOn();
     _tabController = TabController(length: 2, vsync: this);
   }
@@ -36,6 +42,7 @@ class _HomeContentPageState extends State<HomeContentPage>
     bool mode = await _modePreference.getMode();
     setState(() {
       isLovedOneModeOn = mode;
+      isLoadingMode = false;
     });
   }
 
@@ -55,69 +62,74 @@ class _HomeContentPageState extends State<HomeContentPage>
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthSessionProvider>(context);
-
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: Row(
-            children: [
-              authProvider.isElder &&
-                      isLovedOneModeOn &&
-                      authProvider.userData!.elder!.lovedOne != null
-                  ? Text(
-                      authProvider.userData != null
-                          ? 'Hola, ${authProvider.userData!.elder!.lovedOne!.firstName}!'
-                          : 'No logueado',
-                      style: ThemeTextStyle.titleLargeTertiary700(context),
-                    )
-                  : Text(
-                      authProvider.userData != null
-                          ? 'Hola, ${authProvider.personalData.firstName}!'
-                          : 'No logueado',
-                      style: ThemeTextStyle.titleLargePrimary700(context),
-                    ),
-              Spacer(),
-              authProvider.isElder &&
-                      authProvider.userData!.elder!.lovedOne !=
-                          null // Mostramos el switch si el elder tiene modo loved one
-                  ? Row(
-                      children: [
-                        Icon(
-                          Icons
-                              .emoji_people, // iconos posibles: elderly, emoji_people
-                          color: !isLovedOneModeOn
-                              ? Theme.of(context).primaryColor
-                              : Colors.grey,
-                        ),
-                        SizedBox(width: 2),
-                        Switch(
-                          value: isLovedOneModeOn,
-                          onChanged: (value) {
-                            _toggleMode();
-                          },
-                          activeColor: Theme.of(context).colorScheme.tertiary,
-                          activeTrackColor:
-                              Theme.of(context).colorScheme.tertiaryContainer,
-                          inactiveThumbColor: Theme.of(context).primaryColor,
-                          inactiveTrackColor:
-                              Theme.of(context).colorScheme.primaryContainer,
-                        ),
-                        SizedBox(width: 2),
-                        Icon(
-                          Icons
-                              .supervisor_account, // iconos posibles: family_restroom, supervisor_account
-                          color: !isLovedOneModeOn
-                              ? Colors.grey
-                              : Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ],
-                    )
-                  : SizedBox.shrink(),
-            ],
-          ),
+          child: !isLoadingMode
+              ? Row(
+                  children: [
+                    authProvider.isElder &&
+                            isLovedOneModeOn &&
+                            authProvider.userData!.elder!.lovedOne != null
+                        ? Text(
+                            authProvider.userData != null
+                                ? 'Hola, ${authProvider.userData!.elder!.lovedOne!.firstName}!'
+                                : 'No logueado',
+                            style:
+                                ThemeTextStyle.titleLargeTertiary700(context),
+                          )
+                        : Text(
+                            authProvider.userData != null
+                                ? 'Hola, ${authProvider.personalData.firstName}!'
+                                : 'No logueado',
+                            style: ThemeTextStyle.titleLargePrimary700(context),
+                          ),
+                    Spacer(),
+                    authProvider.isElder &&
+                            authProvider.userData!.elder!.lovedOne !=
+                                null // Mostramos el switch si el elder tiene modo loved one
+                        ? Row(
+                            children: [
+                              Icon(
+                                Icons
+                                    .emoji_people, // iconos posibles: elderly, emoji_people
+                                color: !isLovedOneModeOn
+                                    ? Theme.of(context).primaryColor
+                                    : Colors.grey,
+                              ),
+                              SizedBox(width: 2),
+                              Switch(
+                                value: isLovedOneModeOn,
+                                onChanged: (value) {
+                                  _toggleMode();
+                                },
+                                activeColor:
+                                    Theme.of(context).colorScheme.tertiary,
+                                activeTrackColor: Theme.of(context)
+                                    .colorScheme
+                                    .tertiaryContainer,
+                                inactiveThumbColor:
+                                    Theme.of(context).primaryColor,
+                                inactiveTrackColor: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                              ),
+                              SizedBox(width: 2),
+                              Icon(
+                                Icons
+                                    .supervisor_account, // iconos posibles: family_restroom, supervisor_account
+                                color: !isLovedOneModeOn
+                                    ? Colors.grey
+                                    : Theme.of(context).colorScheme.tertiary,
+                              ),
+                            ],
+                          )
+                        : SizedBox.shrink(),
+                  ],
+                )
+              : SizedBox.shrink(),
         ),
         bottom: TabBar(
           controller: _tabController,
