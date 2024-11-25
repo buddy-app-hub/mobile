@@ -7,7 +7,9 @@ import 'package:mobile/theme/theme_text_style.dart';
 import 'package:provider/provider.dart';
 
 class HomeContentPage extends StatefulWidget {
-  const HomeContentPage({super.key});
+  final TabController tabController;
+  final Function(int) updateSelectedIndex;
+  const HomeContentPage({super.key, required this.tabController, required this.updateSelectedIndex});
 
   @override
   State<HomeContentPage> createState() => _HomeContentPageState();
@@ -146,7 +148,7 @@ class _HomeContentPageState extends State<HomeContentPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          ForYouPage(),
+          ForYouPage(tabController: widget.tabController, updateSelectedIndex: widget.updateSelectedIndex),
           SocialHubPage(),
         ],
       ),

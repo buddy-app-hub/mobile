@@ -15,24 +15,36 @@ class Navigation extends StatefulWidget {
   State<Navigation> createState() => _NavigationState();
 }
 
-class _NavigationState extends State<Navigation> {
+class _NavigationState extends State<Navigation> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   int _selectedIndex =  0;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex =  widget.index;
+    _tabController = TabController(vsync: this, length: 3, initialIndex: _selectedIndex);
   }
 
-  static List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    MyConnectionsPage(),
-    MyProfilePage(),
-  ];
+  void updateSelectedIndex(int index) {
+    setState(() {
+      _selectedIndex = index;
+      _tabController.animateTo(index);
+    });
+  }
+
+  List<Widget> _widgetOptions() {
+    return <Widget>[
+      HomePage(tabController: _tabController, updateSelectedIndex: updateSelectedIndex),
+      MyConnectionsPage(),
+      MyProfilePage(tabController: _tabController, updateSelectedIndex: updateSelectedIndex),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _tabController.animateTo(index);
     });
   }
 
@@ -42,44 +54,28 @@ class _NavigationState extends State<Navigation> {
     final authProvider = Provider.of<AuthSessionProvider>(context);
 
     return Scaffold(
-        body: Center(
-          child: _widgetOptions.elementAt(_selectedIndex),
+      body: Center(
+        child: TabBarView(
+          physics: NeverScrollableScrollPhysics(),
+          controller: _tabController,
+          children: _widgetOptions(),
         ),
-        bottomNavigationBar: FlashyTabBar(
-          backgroundColor: theme.colorScheme.surface,
-          selectedIndex: _selectedIndex,
-          showElevation: true,
-          onItemSelected: _onItemTapped,
-          items: [
-            BaseDecoration.buildNavbarIconItem(
-                context, 'Inicio', Icon(Icons.home_rounded)),
-            BaseDecoration.buildNavbarIconItem(
-                context,
-                authProvider.isBuddy ? 'Mayores' : 'Buddies',
-                Icon(Icons.diversity_3)),
-            BaseDecoration.buildNavbarIconItem(
-                context, 'Perfil', Icon(Icons.person)),
-          ],
-        )
-        // BottomNavigationBar(
-        //   items: <BottomNavigationBarItem>[
-        //     BottomNavigationBarItem(
-        //       icon: Icon(Icons.home),
-        //       label: 'Home',
-        //     ),
-        //     BottomNavigationBarItem(
-        //       icon: Icon(Icons.group),
-        //       label: userIsBuddy ? 'Mayores' : 'Buddies',
-        //     ),
-        //     BottomNavigationBarItem(
-        //       icon: Icon(Icons.person_2),
-        //       label: 'Perfil',
-        //     ),
-        //   ],
-        //   currentIndex: _selectedIndex,
-        //   selectedItemColor: theme.colorScheme.primary,
-        //   onTap: _onItemTapped,
-        // ),
-        );
+      ),
+      bottomNavigationBar: FlashyTabBar(
+        backgroundColor: theme.colorScheme.surface,
+        selectedIndex: _selectedIndex,
+        showElevation: true,
+        onItemSelected: _onItemTapped,
+        items: [
+          BaseDecoration.buildNavbarIconItem(context, 'Inicio', Icon(Icons.home_rounded)),
+          BaseDecoration.buildNavbarIconItem(
+            context, 
+            authProvider.isBuddy ? 'Mayores' : 'Buddies',
+            Icon(Icons.diversity_3),
+          ),
+          BaseDecoration.buildNavbarIconItem(context, 'Perfil', Icon(Icons.person)),
+        ],
+      ),
+    );
   }
 }
