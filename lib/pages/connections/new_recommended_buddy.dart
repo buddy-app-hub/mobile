@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/recommended_buddy.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
@@ -28,17 +30,36 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
   List<String?> _photoUrls = [];
   final FilesService _filesService = FilesService();
   bool _photosLoading = false;
+  bool isElderProfileComplete = false;
+  bool _isProfileCompletenessLoading = true;
 
   @override
   void initState() {
     super.initState();
+    authProvider =
+        Provider.of<AuthSessionProvider>(this.context, listen: false);
     _fetchRecommendedBuddies();
+    _fetchIsElderProfileComplete();
+  }
+
+  Future<void> _fetchIsElderProfileComplete() async {
+    UserHelper userHelper = UserHelper();
+    try {
+      bool isComplete =
+          await userHelper.isElderProfileComplete(authProvider.userData!);
+      setState(() {
+        isElderProfileComplete = isComplete;
+        _isProfileCompletenessLoading = false;
+      });
+    } catch (error) {
+      print("Error checking profile completeness: $error");
+      setState(() {
+        _isProfileCompletenessLoading = false;
+      });
+    }
   }
 
   Future<void> _fetchRecommendedBuddies() async {
-    authProvider =
-        Provider.of<AuthSessionProvider>(this.context, listen: false);
-
     BuddyService buddyService = BuddyService();
     try {
       List<RecommendedBuddy> rb =
@@ -108,7 +129,8 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
     print(newConnection);
 
     try {
-      Connection connection = await connectionService.createConnection(context, newConnection);
+      Connection connection =
+          await connectionService.createConnection(context, newConnection);
       print("Conexión enviada con éxito");
       Navigator.push(
         context,
@@ -127,9 +149,23 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    if (recommendedBuddies == null || _photosLoading) {
+    if (recommendedBuddies == null ||
+        _photosLoading ||
+        _isProfileCompletenessLoading) {
       return Center(
         child: CircularProgressIndicator(),
+      );
+    }
+
+    if (!isElderProfileComplete) {
+      return Center(
+        child: Text(
+          'Completá tu perfil\npara poder conectar\n con buddies !',
+          textAlign: TextAlign.center,
+          style: ThemeTextStyle.titleMediumOnPrimaryContainer(
+            context,
+          ),
+        ),
       );
     }
 
@@ -150,10 +186,11 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
         recommendedBuddies![currentBuddyIndex];
 
     final personName = recommendedBuddy.buddy!.personalData.birthDate != null
-      ? '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${calculateAge(recommendedBuddy.buddy!.personalData.birthDate!)}'
-      : '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}';
+        ? '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}, ${calculateAge(recommendedBuddy.buddy!.personalData.birthDate!)}'
+        : '${recommendedBuddy.buddy!.personalData.firstName} ${recommendedBuddy.buddy!.personalData.lastName}';
 
-    final globalRating = recommendedBuddy.buddy!.buddyProfile?.globalRating ?.toString() ?? '0';
+    final globalRating =
+        recommendedBuddy.buddy!.buddyProfile?.globalRating?.toString() ?? '0';
 
     final location = 'A ${recommendedBuddy.distanceToKM} km';
 
@@ -218,7 +255,8 @@ class _NewRecommendedBuddyState extends State<NewRecommendedBuddy> {
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Column(
                           children: [
-                            ProfileWidgets.buildProfileData(context, theme, personName, globalRating, 0, location, true), 
+                            ProfileWidgets.buildProfileData(context, theme,
+                                personName, globalRating, 0, location, true),
                           ],
                         ),
                       ),
