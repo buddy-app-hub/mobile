@@ -21,6 +21,10 @@ import 'package:intl/intl.dart';
 UserHelper userHelper = UserHelper();
 
 class MyProfilePage extends StatefulWidget {
+  final TabController tabController;
+  final Function(int) updateSelectedIndex;
+  const MyProfilePage({super.key, required this.tabController, required this.updateSelectedIndex});
+
   @override
   _MyProfilePageState createState() => _MyProfilePageState();
 }
@@ -178,7 +182,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => IdentityVerificationPage()),
+                        builder: (context) => IdentityVerificationPage(
+                          tabController: widget.tabController, 
+                          updateSelectedIndex: widget.updateSelectedIndex,
+                        )
+                      ),
                     );
                   },
             style: ElevatedButton.styleFrom(
@@ -221,6 +229,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
               MaterialPageRoute(
                   builder: (context) => EditBiographyPage(
                         isEdit: false,
+                        tabController: widget.tabController, 
+                        updateSelectedIndex: widget.updateSelectedIndex,
                       )),
             );
           },
@@ -257,7 +267,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => EditPhotosPage()),
+            MaterialPageRoute(builder: (context) => EditPhotosPage(
+              tabController: widget.tabController, 
+              updateSelectedIndex: widget.updateSelectedIndex,
+            )),
           );
         },
         style: ElevatedButton.styleFrom(
@@ -275,7 +288,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => EditInterestsPage()),
+            MaterialPageRoute(builder: (context) => EditInterestsPage(
+              tabController: widget.tabController, 
+              updateSelectedIndex: widget.updateSelectedIndex,
+            )),
           );
         },
         style: ElevatedButton.styleFrom(
@@ -293,7 +309,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => EditAvailabilityPage()),
+            MaterialPageRoute(builder: (context) => EditAvailabilityPage(
+              tabController: widget.tabController, 
+              updateSelectedIndex: widget.updateSelectedIndex,
+            )),
           );
         },
         style: ElevatedButton.styleFrom(
@@ -313,7 +332,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
               // Esperamos el valor retornado por EditVideoPage
               final videoUploaded = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditVideoPage()),
+                MaterialPageRoute(builder: (context) => EditVideoPage(
+                  tabController: widget.tabController, 
+                  updateSelectedIndex: widget.updateSelectedIndex,
+                )),
               );
 
               // Si el video fue cargado, actualizamos el estado
@@ -596,18 +618,32 @@ class _MyProfilePageState extends State<MyProfilePage> {
       case 'Billetera':
         targetPage = WalletPage();
       case 'Disponibilidad horaria':
-        targetPage = EditAvailabilityPage();
+        targetPage = EditAvailabilityPage(
+          tabController: widget.tabController, 
+          updateSelectedIndex: widget.updateSelectedIndex,
+        );
       case 'Biografia':
         targetPage = EditBiographyPage(
           isEdit: true,
+          tabController: widget.tabController, 
+          updateSelectedIndex: widget.updateSelectedIndex,
         );
       case 'Fotos':
-        targetPage = EditPhotosPage();
+        targetPage = EditPhotosPage(
+          tabController: widget.tabController, 
+          updateSelectedIndex: widget.updateSelectedIndex,
+        );
       case 'Video introductorio':
-        targetPage = EditVideoPage();
+        targetPage = EditVideoPage(
+          tabController: widget.tabController, 
+          updateSelectedIndex: widget.updateSelectedIndex,
+        );
         isVideoEdited = true;
       case 'Intereses':
-        targetPage = EditInterestsPage();
+        targetPage = EditInterestsPage(
+          tabController: widget.tabController, 
+          updateSelectedIndex: widget.updateSelectedIndex,
+        );
       case 'Datos de trabajo y/o estudio':
         targetPage = null;
     }
@@ -615,7 +651,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
       // Esperamos el valor retornado por EditVideoPage
       final videoUploaded = await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => EditVideoPage()),
+        MaterialPageRoute(builder: (context) => EditVideoPage(
+          tabController: widget.tabController, 
+          updateSelectedIndex: widget.updateSelectedIndex,
+        )),
       );
 
       // Si el video fue cargado, actualizamos el estado

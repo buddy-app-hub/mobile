@@ -227,6 +227,19 @@ class UserHelper {
     }
   }
 
+  Future<bool> isProfileCompleted(UserData userData) async {
+    var isProfileCompleted = isUserIdentityVerified(userData);
+    isProfileCompleted = isUserBiographyCompleted(userData);
+    isProfileCompleted = isUserAddressCompleted(userData);
+    isProfileCompleted = isUserPhotoAlbumCompleted(userData);
+    isProfileCompleted = isUserInterestCompleted(userData);
+    isProfileCompleted = isUserAvailabilityCompleted(userData);
+    isProfileCompleted = isUserBuddyApplicationCompleted(userData);
+    var isVideoUploaded = await isIntroVideoUploadedByUser(userData);
+
+    return isProfileCompleted && isVideoUploaded;
+  }
+
   bool isUserIdentityVerified(UserData userData) {
     var isIdentityValidated =
         userData.buddy != null ? userData.buddy!.isIdentityValidated : true;
@@ -282,6 +295,18 @@ class UserHelper {
     final url = await _filesService.getIntroVideo(userId);
 
     return url != null;
+  }
+
+  Future<bool> isIntroVideoUploadedByUser(UserData userData) async {
+    var isBuddy = userData.buddy != null;
+    if (isBuddy) {
+      final userId = userData.buddy != null
+        ? userData.buddy!.firebaseUID
+        : userData.elder!.firebaseUID;
+      final url = await _filesService.getIntroVideo(userId);
+      return url != null;
+    }
+    return true;
   }
 
   bool isUserBuddyApplicationCompleted(UserData userData) {
