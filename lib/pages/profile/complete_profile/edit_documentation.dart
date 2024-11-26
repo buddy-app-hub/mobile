@@ -10,6 +10,10 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class EditDocumentationPage extends StatefulWidget {
+  final TabController tabController;
+  final Function(int) updateSelectedIndex;
+  const EditDocumentationPage({super.key, required this.tabController, required this.updateSelectedIndex});
+
   @override
   _EditDocumentationPageState createState() => _EditDocumentationPageState();
 }
@@ -195,10 +199,9 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
 
   Future<void> sendDocument() async {
     await _uploadDocumentsPhotos(null);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-    );
+    widget.tabController.animateTo(2);
+    widget.updateSelectedIndex(2);
+    Navigator.pop(context, true);
   }
 
 
