@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/interest.dart';
-import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -11,6 +10,8 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
 class EditInterestsPage extends StatefulWidget {
   late final List<Interest> initialInterests = [];
+  EditInterestsPage({super.key,});
+  
   @override
   _EditInterestsPageState createState() => _EditInterestsPageState();
 }
@@ -60,10 +61,7 @@ class _EditInterestsPageState extends State<EditInterestsPage> {
               } else {
                 elderService.updateProfileInterests(context, updatedInterest);
               }
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-              );
+              Navigator.pop(context);
             }
           },
         ),

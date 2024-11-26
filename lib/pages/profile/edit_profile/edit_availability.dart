@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/time_of_day.dart' as custom_time;
-import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -12,6 +11,8 @@ import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
 class EditAvailabilityPage extends StatefulWidget {
   late final List<custom_time.TimeOfDay> initialAvailabilities = [];
+  EditAvailabilityPage({super.key,});
+
   @override
   _EditAvailabilityPageState createState() => _EditAvailabilityPageState();
 }
@@ -105,10 +106,7 @@ class _EditAvailabilityPageState extends State<EditAvailabilityPage> {
                 } else {
                   elderService.updateProfileAvailability(context, updatedAvailability);
                 }
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-                );
+                Navigator.pop(context);
               }
             },
           ),

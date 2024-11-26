@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
@@ -7,9 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
 class EditBiographyPage extends StatefulWidget {
+  final bool isEdit;
   const EditBiographyPage({super.key, required this.isEdit,});
 
-  final bool isEdit;
   @override
   _EditBiographyPageState createState() => _EditBiographyPageState();
 }
@@ -48,10 +47,7 @@ class _EditBiographyPageState extends State<EditBiographyPage> {
               } else {
                 elderService.updateElderProfileDescription(context, updatedDescription);
               }
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-              );
+              Navigator.pop(context);
             },
           ),
         ],

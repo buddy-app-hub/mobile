@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
-import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/elder_service.dart';
 import 'dart:io';
 import 'dart:math';
@@ -11,6 +10,8 @@ import 'package:provider/provider.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class EditPhotosPage extends StatefulWidget {
+  const EditPhotosPage({super.key,});
+
   @override
   _EditPhotosPageState createState() => _EditPhotosPageState();
 }
@@ -181,10 +182,7 @@ class _EditPhotosPageState extends State<EditPhotosPage> {
             onPressed: () async {
               await _uploadPhotos(
                   null); // Upload photos when the check button is pressed
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-              );
+              Navigator.pop(context);
             },
           ),
         ],
