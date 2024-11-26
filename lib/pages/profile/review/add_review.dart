@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:mobile/models/buddy.dart';
 import 'package:mobile/models/connection.dart';
 import 'package:mobile/models/meeting.dart';
+import 'package:mobile/models/payment.dart';
 import 'package:mobile/models/review.dart';
+import 'package:mobile/models/transaction.dart';
+import 'package:mobile/models/wallet.dart';
 import 'package:mobile/routes.dart';
+import 'package:mobile/services/buddy_service.dart';
 import 'package:mobile/services/connection_service.dart';
+import 'package:mobile/services/payment_service.dart';
+import 'package:mobile/services/wallet_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 
 class AddReviewPage extends StatefulWidget {
@@ -20,7 +27,10 @@ class AddReviewPage extends StatefulWidget {
 }
 
 class _AddReviewPageState extends State<AddReviewPage> {
+  final buddyService = BuddyService();
   final connectionService = ConnectionService();
+  final paymentService = PaymentService();
+  final walletService = WalletService();
   late TextEditingController _commentController;
   double _rating = 3;
 
@@ -43,6 +53,46 @@ class _AddReviewPageState extends State<AddReviewPage> {
       }
 
       await connectionService.updateMeetingOfConnection(context, widget.connection, widget.meeting);
+
+      if (!widget.isBuddy) { // mark payment as finish
+        final List<Future<Object>> fetchers = [
+          buddyService.getBuddy(widget.personID).then((b) => b.walletId!), // [0] => String walletId
+          paymentService.getAll(widget.connection.id)
+          .then((p) => Set.from(
+            p.where((p) => p.connectionId == widget.connection.id)
+            .map((tx) => tx.id)
+          )), // [1] => Set<String> paymentIds
+        ];
+
+        final List<Object> results = await Future.wait(fetchers);
+        String walletId = results[0] as String;
+        Set<String> paymentsFromElder = results[1] as Set<String>;
+
+        // Buddy bud = await buddyService.getBuddy(widget.personID);
+        // List<Payment> payments = await paymentService.getAll(widget.connection.id);
+        // Set<String> paymentsFromElder = Set.from(
+        //   payments
+        //   .where((p) => p.connectionId == widget.connection.id)
+        //   .map((tx) => tx.id)
+        // );
+
+        Wallet wallet = await walletService.getWallet(walletId);
+        int idxTx = wallet.transactions.lastIndexWhere((tx) => "pending" == tx.status && paymentsFromElder.contains(tx.paymentId));
+        Tx oldTx = wallet.transactions[idxTx];
+        wallet.transactions[idxTx] = Tx(
+          paymentId: oldTx.paymentId,
+          status: 'approved',
+          type: oldTx.type,
+          description: oldTx.description,
+          amount: oldTx.amount,
+          currencyId: oldTx.currencyId,
+          createdAt: oldTx.createdAt,
+          updatedAt: oldTx.updatedAt,
+        );
+
+        await walletService.updateTransactions(walletId, wallet.transactions);
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Calificación enviada.')),
       );
