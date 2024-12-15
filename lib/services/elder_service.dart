@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/helper/user_helper.dart';
 import 'package:mobile/models/connection.dart';
+import 'package:mobile/models/connection_preferences.dart';
 import 'package:mobile/models/elder.dart';
 import 'package:mobile/models/elder_profile.dart';
 import 'package:mobile/models/interest.dart';
@@ -59,6 +60,35 @@ class ElderService {
       await authProvider.fetchUserData();
     } catch (e) {
       print("Error al actualizar la descripción: $e");
+    }
+  }
+
+  Future<void> updateElderProfileRangeKms(
+    BuildContext context,
+    int kms,
+  ) async {
+    UserHelper userHelper = UserHelper();
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    ElderProfile newProfile = authProvider.userData!.elder!.elderProfile!;
+    newProfile.connectionPreferences = ConnectionPreferences(maxDistanceKM: kms);
+
+    bool isElderProfileComplete =
+        await userHelper.isElderProfileComplete(authProvider.userData!);
+
+    try {
+      await updateElderProfile(
+        context,
+        newProfile,
+        authProvider.user!.uid,
+        isElderProfileComplete,
+      );
+      print("Rango ks actualizado con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar rango kms: $e");
     }
   }
 

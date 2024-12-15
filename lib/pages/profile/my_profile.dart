@@ -9,6 +9,7 @@ import 'package:mobile/pages/profile/edit_profile/edit_biography.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_interests.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_photos.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_profile_image.dart';
+import 'package:mobile/pages/profile/edit_profile/edit_range.dart';
 import 'package:mobile/pages/profile/edit_profile/edit_video.dart';
 import 'package:mobile/pages/profile/settings/edit_address.dart';
 import 'package:mobile/pages/wallet/wallet.dart';
@@ -591,12 +592,14 @@ class _MyProfilePageState extends State<MyProfilePage> {
     bool isVideoEdited = false;
 
     switch (title) {
-      case 'Pagar suscripción':
-        targetPage = PaymentPage();
       case 'Billetera':
         targetPage = WalletPage();
       case 'Disponibilidad horaria':
         targetPage = EditAvailabilityPage();
+      case 'Rango de búsqueda':
+        targetPage = EditRangePage(
+          isEdit: true,
+        );
       case 'Biografia':
         targetPage = EditBiographyPage(
           isEdit: true,
@@ -776,6 +779,10 @@ List<CustomListTile> customListTilesBuddy = [
     title: "Disponibilidad horaria",
   ),
   CustomListTile(
+    icon: Icons.place,
+    title: "Rango de búsqueda",
+  ),
+  CustomListTile(
     icon: Icons.text_snippet,
     title: "Biografia",
   ),
@@ -799,12 +806,12 @@ List<CustomListTile> customListTilesBuddy = [
 
 List<CustomListTile> customListTilesElder = [
   CustomListTile(
-    icon: Icons.payment,
-    title: "Pagar suscripción",
-  ),
-  CustomListTile(
     icon: Icons.schedule,
     title: "Disponibilidad horaria",
+  ),
+  CustomListTile(
+    icon: Icons.place,
+    title: "Rango de búsqueda",
   ),
   CustomListTile(
     icon: Icons.text_snippet,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/buddy.dart';
 import 'package:mobile/models/buddy_profile.dart';
 import 'package:mobile/models/connection.dart';
+import 'package:mobile/models/connection_preferences.dart';
 import 'package:mobile/models/interest.dart';
 import 'package:mobile/models/personal_data.dart';
 import 'package:mobile/models/recommended_buddy.dart';
@@ -55,6 +56,30 @@ class BuddyService {
       await authProvider.fetchUserData();
     } catch (e) {
       print("Error al actualizar la descripción: $e");
+    }
+  }
+
+  Future<void> updateBuddyProfileRangeKms(
+      BuildContext context, int kms) async {
+    final authProvider =
+        Provider.of<AuthSessionProvider>(context, listen: false);
+
+    BuddyProfile newProfile = authProvider.userData!.buddy!.buddyProfile!;
+
+    newProfile.connectionPreferences = ConnectionPreferences(maxDistanceKM: kms);
+
+    
+
+    try {
+      await ApiService.patch(
+        endpoint: "/buddies/${authProvider.user!.uid}/profile",
+        body: newProfile.toJson(),
+      );
+      print("Rango kms actualizado con éxito");
+
+      await authProvider.fetchUserData();
+    } catch (e) {
+      print("Error al actualizar rango kms: $e");
     }
   }
 
