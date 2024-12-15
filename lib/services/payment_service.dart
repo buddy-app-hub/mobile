@@ -35,4 +35,22 @@ class PaymentService {
 
     return Payment.fromJson(response);
   }
+
+  Future<List<Payment>> getAll(String? connectionId) async {
+    String endpoint = "/payments";
+
+    if (connectionId != null) {
+      endpoint = "$endpoint?connection_id=$connectionId";
+    }
+
+    var response = await PaymentApiService.get(
+      endpoint: endpoint,
+    );
+
+    List<Payment> payments = (response as List<dynamic>)
+        .map((e) => Payment.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    return payments;
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:mobile/models/price.dart';
+import 'package:mobile/models/transaction.dart';
 import 'package:mobile/models/wallet.dart';
 import 'package:mobile/services/payment_api_service.dart';
 
@@ -23,6 +24,19 @@ class WalletService {
         "payment_id": "withdrawal",
         "status": "pending",
         "type": "withdraw",
+      },
+    );
+
+    print(response);
+
+    return Wallet.fromJson(response);
+  }
+
+  Future<Wallet> updateTransactions(String id, List<Tx> transactions) async {
+    var response = await PaymentApiService.put(
+      endpoint: "/wallets/$id",
+      body: {
+        "transactions": transactions,
       },
     );
 

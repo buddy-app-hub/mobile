@@ -86,6 +86,33 @@ class PaymentApiService {
     }
   }
 
+  static Future<dynamic> put<T>({
+    required String endpoint,
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final userToken = await AuthService().currentUser?.getIdToken();
+      final headers = {
+        'Authorization': 'Bearer $userToken',
+        'Content-Type': 'application/json',
+      };
+
+      final uri = Uri.parse('$PAYMENTS_URL$endpoint');
+      final response = await http.put(uri, headers: headers, body: jsonEncode(body));
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('Error PUT: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Error al actualizar datos en payments: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Exception PUT: $e');
+      throw Exception('Excepción durante la solicitud PUT: $e');
+    }
+  }
+
   static Future<void> delete<T>({
     required String endpoint,
   }) async {
