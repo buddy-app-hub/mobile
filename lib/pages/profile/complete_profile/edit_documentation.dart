@@ -199,7 +199,7 @@ class _EditDocumentationPageState extends State<EditDocumentationPage> {
 
   Future<void> sendDocument() async {
     await _uploadDocumentsPhotos(null);
-    widget.tabController.animateTo(2);
+    // widget.tabController.animateTo(2);
     widget.updateSelectedIndex(2);
     Navigator.pop(context, true);
   }

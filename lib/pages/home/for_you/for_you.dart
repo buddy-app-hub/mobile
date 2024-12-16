@@ -99,7 +99,7 @@ class _ForYouPageState extends State<ForYouPage> {
                         ),
                         buttonStyle: ThemeButtonStyle.primaryFixedDimRoundedButtonStyle(context),
                         onPressed: () => {
-                          widget.tabController.animateTo(2),
+                          // widget.tabController.animateTo(2),
                           widget.updateSelectedIndex(2)
                         },
                         height: 36,
