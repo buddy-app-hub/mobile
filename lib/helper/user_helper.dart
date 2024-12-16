@@ -180,7 +180,9 @@ class UserHelper {
   Future<List<custom_time.TimeOfDay>?> fetchProfileAvailability(
       String personID, bool isBuddy) async {
     var personalData = isBuddy
-        ? (await elderService.getElder(personID)).elderProfile?.availability //se usa invertido porque en la parte del planner de muestra la disponibilidad del otro
+        ? (await elderService.getElder(personID))
+            .elderProfile
+            ?.availability //se usa invertido porque en la parte del planner de muestra la disponibilidad del otro
         : (await buddyService.getBuddy(personID)).buddyProfile?.availability;
     return personalData;
   }
@@ -228,13 +230,19 @@ class UserHelper {
   }
 
   Future<bool> isProfileCompleted(UserData userData) async {
-    var isProfileCompleted = isUserIdentityVerified(userData);
-    isProfileCompleted = isUserBiographyCompleted(userData);
-    isProfileCompleted = isUserAddressCompleted(userData);
-    isProfileCompleted = isUserPhotoAlbumCompleted(userData);
-    isProfileCompleted = isUserInterestCompleted(userData);
-    isProfileCompleted = isUserAvailabilityCompleted(userData);
-    isProfileCompleted = isUserBuddyApplicationCompleted(userData);
+    bool isProfileCompleted = isUserIdentityVerified(userData);
+    isProfileCompleted =
+        isProfileCompleted && isUserBiographyCompleted(userData);
+    isProfileCompleted = isProfileCompleted && isUserAddressCompleted(userData);
+    isProfileCompleted =
+        isProfileCompleted && isUserPhotoAlbumCompleted(userData);
+    isProfileCompleted =
+        isProfileCompleted && isUserInterestCompleted(userData);
+    isProfileCompleted =
+        isProfileCompleted && isUserAvailabilityCompleted(userData);
+    isProfileCompleted =
+        isProfileCompleted && isUserBuddyApplicationCompleted(userData);
+
     var isVideoUploaded = await isIntroVideoUploadedByUser(userData);
 
     return isProfileCompleted && isVideoUploaded;
@@ -301,8 +309,8 @@ class UserHelper {
     var isBuddy = userData.buddy != null;
     if (isBuddy) {
       final userId = userData.buddy != null
-        ? userData.buddy!.firebaseUID
-        : userData.elder!.firebaseUID;
+          ? userData.buddy!.firebaseUID
+          : userData.elder!.firebaseUID;
       final url = await _filesService.getIntroVideo(userId);
       return url != null;
     }

@@ -21,6 +21,7 @@ class _WalletPageState extends State<WalletPage> {
   List<Tx> transactions = List.empty();
   Price balance = getEmptyPrice();
   Price total = getEmptyPrice();
+  bool loadingWallet = true;
 
   @override
   void initState() {
@@ -29,6 +30,7 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   Future<void> _fetchWallet() async {
+    print("fetching wallet");
     final authProvider =
         Provider.of<AuthSessionProvider>(context, listen: false);
 
@@ -41,6 +43,7 @@ class _WalletPageState extends State<WalletPage> {
         transactions = wallet.transactions;
         total = wallet.total != null ? wallet.total! : getEmptyPrice();
         balance = wallet.balance != null ? wallet.balance! : getEmptyPrice();
+        loadingWallet = false;
       });
     }
   }
@@ -50,225 +53,282 @@ class _WalletPageState extends State<WalletPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
+        backgroundColor: theme.colorScheme.primaryContainer,
         appBar: AppBar(
           title: Text("Billetera"),
           backgroundColor: theme.colorScheme.primaryContainer,
         ),
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          width: double.infinity,
-          color: theme.colorScheme.primaryContainer,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(getFormattedPrice(balance),
-                            style: ThemeTextStyle.titleXLargeOnBackground700(
-                                context)),
-                      ],
-                    ),
-                    Text(
-                      "Saldo disponible",
-                      style:
-                          ThemeTextStyle.titleMediumOnPrimaryContainer(context),
-                    ),
-                    SizedBox(
-                      height: 24,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        style: ThemeTextStyle.titleMediumOnPrimaryContainer(
-                            context),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: getWalletPrice(total, 'deposit'),
-                            style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                color: Colors.lightGreen),
-                          ),
-                          TextSpan(text: ' desde que eres Buddy'),
-                        ],
-                      ),
-                    ),
-                    Container(
-                        margin: EdgeInsets.only(top: 16),
-                        child: BaseElevatedButton(
-                          text: "Retirar dinero",
-                          buttonStyle:
-                              ThemeButtonStyle.primaryButtonStyle(context),
-                          buttonTextStyle:
-                              ThemeTextStyle.titleLargeOnPrimary(context),
-                          onPressed: () => showWithdrawBottomSheet(context),
-                        ))
-                  ],
-                ),
-              ),
-              DraggableScrollableSheet(
-                builder: (context, scrollController) {
-                  return Container(
-                    decoration: BoxDecoration(
-                        color: Color.fromRGBO(243, 245, 248, 1),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40))),
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
+        body: RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                loadingWallet = true;
+                print("recargando wallet");
+              });
+              _fetchWallet();
+            },
+            child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: loadingWallet
+                    ? Column(
+                        children: [
                           SizedBox(
-                            height: 24,
+                            height: 30,
                           ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 32),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(
-                                  "Últimos movimientos",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 24,
-                                      color: Colors.black),
-                                )
-                              ],
+                          Center(
+                            child: CircularProgressIndicator(
+                              color: theme.colorScheme.onPrimaryContainer,
                             ),
-                          ),
-                          SizedBox(
-                            height: 24,
-                          ),
-
-                          //Container for buttons
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Row(
-                              children: <Widget>[
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color:
-                                                Colors.grey.withOpacity(0.15),
-                                            blurRadius: 10.0,
-                                            spreadRadius: 4.5)
-                                      ]),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  child: Text(
-                                    "Todo",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14,
-                                        color: Colors.grey[900]),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 8,
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color:
-                                                Colors.grey.withOpacity(0.15),
-                                            blurRadius: 10.0,
-                                            spreadRadius: 4.5)
-                                      ]),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  child: Row(
+                          )
+                        ],
+                      )
+                    : Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: double.infinity,
+                        color: theme.colorScheme.primaryContainer,
+                        child: Stack(
+                          children: <Widget>[
+                            Container(
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 32, vertical: 24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      CircleAvatar(
-                                        radius: 8,
-                                        backgroundColor: Colors.green,
-                                      ),
-                                      SizedBox(
-                                        width: 8,
-                                      ),
-                                      Text(
-                                        "Ingresos",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 14,
-                                            color: Colors.grey[900]),
-                                      ),
+                                      Text(getFormattedPrice(balance),
+                                          style: ThemeTextStyle
+                                              .titleXLargeOnBackground700(
+                                                  context)),
                                     ],
                                   ),
-                                ),
-                                SizedBox(
-                                  width: 8,
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color:
-                                                Colors.grey.withOpacity(0.15),
-                                            blurRadius: 10.0,
-                                            spreadRadius: 4.5)
-                                      ]),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  child: Row(
-                                    children: <Widget>[
-                                      CircleAvatar(
-                                        radius: 8,
-                                        backgroundColor: Colors.orange,
-                                      ),
-                                      SizedBox(
-                                        width: 8,
-                                      ),
-                                      Text(
-                                        "Retiros",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 14,
-                                            color: Colors.grey[900]),
-                                      ),
-                                    ],
+                                  Text(
+                                    "Saldo disponible",
+                                    style: ThemeTextStyle
+                                        .titleMediumOnPrimaryContainer(context),
                                   ),
-                                )
-                              ],
+                                  SizedBox(
+                                    height: 24,
+                                  ),
+                                  RichText(
+                                    text: TextSpan(
+                                      style: ThemeTextStyle
+                                          .titleMediumOnPrimaryContainer(
+                                              context),
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text:
+                                              getWalletPrice(total, 'deposit'),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.lightGreen),
+                                        ),
+                                        TextSpan(text: ' desde que eres Buddy'),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                      margin: EdgeInsets.only(top: 16),
+                                      child: BaseElevatedButton(
+                                        text: "Retirar dinero",
+                                        buttonStyle:
+                                            ThemeButtonStyle.primaryButtonStyle(
+                                                context),
+                                        buttonTextStyle:
+                                            ThemeTextStyle.titleLargeOnPrimary(
+                                                context),
+                                        onPressed: () =>
+                                            showWithdrawBottomSheet(context),
+                                      ))
+                                ],
+                              ),
                             ),
-                          ),
+                            DraggableScrollableSheet(
+                              builder: (context, scrollController) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                      color: Color.fromRGBO(243, 245, 248, 1),
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(40),
+                                          topRight: Radius.circular(40))),
+                                  child: SingleChildScrollView(
+                                    controller: scrollController,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        SizedBox(
+                                          height: 24,
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 32),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Text(
+                                                "Últimos movimientos",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w900,
+                                                    fontSize: 24,
+                                                    color: Colors.black),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 24,
+                                        ),
 
-                          SizedBox(
-                            height: 16,
-                          ),
+                                        //Container for buttons
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 24),
+                                          child: Row(
+                                            children: <Widget>[
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                20)),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                          color: Colors.grey
+                                                              .withOpacity(
+                                                                  0.15),
+                                                          blurRadius: 10.0,
+                                                          spreadRadius: 4.5)
+                                                    ]),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                    vertical: 10),
+                                                child: Text(
+                                                  "Todo",
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      fontSize: 14,
+                                                      color: Colors.grey[900]),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 8,
+                                              ),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                20)),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                          color: Colors.grey
+                                                              .withOpacity(
+                                                                  0.15),
+                                                          blurRadius: 10.0,
+                                                          spreadRadius: 4.5)
+                                                    ]),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                    vertical: 10),
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    CircleAvatar(
+                                                      radius: 8,
+                                                      backgroundColor:
+                                                          Colors.green,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 8,
+                                                    ),
+                                                    Text(
+                                                      "Ingresos",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          fontSize: 14,
+                                                          color:
+                                                              Colors.grey[900]),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 8,
+                                              ),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                20)),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                          color: Colors.grey
+                                                              .withOpacity(
+                                                                  0.15),
+                                                          blurRadius: 10.0,
+                                                          spreadRadius: 4.5)
+                                                    ]),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                    vertical: 10),
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    CircleAvatar(
+                                                      radius: 8,
+                                                      backgroundColor:
+                                                          Colors.orange,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 8,
+                                                    ),
+                                                    Text(
+                                                      "Retiros",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          fontSize: 14,
+                                                          color:
+                                                              Colors.grey[900]),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
 
-                          _buildTransactionList(context, transactions).isEmpty
-                              ? _zeroTransactions(context)
-                              : Column(
-                                  children: _buildTransactionList(
-                                      context, transactions),
-                                ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                initialChildSize: 0.65,
-                minChildSize: 0.65,
-                maxChildSize: 0.85,
-              )
-            ],
-          ),
-        ));
+                                        SizedBox(
+                                          height: 16,
+                                        ),
+
+                                        _buildTransactionList(
+                                                    context, transactions)
+                                                .isEmpty
+                                            ? _zeroTransactions(context)
+                                            : Column(
+                                                children: _buildTransactionList(
+                                                    context, transactions),
+                                              ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              initialChildSize: 0.65,
+                              minChildSize: 0.65,
+                              maxChildSize: 0.85,
+                            )
+                          ],
+                        ),
+                      ))));
   }
 
   Future<void> showWithdrawBottomSheet(BuildContext context) {

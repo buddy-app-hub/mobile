@@ -53,6 +53,7 @@ class _AddReviewPageState extends State<AddReviewPage> {
       }
 
       await connectionService.updateMeetingOfConnection(context, widget.connection, widget.meeting);
+      print("Listo la review. Vamos con la actualizacion de la wallet");
 
       if (!widget.isBuddy) { // mark payment as finish
         final List<Future<Object>> fetchers = [
@@ -66,7 +67,8 @@ class _AddReviewPageState extends State<AddReviewPage> {
 
         final List<Object> results = await Future.wait(fetchers);
         String walletId = results[0] as String;
-        Set<String> paymentsFromElder = results[1] as Set<String>;
+        Set<String> paymentsFromElder = Set<String>.from(results[1] as Iterable);
+        print("paymentsFromElder: $paymentsFromElder");
 
         // Buddy bud = await buddyService.getBuddy(widget.personID);
         // List<Payment> payments = await paymentService.getAll(widget.connection.id);

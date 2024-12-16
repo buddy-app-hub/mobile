@@ -24,7 +24,10 @@ UserHelper userHelper = UserHelper();
 class MyProfilePage extends StatefulWidget {
   final TabController tabController;
   final Function(int) updateSelectedIndex;
-  const MyProfilePage({super.key, required this.tabController, required this.updateSelectedIndex});
+  const MyProfilePage(
+      {super.key,
+      required this.tabController,
+      required this.updateSelectedIndex});
 
   @override
   _MyProfilePageState createState() => _MyProfilePageState();
@@ -76,14 +79,15 @@ class _MyProfilePageState extends State<MyProfilePage> {
     });
   }
 
-  void _onAuthProviderChange() {
+  void _onAuthProviderChange() async {
     if (authProvider.user != null) {
-      _loadUserIdentity();
-      _updateProfileState();
+      await _loadUserIdentity();
+      await _updateProfileState();
       _loadProfileCompletion();
+      print("isInterestCompleted: $isInterestCompleted");
     }
   }
-  
+
   @override
   void dispose() {
     authProvider.removeListener(_onAuthProviderChange);
@@ -113,11 +117,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
     final identityUploaded = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => IdentityVerificationPage(
-          tabController: widget.tabController, 
-          updateSelectedIndex: widget.updateSelectedIndex,
-        )
-      ),
+          builder: (context) => IdentityVerificationPage(
+                tabController: widget.tabController,
+                updateSelectedIndex: widget.updateSelectedIndex,
+              )),
     );
 
     // Si el video fue cargado, actualizamos el estado
@@ -155,8 +158,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
       isIntroVideoUploaded = hasVideoURL;
       isBuddyApplicationCompleted =
           userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
-      isProfilePhotoUploaded = _profileImageUrl != null &&
-          _profileImageUrl != "";
+      isProfilePhotoUploaded =
+          _profileImageUrl != null && _profileImageUrl != "";
 
       isBuddyProfileComplete = isIdentityVerified &&
           isBiographyCompleted &&
@@ -269,10 +272,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EditBiographyPage(
-                  isEdit: false,
-                )
-              ),
+                  builder: (context) => EditBiographyPage(
+                        isEdit: false,
+                      )),
             );
           },
           style: ElevatedButton.styleFrom(
@@ -301,61 +303,61 @@ class _MyProfilePageState extends State<MyProfilePage> {
           child: Text("Completar"),
         )));
     profileCompletionCards.add(ProfileCompletionCard(
-      title: "Completá tu album de fotos",
-      completed: isPhotoAlbumCompleted,
-      icon: Icons.photo_album,
-      button: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => EditPhotosPage()),
-          );
-          _updateProfileState();
-          _loadProfileCompletion();
-        },
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        child: Text("Cargar"),
-      )));
+        title: "Completá tu album de fotos",
+        completed: isPhotoAlbumCompleted,
+        icon: Icons.photo_album,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditPhotosPage()),
+            );
+            _updateProfileState();
+            _loadProfileCompletion();
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Cargar"),
+        )));
     profileCompletionCards.add(ProfileCompletionCard(
-      title: "Completá tus intereses",
-      completed: isInterestCompleted,
-      icon: Icons.favorite_rounded,
-      button: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => EditInterestsPage()),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        child: Text("Cargar"),
-      )));
+        title: "Completá tus intereses",
+        completed: isInterestCompleted,
+        icon: Icons.favorite_rounded,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditInterestsPage()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Cargar"),
+        )));
     profileCompletionCards.add(ProfileCompletionCard(
-      title: "Completá tu disponibilidad horaria",
-      completed: isAvailabilityCompleted,
-      icon: Icons.schedule_rounded,
-      button: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => EditAvailabilityPage()),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        child: Text("Cargar"),
-      )));
+        title: "Completá tu disponibilidad horaria",
+        completed: isAvailabilityCompleted,
+        icon: Icons.schedule_rounded,
+        button: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditAvailabilityPage()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: Text("Cargar"),
+        )));
     if (isBuddy) {
       profileCompletionCards.add(ProfileCompletionCard(
           title: "Cargá tu video introductorio",
@@ -412,7 +414,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
       profileCompletedProgress =
           profileCompletionCards.where((p) => p.completed).length;
     });
-
   }
 
   @override
@@ -468,110 +469,114 @@ class _MyProfilePageState extends State<MyProfilePage> {
               child:
                   CircularProgressIndicator(), // Muestra el indicador de carga centrado
             )
-          : ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                Column(
-                  children: [
-                    Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 60,
-                          backgroundImage: _profileImageUrl != null
-                              ? CachedNetworkImageProvider(
-                                  _profileImageUrl!,
-                                )
-                              : AssetImage('assets/images/default_user.jpg')
-                                  as ImageProvider,
-                        ),
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: InkWell(
-                            onTap: () {
-                              _bottomSheet.show(context, _loadProfileImage);
-                            },
-                            child: CircleAvatar(
-                              radius: 16,
-                              backgroundColor: Colors.white,
-                              child: Icon(Icons.edit,
-                                  color: theme.iconTheme.color),
-                            ),
+          : RefreshIndicator(
+              onRefresh: authProvider
+                  .fetchUserData, // Función que se llama al refrescar.
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  Column(
+                    children: [
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundImage: _profileImageUrl != null
+                                ? CachedNetworkImageProvider(
+                                    _profileImageUrl!,
+                                  )
+                                : AssetImage('assets/images/default_user.jpg')
+                                    as ImageProvider,
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '${authProvider.personalData.firstName} ${authProvider.personalData.lastName}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        authProvider.isBuddy
-                            ? buildBuddyChip(
-                                context,
-                                theme,
-                                isBuddyApplicationCompleted,
-                                authProvider.userData!.buddy!
-                                    .isApplicationToBeBuddyUnderReview)
-                            : buildElderChip(context, theme),
-                        SizedBox(width: 10),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_month,
-                              color: theme.iconTheme.color,
-                              size: 16,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              registrationDate,
-                              style: TextStyle(
-                                color: theme.textTheme.bodyLarge?.color,
-                                fontWeight: FontWeight.bold,
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: InkWell(
+                              onTap: () {
+                                _bottomSheet.show(context, _loadProfileImage);
+                              },
+                              child: CircleAvatar(
+                                radius: 16,
+                                backgroundColor: Colors.white,
+                                child: Icon(Icons.edit,
+                                    color: theme.iconTheme.color),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                const SizedBox(height: 25),
-                QuickProfileSummary(
-                  userID: authProvider.user!.uid,
-                  isBuddy: isBuddy,
-                ),
-                const SizedBox(height: 25),
-                if (profileCompletedProgress != profileCompletionCards.length)
-                  _showCompletionCards(),
-                ...List.generate(
-                  settingsToShow.length,
-                  (index) {
-                    final tile = settingsToShow[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: Card(
-                        elevation: 4,
-                        shadowColor: Colors.black12,
-                        child: ListTile(
-                          leading: Icon(tile.icon),
-                          title: Text(tile.title),
-                          onTap: () async =>
-                              await _handleTileTap(context, tile.title),
-                          trailing: const Icon(Icons.chevron_right),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        '${authProvider.personalData.firstName} ${authProvider.personalData.lastName}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    );
-                  },
-                )
-              ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          authProvider.isBuddy
+                              ? buildBuddyChip(
+                                  context,
+                                  theme,
+                                  isBuddyApplicationCompleted,
+                                  authProvider.userData!.buddy!
+                                      .isApplicationToBeBuddyUnderReview)
+                              : buildElderChip(context, theme),
+                          SizedBox(width: 10),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.calendar_month,
+                                color: theme.iconTheme.color,
+                                size: 16,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                registrationDate,
+                                style: TextStyle(
+                                  color: theme.textTheme.bodyLarge?.color,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 25),
+                  QuickProfileSummary(
+                    userID: authProvider.user!.uid,
+                    isBuddy: isBuddy,
+                  ),
+                  const SizedBox(height: 25),
+                  if (profileCompletedProgress != profileCompletionCards.length)
+                    _showCompletionCards(),
+                  ...List.generate(
+                    settingsToShow.length,
+                    (index) {
+                      final tile = settingsToShow[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Card(
+                          elevation: 4,
+                          shadowColor: Colors.black12,
+                          child: ListTile(
+                            leading: Icon(tile.icon),
+                            title: Text(tile.title),
+                            onTap: () async =>
+                                await _handleTileTap(context, tile.title),
+                            trailing: const Icon(Icons.chevron_right),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                ],
+              ),
             ),
     );
   }
@@ -655,7 +660,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
       // final videoUploaded = await Navigator.push(
       //   context,
       //   MaterialPageRoute(builder: (context) => EditVideoPage(
-      //     tabController: widget.tabController, 
+      //     tabController: widget.tabController,
       //     updateSelectedIndex: widget.updateSelectedIndex,
       //   )),
       // );
