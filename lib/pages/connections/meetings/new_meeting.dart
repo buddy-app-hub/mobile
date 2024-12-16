@@ -235,9 +235,8 @@ class _NewMeetingPageState extends State<NewMeetingPage> {
   (DateTime, DateTime) searchInMeetings(DateTime slotStart, DateTime slotEnd, List<Meeting> meetings, List<MeetingSchedule> schedules) {
     for (var meeting in meetings) {
       if (meeting.schedule.date.weekday == slotStart.weekday) {
-        DateTime meetingStart = meeting.schedule.date.add(Duration(hours: meeting.schedule.startHour ~/ 100));
-        DateTime meetingEnd = meeting.schedule.date.add(Duration(hours: meeting.schedule.endHour ~/ 100));
-
+        DateTime meetingStart = meeting.schedule.date.add(Duration(hours: meeting.schedule.startHour ~/ 100, minutes: meeting.schedule.startHour % 100));
+        DateTime meetingEnd = meeting.schedule.date.add(Duration(hours: meeting.schedule.endHour ~/ 100, minutes: meeting.schedule.endHour % 100));
         if (meetingStart.isBefore(slotEnd) && meetingEnd.isAfter(slotStart)) {
           if (meetingStart.isAfter(slotStart)) {
             slotEnd = meetingStart;

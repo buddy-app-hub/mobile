@@ -12,17 +12,40 @@ import 'package:provider/provider.dart';
 UserHelper userHelper = UserHelper();
 
 class ForYouPage extends StatefulWidget {
-  const ForYouPage({super.key});
+  final TabController tabController;
+  final Function(int) updateSelectedIndex;
+  const ForYouPage({super.key, required this.tabController, required this.updateSelectedIndex});
 
   @override
   State<ForYouPage> createState() => _ForYouPageState();
 }
 
 class _ForYouPageState extends State<ForYouPage> {
+  late AuthSessionProvider authProvider;
+   bool isProfileCompleted = false;
+
 
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthSessionProvider>(context, listen: false);
+    Future.wait([
+      _isProfileCompleted()
+    ]);
+  }
+
+  Future<void> _isProfileCompleted() async {
+    try {
+      bool isComplete =
+          await userHelper.isProfileCompleted(authProvider.userData!);
+      setState(() {
+        isProfileCompleted = isComplete;
+      });
+    } catch (e) {
+      setState(() {
+        isProfileCompleted = false;
+      });
+    }
   }
 
   Future<List<List<Widget>>> fetchAllMeetings(UserData userData, ThemeData theme) async {
@@ -34,6 +57,65 @@ class _ForYouPageState extends State<ForYouPage> {
       fetchConfirmedMeetingsAsFuture(theme, userData, connections),
       fetchUnconfirmedMeetingsAsFuture(theme, userData, connections),
     ]);
+  }
+
+  Widget fetchCompleteProfile(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
+      child: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.only(right: 5),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: theme.colorScheme.primary,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+            ),
+            padding: EdgeInsets.all(10),
+          child: Row(
+          children: [
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Completa tu perfil para empezar a disfrutar de los beneficios de Buddy.',
+                    style: ThemeTextStyle.itemLargeOnBackground(context),
+                    overflow: TextOverflow.clip,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: BaseElevatedButton(
+                        text: 'Completar',
+                        buttonTextStyle: TextStyle(
+                          color: theme.colorScheme.onPrimaryContainer,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        buttonStyle: ThemeButtonStyle.primaryFixedDimRoundedButtonStyle(context),
+                        onPressed: () => {
+                          // widget.tabController.animateTo(2),
+                          widget.updateSelectedIndex(2)
+                        },
+                        height: 36,
+                        width: 124,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -49,71 +131,9 @@ class _ForYouPageState extends State<ForYouPage> {
       resizeToAvoidBottomInset: false, 
       body: Stack (
         children: [
-          // Padding(
-          //   padding: const EdgeInsets.all(10.0),
-          //   child: Column(
-          //     children: [
-          //       Container(
-          //         margin: EdgeInsets.only(right: 5),
-          //         decoration: BoxDecoration(
-          //           border: Border.all(
-          //             color: theme.colorScheme.primary,
-          //           ),
-          //           borderRadius: BorderRadius.circular(24),
-          //           color: theme.colorScheme.primaryContainer.withOpacity(0.5),
-          //         ),
-          //         padding: EdgeInsets.all(10),
-          //       child: Row(
-          //       children: [
-          //         SizedBox(width: 12),
-          //         Expanded(
-          //           child: Column(
-          //             crossAxisAlignment: CrossAxisAlignment.start,
-          //             children: [
-          //               Text(
-          //                 'Primero debes completar tu perfil.',
-          //                 style: ThemeTextStyle.itemLargeOnBackground(context),
-          //                 overflow: TextOverflow.clip,
-          //               ),
-          //               Align(
-          //                 alignment: Alignment.centerRight,
-          //                 child: Padding(
-          //                   padding: const EdgeInsets.only(top: 8.0),
-          //                   child: BaseElevatedButton(
-          //                     text: 'Completar',
-          //                     buttonTextStyle: TextStyle(
-          //                       color: theme.colorScheme.onPrimaryContainer,
-          //                       fontSize: 13.5,
-          //                       fontWeight: FontWeight.w600,
-          //                     ),
-          //                     buttonStyle: ThemeButtonStyle.primaryContainerRoundedButtonStyle(context),
-          //                     onPressed: () => null,
-          //                     // Navigator.push(
-          //                     //   context,
-          //                     //   MaterialPageRoute(
-          //                     //     builder: (context) => AddReviewPage(
-          //                     //       isBuddy: isBuddy,
-          //                     //       connection: connection,
-          //                     //       meeting: meeting,
-          //                     //       personID: personID,
-          //                     //       personName: person,
-          //                     //     ),
-          //                     //   ),
-          //                     // ),
-          //                     height: 36,
-          //                     width: 125,
-          //                   ),
-          //                 ),
-          //               ),
-          //             ],
-          //           ),
-          //         ),
-          //       ],
-          //       ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+          if(!isProfileCompleted)
+            fetchCompleteProfile(theme),
+          if(isProfileCompleted)
           FutureBuilder<List<List<Widget>>>(
             future: fetchAllMeetings(userData, theme),
             builder: (context, snapshot) {

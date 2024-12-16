@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile/pages/navigation.dart';
 import 'package:mobile/services/files_service.dart';
 import 'package:mobile/theme/theme_text_style.dart';
 import 'package:video_compress/video_compress.dart';
@@ -10,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/pages/auth/providers/auth_session_provider.dart';
 
 class EditVideoPage extends StatefulWidget {
-  const EditVideoPage({super.key});
+  const EditVideoPage({super.key,});
 
   @override
   _EditVideoPageState createState() => _EditVideoPageState();
@@ -147,6 +146,18 @@ class _EditVideoPageState extends State<EditVideoPage> {
     );
   }
 
+  void _confirmVideo() async {
+    if (_videoFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, cargá su video de presentación.')),
+      );
+    } else {
+      await _saveVideo(_videoFile!);
+      // Navigator.pop(context);
+      Navigator.pop(context, _videoFile!.path);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,15 +166,7 @@ class _EditVideoPageState extends State<EditVideoPage> {
           IconButton(
             icon: Icon(Icons.check),
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-            onPressed: () async {
-              if (_videoFile != null) {
-                await _saveVideo(_videoFile!);
-              }
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Navigation(index: 2)),
-              );
-            },
+            onPressed: _confirmVideo,
           ),
         ],
       ),

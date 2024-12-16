@@ -22,6 +22,10 @@ import 'package:intl/intl.dart';
 UserHelper userHelper = UserHelper();
 
 class MyProfilePage extends StatefulWidget {
+  final TabController tabController;
+  final Function(int) updateSelectedIndex;
+  const MyProfilePage({super.key, required this.tabController, required this.updateSelectedIndex});
+
   @override
   _MyProfilePageState createState() => _MyProfilePageState();
 }
@@ -38,6 +42,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   int profileCompletedProgress = 0;
   bool isBuddy = false;
   bool isUserIdentityUploaded = false;
+  bool isProfilePhotoUploaded = false;
   bool isIdentityVerified = false;
   bool isBiographyCompleted = false;
   bool isAddressCompleted = false;
@@ -85,6 +90,49 @@ class _MyProfilePageState extends State<MyProfilePage> {
     super.dispose();
   }
 
+  Future<void> _navigateAndUpdateProfile(BuildContext context) async {
+    final videoUploaded = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditVideoPage()),
+    );
+
+    // Si el video fue cargado, actualizamos el estado
+    if (videoUploaded != null && videoUploaded is String) {
+      setState(() {
+        isIntroVideoUploaded = true;
+        _loadProfileCompletion();
+      });
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Video cargado correctamente.')),
+    );
+  }
+
+  Future<void> _navigateAndUpdateIdentity(BuildContext context) async {
+    final identityUploaded = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => IdentityVerificationPage(
+          tabController: widget.tabController, 
+          updateSelectedIndex: widget.updateSelectedIndex,
+        )
+      ),
+    );
+
+    // Si el video fue cargado, actualizamos el estado
+    if (identityUploaded != null && identityUploaded is bool) {
+      setState(() {
+        isUserIdentityUploaded = true;
+        _loadProfileCompletion();
+      });
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Verificación de identidad enviada.')),
+    );
+  }
+
   Future<void> _updateProfileState() async {
     print("Actualizando estado del perfil");
     bool hasVideoURL =
@@ -107,6 +155,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
       isIntroVideoUploaded = hasVideoURL;
       isBuddyApplicationCompleted =
           userHelper.isUserBuddyApplicationCompleted(authProvider.userData!);
+      isProfilePhotoUploaded = _profileImageUrl != null &&
+          _profileImageUrl != "";
 
       isBuddyProfileComplete = isIdentityVerified &&
           isBiographyCompleted &&
@@ -115,8 +165,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           isInterestCompleted &&
           isAvailabilityCompleted &&
           isIntroVideoUploaded &&
-          _profileImageUrl != null &&
-          _profileImageUrl != "";
+          isProfilePhotoUploaded;
 
       // Logica tambien presente en userHelper.isElderProfileComplete()
       isElderProfileComplete = isBiographyCompleted &&
@@ -124,8 +173,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           isPhotoAlbumCompleted &&
           isInterestCompleted &&
           isAvailabilityCompleted &&
-          _profileImageUrl != null &&
-          _profileImageUrl != "";
+          isProfilePhotoUploaded;
     });
   }
 
@@ -155,12 +203,19 @@ class _MyProfilePageState extends State<MyProfilePage> {
     try {
       String? imageUrl =
           await _filesService.getProfileImageUrl(authProvider.user!.uid);
+
+      if (imageUrl != null) {
+        setState(() {
+          isProfilePhotoUploaded = true;
+        });
+      }
       setState(() {
         _profileImageUrl = imageUrl;
       });
     } catch (e) {
       print('Error al cargar la imagen de perfil: $e');
     }
+    _loadProfileCompletion();
   }
 
   void _loadProfileCompletion() {
@@ -175,13 +230,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           button: ElevatedButton(
             onPressed: isUserIdentityUploaded
                 ? null
-                : () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => IdentityVerificationPage()),
-                    );
-                  },
+                : () => _navigateAndUpdateIdentity(context),
             style: ElevatedButton.styleFrom(
               elevation: 0,
               disabledBackgroundColor: Colors.transparent,
@@ -198,7 +247,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     }
     profileCompletionCards.add(ProfileCompletionCard(
         title: "Cargá tu foto de perfil",
-        completed: _profileImageUrl != null && _profileImageUrl != "",
+        completed: isProfilePhotoUploaded,
         icon: Icons.photo_camera_rounded,
         button: ElevatedButton(
           onPressed: () {
@@ -220,9 +269,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => EditBiographyPage(
-                        isEdit: false,
-                      )),
+                builder: (context) => EditBiographyPage(
+                  isEdit: false,
+                )
+              ),
             );
           },
           style: ElevatedButton.styleFrom(
@@ -260,6 +310,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
             context,
             MaterialPageRoute(builder: (context) => EditPhotosPage()),
           );
+          _updateProfileState();
+          _loadProfileCompletion();
         },
         style: ElevatedButton.styleFrom(
           elevation: 0,
@@ -310,21 +362,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           completed: isIntroVideoUploaded,
           icon: Icons.video_camera_back_rounded,
           button: ElevatedButton(
-            onPressed: () async {
-              // Esperamos el valor retornado por EditVideoPage
-              final videoUploaded = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EditVideoPage()),
-              );
-
-              // Si el video fue cargado, actualizamos el estado
-              if (videoUploaded == true) {
-                setState(() {
-                  isIntroVideoUploaded = true;
-                  _loadProfileCompletion();
-                });
-              }
-            },
+            onPressed: () => _navigateAndUpdateProfile(context),
             style: ElevatedButton.styleFrom(
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -616,18 +654,22 @@ class _MyProfilePageState extends State<MyProfilePage> {
     }
     if (targetPage != null && isVideoEdited) {
       // Esperamos el valor retornado por EditVideoPage
-      final videoUploaded = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => EditVideoPage()),
-      );
+      // final videoUploaded = await Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => EditVideoPage(
+      //     tabController: widget.tabController, 
+      //     updateSelectedIndex: widget.updateSelectedIndex,
+      //   )),
+      // );
 
-      // Si el video fue cargado, actualizamos el estado
-      if (videoUploaded == true) {
-        setState(() {
-          isIntroVideoUploaded = true;
-          _loadProfileCompletion();
-        });
-      }
+      // // Si el video fue cargado, actualizamos el estado
+      // if (videoUploaded != null) {
+      //   setState(() {
+      //     isIntroVideoUploaded = true;
+      //     _loadProfileCompletion();
+      //   });
+      // }
+      _navigateAndUpdateProfile(context);
     } else if (targetPage != null) {
       Navigator.push(
         context,

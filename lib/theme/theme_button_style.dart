@@ -101,6 +101,19 @@ class ThemeButtonStyle {
     );
   }
 
+  static ButtonStyle primaryFixedDimRoundedButtonStyle(BuildContext context) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.primaryFixedDim,
+      disabledBackgroundColor: Theme.of(context).colorScheme.primaryFixed,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(100),
+      ),
+      shadowColor: Theme.of(context).colorScheme.shadow,
+      elevation: 1,
+    );
+  }
+
+
   static ButtonStyle tertiaryFixedRoundedButtonStyle(BuildContext context) {
     return ElevatedButton.styleFrom(
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixedDim,

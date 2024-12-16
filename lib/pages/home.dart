@@ -3,7 +3,9 @@ import 'package:mobile/models/user_data.dart';
 import 'package:mobile/pages/home/home_content.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final TabController tabController;
+  final Function(int) updateSelectedIndex;
+  const HomePage({super.key, required this.tabController, required this.updateSelectedIndex});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -15,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       // appBar: appBar(theme),
-      body: HomeContentPage(),
+      body: HomeContentPage(tabController: widget.tabController, updateSelectedIndex: widget.updateSelectedIndex),
     );
   }
 
