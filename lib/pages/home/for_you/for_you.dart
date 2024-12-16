@@ -123,6 +123,44 @@ class _ForYouPageState extends State<ForYouPage> {
     );
   }
 
+  Widget noMeetingsDescription(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
+      child: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.only(right: 5),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: theme.colorScheme.primary,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: [
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'No tenés reuniones pendientes',
+                        style: ThemeTextStyle.itemLargeOnBackground(context),
+                        overflow: TextOverflow.clip,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthSessionProvider>(context);
@@ -161,6 +199,12 @@ class _ForYouPageState extends State<ForYouPage> {
                         List<Widget> unconfirmedMeetingsWidgets =
                             snapshot.data![3];
 
+                        bool noMeetigs =
+                            ongoingMeetingsWidgets.first is SizedBox &&
+                                notReviewedMeetingsWidgets.first is SizedBox &&
+                                confirmedMeetingsWidgets.first is SizedBox &&
+                                unconfirmedMeetingsWidgets.first is SizedBox;
+
                         return Padding(
                           padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
                           child: Column(
@@ -169,6 +213,7 @@ class _ForYouPageState extends State<ForYouPage> {
                               Column(children: notReviewedMeetingsWidgets),
                               Column(children: confirmedMeetingsWidgets),
                               Column(children: unconfirmedMeetingsWidgets),
+                              if (noMeetigs) noMeetingsDescription(theme)
                             ],
                           ),
                         );
