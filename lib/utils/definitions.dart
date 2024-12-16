@@ -1,2 +1,2 @@
-const String BACKEND_URL = "http://backend.buddyapp.link"; // "http://127.0.0.1:8086"; // http://backend.buddyapp.link
+const String BACKEND_URL = "https://backend.buddyapp.link"; // "http://127.0.0.1:8086"; // http://backend.buddyapp.link
 const String PAYMENTS_URL = "https://payments.buddyapp.link"; // http://127.0.0.1:8000
