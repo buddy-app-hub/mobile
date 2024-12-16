@@ -649,8 +649,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
         isVideoEdited = true;
       case 'Intereses':
         targetPage = EditInterestsPage();
-      case 'Datos de trabajo y/o estudio':
-        targetPage = null;
     }
     if (targetPage != null && isVideoEdited) {
       // Esperamos el valor retornado por EditVideoPage
@@ -839,10 +837,6 @@ List<CustomListTile> customListTilesBuddy = [
   CustomListTile(
     icon: Icons.favorite,
     title: "Intereses",
-  ),
-  CustomListTile(
-    icon: Icons.work,
-    title: "Datos de trabajo y/o estudio",
   ),
 ];
 
