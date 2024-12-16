@@ -158,7 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 } else if (snapshot.connectionState ==
                     ConnectionState.waiting) {
                   return Center(
-                    child: Text("olis"),
+                    child: Text("Cargando..."),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return Center(child: Text('No hay mensajes aún.'));
