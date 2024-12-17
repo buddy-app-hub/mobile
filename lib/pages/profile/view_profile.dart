@@ -123,6 +123,7 @@ class _ViewProfileState extends State<ViewProfilePage> {
     final theme = Theme.of(context);
     
     final profileName = age == 0 ? personName : '$personName, $age';
+    UserHelper userHelper = UserHelper();
 
     return
     SafeArea(
@@ -197,9 +198,9 @@ class _ViewProfileState extends State<ViewProfilePage> {
                         children: [
                           Padding(
                             padding: EdgeInsets.fromLTRB(0, 16, 0, 5),
-                            child: ProfileWidgets.buildProfileData(context, theme, profileName, globalRating.toString(), xpHours, location, !widget.isBuddy),
+                            child: ProfileWidgets.buildProfileData(context, theme, profileName, userHelper.roundToOneDecimal(globalRating).toString(), xpHours, location, !widget.isBuddy),
                           ), //isBuddy es el de la persona, tengo que mandar el de la conexion
-                          ProfileWidgets.buildProfileInfo(context, theme, widget.personID, false, !widget.isBuddy, globalRating, description, interest, availability), //isBuddy es el de la persona, tengo que mandar el de la conexion
+                          ProfileWidgets.buildProfileInfo(context, theme, widget.personID, false, !widget.isBuddy, userHelper.roundToOneDecimal(globalRating), description, interest, availability), //isBuddy es el de la persona, tengo que mandar el de la conexion
                         ],
                       ),
                     ),

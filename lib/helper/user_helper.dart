@@ -348,4 +348,8 @@ class UserHelper {
         imageUrl != null &&
         imageUrl != "";
   }
+
+  double roundToOneDecimal(double value) {
+    return double.parse(value.toStringAsFixed(1));
+  }
 }
